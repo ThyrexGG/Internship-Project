@@ -53,18 +53,9 @@
         </div>
       </section>
 
-      <!-- Map Section -->
-      <section class="map-section">
-        <div class="map-wrapper">
-          <div ref="mapContainer" class="map-container"></div>
-          <div v-if="!isMapLoaded" class="map-placeholder">
-            <span>{{ mapMessage }}</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- Property Grid -->
-      <section class="listings">
+      <div class="home-content-wrapper">
+        <!-- Property Grid -->
+        <section class="listings">
         <div v-for="property in filteredProperties" :key="property.id" class="property-card" @click="$router.push(`/property/${property.id}`)">
           <!-- Carousel -->
           <div class="card-carousel">
@@ -118,7 +109,34 @@
             </div>
           </div>
         </div>
-      </section>
+        </section>
+
+        <!-- Map Section (Desktop right side or Mobile overlay) -->
+        <section class="map-section" :class="{ 'show-mobile-map': showMapView }">
+          <div class="map-wrapper">
+            <div ref="mapContainer" class="map-container"></div>
+            <div v-if="!isMapLoaded" class="map-placeholder">
+              <span>{{ mapMessage }}</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Floating Map/List Toggle -->
+      <button class="floating-map-toggle" @click="showMapView = !showMapView">
+        <span v-if="showMapView">
+          List
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 4px;">
+            <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+          </svg>
+        </span>
+        <span v-else>
+          Map
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 4px;">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" />
+          </svg>
+        </span>
+      </button>
       </template>
 
       <template v-else-if="activeTab === 'favorite'">
@@ -902,6 +920,7 @@ const searchQuery = ref('')
 const mapContainer = ref(null)
 const isMapLoaded = ref(false)
 const mapMessage = ref('Loading Map...')
+const showMapView = ref(false)
 
 onMounted(() => {
   const apiKey = process.env.VUE_APP_GOOGLE_MAPS_API_KEY;
@@ -2339,6 +2358,90 @@ const filteredProperties = computed(() => {
   padding: 12px 24px; border-radius: 8px; cursor: pointer; transition: transform 0.1s;
 }
 .show-btn:active { transform: scale(0.97); }
+
+/* ── MAP / LIST RESTRUCTURE ── */
+.home-content-wrapper {
+  display: block;
+}
+.map-section {
+  display: none;
+}
+.floating-map-toggle {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  background: #111;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.floating-map-toggle:hover {
+  background: #000;
+  transform: translateX(-50%) scale(1.05);
+}
+.floating-map-toggle span {
+  display: flex;
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .home-content-wrapper {
+    display: grid;
+    grid-template-columns: 55% 45%;
+    gap: 24px;
+    align-items: start;
+  }
+  .map-section {
+    display: block;
+    position: sticky;
+    top: 90px;
+    height: calc(100vh - 120px);
+    margin: 0;
+  }
+  .map-wrapper {
+    height: 100%;
+    border-radius: 20px;
+  }
+  .floating-map-toggle {
+    display: none;
+  }
+}
+
+@media (max-width: 899px) {
+  .map-section.show-mobile-map {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: #fff;
+    animation: fade-in 0.3s ease-out;
+  }
+  .map-section.show-mobile-map .map-wrapper {
+    height: 100%;
+    width: 100%;
+    border-radius: 0;
+  }
+  .listings {
+    display: flex;
+    flex-direction: column;
+  }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
 /* ── BOTTOM NAV ── */
 .bottom-nav {
