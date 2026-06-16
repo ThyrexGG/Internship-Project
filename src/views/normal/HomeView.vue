@@ -28,6 +28,22 @@
     <!-- Scrollable Content -->
     <main class="content">
       <template v-if="activeTab === 'home'">
+        <!-- URGENT VERIFICATION BANNER -->
+        <div v-if="userProfile.verificationStatus !== 'verified'" class="urgent-verification-banner" @click="$router.push('/verify-account')">
+          <div class="banner-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div class="banner-text">
+            <strong>Action Required: Verify Identity</strong>
+            <p>You must complete your identity verification to ensure community safety.</p>
+          </div>
+          <button class="banner-btn">Verify Now</button>
+        </div>
+
         <!-- Hero + Search -->
         <section class="hero-section">
         <h1 class="hero-title">Safety is what we priority,<br />Affordable is what we offer.</h1>
@@ -195,6 +211,49 @@
             </div>
           </div>
         </section>
+        <footer class="site-footer">
+          <div class="footer-columns">
+            <div class="footer-col">
+              <h4>Support</h4>
+              <ul>
+                <li><a href="#">Help Center</a></li>
+                <li><a href="#">Safety information</a></li>
+                <li><a href="#">Cancellation options</a></li>
+                <li><a href="#">Report a concern</a></li>
+              </ul>
+            </div>
+            <div class="footer-col">
+              <h4>Hosting</h4>
+              <ul>
+                <li><a href="#">Nomad your home</a></li>
+                <li><a href="#">Hosting resources</a></li>
+                <li><a href="#">Community forum</a></li>
+                <li><a href="#">Hosting responsibly</a></li>
+              </ul>
+            </div>
+            <div class="footer-col">
+              <h4>Nomad</h4>
+              <ul>
+                <li><a href="#">Newsroom</a></li>
+                <li><a href="#">Careers</a></li>
+                <li><a href="#">Investors</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="footer-bottom">
+            <div class="footer-legal">
+              © 2026 Nomad, Inc. · <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Your Privacy Choices</a>
+            </div>
+            <div class="footer-social">
+              <span class="language">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                English (US)
+              </span>
+              <span class="currency">$ USD</span>
+            </div>
+          </div>
+        </footer>
+
       </template>
 
       <template v-else-if="activeTab === 'feeds'">
@@ -1173,6 +1232,7 @@ function handleCardClick(event, propertyId, router) {
 }
 
 const userProfile = ref({
+  verificationStatus: 'unverified',
   avatar: '',
   firstName: 'Soth',
   lastName: 'Sokhomal',
@@ -1525,6 +1585,7 @@ async function fetchUserProfile(user) {
       if (data.firstName) userProfile.value.firstName = data.firstName;
       if (data.lastName) userProfile.value.lastName = data.lastName;
       if (data.avatar) userProfile.value.avatar = data.avatar;
+      if (data.verificationStatus) userProfile.value.verificationStatus = data.verificationStatus;
       
       if (data.profile) {
         if (data.profile.dob) userProfile.value.dob = data.profile.dob;
@@ -2085,6 +2146,25 @@ const filteredProperties = computed(() => {
   overflow-y: auto;
   overflow-x: hidden;
   padding: 20px 52px 12px;
+}
+
+/* ── VERIFICATION BANNER ── */
+.urgent-verification-banner {
+  display: flex; align-items: center; gap: 16px;
+  background: #fff3cd !important; border: 1px solid #ffe69c !important; border-radius: 12px;
+  padding: 16px 20px; margin-bottom: 24px; cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.urgent-verification-banner:hover {
+  transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.banner-icon { color: #856404 !important; flex-shrink: 0; }
+.banner-text { flex: 1; color: #856404 !important; }
+.banner-text strong { display: block; font-size: 1.05rem; margin-bottom: 4px; }
+.banner-text p { font-size: 0.85rem; opacity: 0.9; margin: 0; }
+.banner-btn {
+  background: #856404 !important; color: #fff !important; border: none; border-radius: 8px;
+  padding: 8px 16px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap;
 }
 
 /* ── HERO ── */
@@ -3989,4 +4069,142 @@ const filteredProperties = computed(() => {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ── COLOR THEME OVERRIDE (TEST) ── */
+.home-page, .content { background: #ffffff !important; }
+.top-nav { background: #D1D0D0 !important; border-bottom: 1px solid #988686 !important; }
+.logo-text, .logo-icon { color: #000000 !important; }
+.hero-title, .feeds-title, .notification-title, .section-title { color: #000000 !important; }
+
+/* Inputs and Buttons */
+.search-box, .filter-btn { background: #D1D0D0 !important; border: 1.5px solid #5C4E4E !important; color: #000000 !important; }
+.search-box input { color: #000000 !important; }
+.search-box input::placeholder { color: #5C4E4E !important; }
+
+/* Cards (Feeds, Mates, Notifications) */
+.post-composer, .feed-card, .mates-card, .notification-item.seen, .chat-modal, .chat-header { 
+  background: #ffffff !important; 
+  border: 1px solid #988686 !important; 
+}
+.notification-item { background: #988686 !important; color: #000000 !important; border: 1px solid #5C4E4E !important; }
+
+/* Text within cards */
+.feed-text, .card-name, .card-price, .notification-copy h2, .chat-message.me .msg-bubble { color: #000000 !important; }
+.feed-author span, .mate-copy span { color: #000000 !important; }
+.host-text, .card-location, .match, .mate-copy p, .mate-row time, .feed-caption, .chat-message.them .msg-bubble, .composer-row input { color: #5C4E4E !important; }
+
+/* Tags & Badges */
+.tag { background: #D1D0D0 !important; color: #000000 !important; border: 1px solid #988686 !important; }
+.notification-badge { background: #000000 !important; color: #ffffff !important; }
+
+/* Bottom Nav */
+.bottom-nav { background: #D1D0D0 !important; border-top: 1px solid #988686 !important; }
+.nav-item { color: #5C4E4E !important; }
+.nav-item.active { color: #000000 !important; }
+
+/* Chat bubbles */
+.msg-bubble { background: #988686 !important; color: #000000 !important; border: 1px solid #5C4E4E !important; }
+.chat-message.me .msg-bubble { background: #ffffff !important; border: 1px solid #D1D0D0 !important; }
+.chat-input-area { background: #ffffff !important; border-top: 1px solid #988686 !important; }
+.chat-input-area input { background: #988686 !important; color: #000000 !important; border: 1px solid #5C4E4E !important; }
+.chat-input-area input::placeholder { color: #5C4E4E !important; }
+
+/* Buttons */
+.btn-primary, .btn-dark, .composer-submit-btn, .banner-btn, .action-btn { background: #D1D0D0 !important; color: #000000 !important; border: 1px solid #988686 !important; }
+.composer-row input::placeholder { color: #5C4E4E !important; }
+.card-carousel { background: #988686 !important; }
 </style>
+
+/* Footer Styles */
+.site-footer {
+  background: #f7f7f7 !important;
+  border-top: 1px solid #D1D0D0 !important;
+  padding: 48px 40px 24px;
+  margin-top: 40px;
+  font-family: inherit;
+  color: #222;
+}
+
+.footer-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+  border-bottom: 1px solid #D1D0D0;
+  padding-bottom: 48px;
+  margin-bottom: 24px;
+}
+
+.footer-col h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #000;
+}
+
+.footer-col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-col ul li {
+  margin-bottom: 12px;
+}
+
+.footer-col ul li a {
+  text-decoration: none;
+  color: #222;
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+
+.footer-col ul li a:hover {
+  text-decoration: underline;
+  color: #000;
+}
+
+.footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.85rem;
+}
+
+.footer-legal a {
+  text-decoration: none;
+  color: #222;
+  margin: 0 4px;
+}
+
+.footer-legal a:hover {
+  text-decoration: underline;
+}
+
+.footer-social {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-weight: 600;
+}
+
+.footer-social .language, .footer-social .currency {
+  cursor: pointer;
+}
+
+.footer-social .language:hover, .footer-social .currency:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .site-footer {
+    padding: 32px 20px 24px;
+    margin-bottom: 60px; /* space for bottom nav */
+  }
+  .footer-bottom {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+  }
+}
+
