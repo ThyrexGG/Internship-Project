@@ -126,6 +126,48 @@
         </div>
         </section>
       </div>
+        <footer class="site-footer">
+          <div class="footer-columns">
+            <div class="footer-col">
+              <h4>Support</h4>
+              <ul>
+                <li><a href="#">Help Center</a></li>
+                <li><a href="#">Safety information</a></li>
+                <li><a href="#">Cancellation options</a></li>
+                <li><a href="#">Report a concern</a></li>
+              </ul>
+            </div>
+            <div class="footer-col">
+              <h4>Hosting</h4>
+              <ul>
+                <li><a href="#">Nomad your home</a></li>
+                <li><a href="#">Hosting resources</a></li>
+                <li><a href="#">Community forum</a></li>
+                <li><a href="#">Hosting responsibly</a></li>
+              </ul>
+            </div>
+            <div class="footer-col">
+              <h4>Nomad</h4>
+              <ul>
+                <li><a href="#">Newsroom</a></li>
+                <li><a href="#">Careers</a></li>
+                <li><a href="#">Investors</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="footer-bottom">
+            <div class="footer-legal">
+              © 2026 Nomad, Inc. · <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Your Privacy Choices</a>
+            </div>
+            <div class="footer-social">
+              <span class="language">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                English (US)
+              </span>
+              <span class="currency">$ USD</span>
+            </div>
+          </div>
+        </footer>
       </template>
 
       <template v-else-if="activeTab === 'favorite'">
@@ -211,48 +253,6 @@
             </div>
           </div>
         </section>
-        <footer class="site-footer">
-          <div class="footer-columns">
-            <div class="footer-col">
-              <h4>Support</h4>
-              <ul>
-                <li><a href="#">Help Center</a></li>
-                <li><a href="#">Safety information</a></li>
-                <li><a href="#">Cancellation options</a></li>
-                <li><a href="#">Report a concern</a></li>
-              </ul>
-            </div>
-            <div class="footer-col">
-              <h4>Hosting</h4>
-              <ul>
-                <li><a href="#">Nomad your home</a></li>
-                <li><a href="#">Hosting resources</a></li>
-                <li><a href="#">Community forum</a></li>
-                <li><a href="#">Hosting responsibly</a></li>
-              </ul>
-            </div>
-            <div class="footer-col">
-              <h4>Nomad</h4>
-              <ul>
-                <li><a href="#">Newsroom</a></li>
-                <li><a href="#">Careers</a></li>
-                <li><a href="#">Investors</a></li>
-              </ul>
-            </div>
-          </div>
-          <div class="footer-bottom">
-            <div class="footer-legal">
-              © 2026 Nomad, Inc. · <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Your Privacy Choices</a>
-            </div>
-            <div class="footer-social">
-              <span class="language">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                English (US)
-              </span>
-              <span class="currency">$ USD</span>
-            </div>
-          </div>
-        </footer>
 
       </template>
 
@@ -4070,75 +4070,124 @@ const filteredProperties = computed(() => {
   cursor: not-allowed;
 }
 
-/* ── COLOR THEME OVERRIDE (TEST) ── */
+/* ── FINAL THEME OVERRIDE ── */
 .home-page, .content { background: #ffffff !important; }
-.top-nav { background: #D1D0D0 !important; border-bottom: 1px solid #988686 !important; }
-.logo-text, .logo-icon { color: #000000 !important; }
+.top-nav { background: #5C4E4E !important; border-bottom: none !important; }
+.logo-text, .logo-icon { color: #ffffff !important; }
 .hero-title, .feeds-title, .notification-title, .section-title { color: #000000 !important; }
 
 /* Inputs and Buttons */
-.search-box, .filter-btn { background: #D1D0D0 !important; border: 1.5px solid #5C4E4E !important; color: #000000 !important; }
+.search-box, .filter-btn { background: #ffffff !important; border: 1px solid #c0c0c0 !important; color: #000000 !important; border-radius: 30px !important; }
 .search-box input { color: #000000 !important; }
-.search-box input::placeholder { color: #5C4E4E !important; }
+.search-box input::placeholder { color: #888888 !important; }
 
 /* Cards (Feeds, Mates, Notifications) */
 .post-composer, .feed-card, .mates-card, .notification-item.seen, .chat-modal, .chat-header { 
   background: #ffffff !important; 
-  border: 1px solid #988686 !important; 
+  border: 1px solid #e0e0e0 !important; 
+  border-radius: 16px !important;
 }
-.notification-item { background: #988686 !important; color: #000000 !important; border: 1px solid #5C4E4E !important; }
+.property-card { background: #fafafa !important; border: none !important; box-shadow: none !important; border-radius: 16px !important; overflow: hidden; }
+.notification-item { background: #f0f0f0 !important; color: #000000 !important; border: 1px solid #e0e0e0 !important; }
 
 /* Text within cards */
 .feed-text, .card-name, .card-price, .notification-copy h2, .chat-message.me .msg-bubble { color: #000000 !important; }
 .feed-author span, .mate-copy span { color: #000000 !important; }
-.host-text, .card-location, .match, .mate-copy p, .mate-row time, .feed-caption, .chat-message.them .msg-bubble, .composer-row input { color: #5C4E4E !important; }
+.card-location, .match, .mate-copy p, .mate-row time, .feed-caption, .chat-message.them .msg-bubble, .composer-row input { color: #888888 !important; }
+.host-text { color: #ffffff !important; font-weight: 600 !important; font-size: 0.95rem !important; cursor: pointer; }
 
 /* Tags & Badges */
-.tag { background: #D1D0D0 !important; color: #000000 !important; border: 1px solid #988686 !important; }
+.tag { background: #ffffff !important; color: #888888 !important; border: 1px solid #e0e0e0 !important; border-radius: 8px !important; }
 .notification-badge { background: #000000 !important; color: #ffffff !important; }
+.heart-btn { background: #ffffff !important; border-radius: 50% !important; border: none !important; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 
-/* Bottom Nav */
-.bottom-nav { background: #D1D0D0 !important; border-top: 1px solid #988686 !important; }
-.nav-item { color: #5C4E4E !important; }
-.nav-item.active { color: #000000 !important; }
+/* Bottom Nav - Floating Pill */
+.bottom-nav { 
+  background: rgba(92, 78, 78, 0.95) !important; /* #5C4E4E with some transparency */
+  backdrop-filter: blur(10px);
+  border-top: none !important; 
+  border-radius: 40px !important; 
+  margin: 0 auto 24px auto !important; 
+  width: max-content !important; 
+  padding: 8px 32px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+  position: fixed !important;
+  bottom: 24px !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; margin: 0 !important;
+  display: flex !important;
+  gap: 24px !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.nav-tab { 
+  display: flex !important; 
+  flex-direction: column !important; 
+  align-items: center !important; 
+  justify-content: center !important; 
+  color: #c0c0c0 !important; 
+  background: transparent !important; 
+  border: none !important; 
+  min-width: 60px !important;
+  padding: 8px 12px !important;
+}
+.nav-tab.active { color: #ffffff !important; }
+
+/* SVG Icon Coloring */
+.nav-tab svg { stroke: #c0c0c0 !important; fill: none !important; }
+.nav-tab.active svg { stroke: #ffffff !important; }
+
+/* Specifically fill complex icons */
+:deep(.nav-tab.active .home-icon .home-body),
+:deep(.nav-tab.active .feeds-icon .feeds-frame),
+:deep(.nav-tab.active .settings-icon .settings-gear) {
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+/* Cutout paths for complex icons (make them match pill background) */
+:deep(.nav-tab.active .home-icon .home-door),
+:deep(.nav-tab.active .feeds-icon .feeds-line),
+:deep(.nav-tab.active .settings-icon .settings-center) {
+  stroke: #5C4E4E !important;
+  fill: none !important;
+}
 
 /* Chat bubbles */
-.msg-bubble { background: #988686 !important; color: #000000 !important; border: 1px solid #5C4E4E !important; }
-.chat-message.me .msg-bubble { background: #ffffff !important; border: 1px solid #D1D0D0 !important; }
-.chat-input-area { background: #ffffff !important; border-top: 1px solid #988686 !important; }
-.chat-input-area input { background: #988686 !important; color: #000000 !important; border: 1px solid #5C4E4E !important; }
-.chat-input-area input::placeholder { color: #5C4E4E !important; }
+.msg-bubble { background: #f0f0f0 !important; color: #000000 !important; border: 1px solid #e0e0e0 !important; }
+.chat-message.me .msg-bubble { background: #5C4E4E !important; color: #ffffff !important; border: none !important; }
+.chat-input-area { background: #ffffff !important; border-top: 1px solid #e0e0e0 !important; }
+.chat-input-area input { background: #f0f0f0 !important; color: #000000 !important; border: 1px solid #e0e0e0 !important; }
+.chat-input-area input::placeholder { color: #888888 !important; }
 
 /* Buttons */
-.btn-primary, .btn-dark, .composer-submit-btn, .banner-btn, .action-btn { background: #D1D0D0 !important; color: #000000 !important; border: 1px solid #988686 !important; }
-.composer-row input::placeholder { color: #5C4E4E !important; }
-.card-carousel { background: #988686 !important; }
-</style>
+.btn-primary, .btn-dark, .composer-submit-btn, .banner-btn, .action-btn { background: #5C4E4E !important; color: #ffffff !important; border: none !important; border-radius: 20px !important; }
+.composer-row input::placeholder { color: #888888 !important; }
+.card-carousel { background: #e0e0e0 !important; }
+
 
 /* Footer Styles */
 .site-footer {
-  background: #f7f7f7 !important;
-  border-top: 1px solid #D1D0D0 !important;
-  padding: 48px 40px 24px;
-  margin-top: 40px;
+  background: #ffffff !important;
+  border-top: 1px solid #988686 !important;
+  padding: 32px 16px 80px; /* Extra padding on bottom for bottom-nav */
+  margin-top: 24px;
   font-family: inherit;
-  color: #222;
+  color: #000000;
 }
 
 .footer-columns {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: 1fr; /* Single column on mobile */
   gap: 24px;
   border-bottom: 1px solid #D1D0D0;
-  padding-bottom: 48px;
+  padding-bottom: 24px;
   margin-bottom: 24px;
 }
 
 .footer-col h4 {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: #000;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #000000;
 }
 
 .footer-col ul {
@@ -4153,33 +4202,33 @@ const filteredProperties = computed(() => {
 
 .footer-col ul li a {
   text-decoration: none;
-  color: #222;
-  font-size: 0.85rem;
+  color: #5C4E4E;
+  font-size: 0.9rem;
   transition: color 0.2s;
 }
 
 .footer-col ul li a:hover {
   text-decoration: underline;
-  color: #000;
+  color: #000000;
 }
 
 .footer-bottom {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   gap: 16px;
   font-size: 0.85rem;
+  color: #5C4E4E;
 }
 
 .footer-legal a {
   text-decoration: none;
-  color: #222;
+  color: #5C4E4E;
   margin: 0 4px;
 }
 
 .footer-legal a:hover {
   text-decoration: underline;
+  color: #000000;
 }
 
 .footer-social {
@@ -4187,24 +4236,26 @@ const filteredProperties = computed(() => {
   align-items: center;
   gap: 16px;
   font-weight: 600;
+  color: #000000;
 }
 
 .footer-social .language, .footer-social .currency {
   cursor: pointer;
 }
 
-.footer-social .language:hover, .footer-social .currency:hover {
-  text-decoration: underline;
-}
-
-@media (max-width: 768px) {
+@media (min-width: 768px) {
   .site-footer {
-    padding: 32px 20px 24px;
-    margin-bottom: 60px; /* space for bottom nav */
+    padding: 48px 40px 24px;
+  }
+  .footer-columns {
+    grid-template-columns: repeat(3, 1fr);
   }
   .footer-bottom {
-    flex-direction: column-reverse;
-    align-items: flex-start;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
   }
 }
 
+
+</style>
