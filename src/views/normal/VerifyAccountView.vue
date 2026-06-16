@@ -128,19 +128,29 @@
         <h2 class="section-title">Verify Identity</h2>
         <p class="section-subtitle">Take a clear selfie to match your face with your ID document.</p>
 
-        <div class="upload-box" @click="triggerSelfieInput">
-          <input type="file" ref="selfieInput" accept="image/*" capture="user" class="hidden-input" @change="handleSelfieChange" />
-          <div v-if="selfiePreview" class="preview-container">
-            <img :src="selfiePreview" alt="Selfie Preview" class="preview-image" style="object-fit: cover;" />
+        <div v-if="!selfiePreview" class="camera-container">
+          <video v-show="isSelfieCameraActive" ref="selfieVideoElement" autoplay playsinline muted class="camera-video"></video>
+          <div v-show="isSelfieCameraActive" class="camera-overlay">
+            <div class="oval-cutout"></div>
           </div>
-          <div v-else class="upload-placeholder">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>
-            <span>Tap to take Selfie</span>
+          <div v-if="isSelfieCameraActive" class="liveness-msg" :class="{'text-success': isSelfieGood}">
+            {{ selfieFeedbackMsg }}
+          </div>
+          
+          <div v-if="!isSelfieCameraActive" class="upload-placeholder" style="padding: 40px 0; background: #fff; border: 2px dashed #cbd5e1; border-radius: 12px; margin-bottom: 16px;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2" style="margin-bottom: 12px; display: block; margin-left: auto; margin-right: auto;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>
+            <span style="display: block; text-align: center; color: #64748b;">Ready to take your selfie</span>
+          </div>
+        </div>
+
+        <div v-else class="upload-box" style="cursor: default;">
+          <div class="preview-container">
+            <img :src="selfiePreview" alt="Selfie Preview" class="preview-image" style="object-fit: cover;" />
           </div>
         </div>
 
         <!-- Face Match Guidelines Card -->
-        <div class="guidelines-card">
+        <div class="guidelines-card" v-if="!isSelfieCameraActive && !selfiePreview">
           <h4 class="guide-title">👤 Selfie Tips</h4>
 
           <div class="visual-examples">
@@ -167,6 +177,10 @@
               <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
               <span>Neutral expression, open eyes</span>
             </div>
+            <div class="guide-item good">
+              <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Well-lit, plain background</span>
+            </div>
             <div class="guide-item bad">
               <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               <span>No glasses, caps, or face masks</span>
@@ -174,9 +188,22 @@
           </div>
         </div>
 
-        <button class="btn-primary" :disabled="!selfieFile || isMatchingFace" @click="matchFace">
-          {{ isMatchingFace ? 'Comparing Faces...' : 'Compare Face' }}
+        <button v-if="!isSelfieCameraActive && !selfiePreview" class="btn-primary" style="margin-top: 16px;" @click="startSelfieCamera">
+          Open Camera
         </button>
+
+        <button v-if="isSelfieCameraActive && !selfiePreview" class="btn-primary" :disabled="!isSelfieGood" style="margin-top: 16px;" @click="captureSelfie">
+          Take Photo
+        </button>
+
+        <div v-if="selfiePreview" style="display: flex; gap: 12px; margin-top: 16px;">
+          <button class="btn-secondary" style="flex: 1;" :disabled="isMatchingFace" @click="retakeSelfie">
+            Retake
+          </button>
+          <button class="btn-primary" style="flex: 2;" :disabled="isMatchingFace" @click="matchFace">
+            {{ isMatchingFace ? 'Comparing Faces...' : 'Verify Match' }}
+          </button>
+        </div>
 
         <div v-if="faceMatchStatus" class="result-box" style="margin-top: 24px;">
            <div v-if="faceMatchStatus === 'success'" class="success-box">
@@ -366,6 +393,8 @@ onMounted(async () => {
 
 function goBack() {
   if (currentStep.value > 1 && currentStep.value <= 3) {
+    if (currentStep.value === 2) stopSelfieCamera()
+    if (currentStep.value === 3) stopCamera()
     currentStep.value--
   } else {
     router.push('/home')
@@ -483,22 +512,110 @@ function parseIDData(text) {
 }
 
 // --- STEP 2: REAL FACE MATCH (face-api.js) ---
-const selfieInput = ref(null)
-const selfieFile = ref(null)
+const selfieVideoElement = ref(null)
+const isSelfieCameraActive = ref(false)
+const selfieFeedbackMsg = ref("Position your face in the oval.")
+const isSelfieGood = ref(false)
 const selfiePreview = ref(null)
+const selfieFile = ref(null)
 const isMatchingFace = ref(false)
 const faceMatchStatus = ref(null)
 const faceMatchErrorMsg = ref(null)
 
-function triggerSelfieInput() { if (selfieInput.value) selfieInput.value.click() }
+let selfieMediaStream = null
+let selfieLoopRunning = false
 
-function handleSelfieChange(e) {
-  const file = e.target.files[0]
-  if (file) {
-    selfieFile.value = file
-    selfiePreview.value = URL.createObjectURL(file)
-    faceMatchStatus.value = null
+async function startSelfieCamera() {
+  try {
+    selfieMediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+    if (selfieVideoElement.value) {
+      selfieVideoElement.value.srcObject = selfieMediaStream
+      selfieVideoElement.value.onloadedmetadata = () => {
+        isSelfieCameraActive.value = true
+        selfieVideoElement.value.play()
+        selfieFeedbackMsg.value = "Analyzing lighting and position..."
+        startSelfieLoop()
+      }
+    }
+  } catch (err) {
+    console.error("Camera error:", err)
+    alert("Camera access denied or unavailable.")
   }
+}
+
+function stopSelfieCamera() {
+  selfieLoopRunning = false
+  if (selfieMediaStream) {
+    selfieMediaStream.getTracks().forEach(track => track.stop())
+    selfieMediaStream = null
+  }
+  isSelfieCameraActive.value = false
+}
+
+function startSelfieLoop() {
+  selfieLoopRunning = true
+  const loop = async () => {
+    if (!selfieLoopRunning) return
+    if (selfieVideoElement.value && isSelfieCameraActive.value) {
+      try {
+        const detection = await faceapi.detectSingleFace(selfieVideoElement.value)
+        if (detection) {
+          const score = detection.score
+          const box = detection.box
+          const videoWidth = selfieVideoElement.value.videoWidth
+          const videoHeight = selfieVideoElement.value.videoHeight
+          
+          const faceArea = box.width * box.height
+          const frameArea = videoWidth * videoHeight
+          const sizeRatio = faceArea / frameArea
+          
+          if (score < 0.7) {
+             selfieFeedbackMsg.value = "Lighting might be too dark or uneven."
+             isSelfieGood.value = false
+          } else if (sizeRatio < 0.08) {
+             selfieFeedbackMsg.value = "Move closer to the camera."
+             isSelfieGood.value = false
+          } else if (sizeRatio > 0.4) {
+             selfieFeedbackMsg.value = "Move slightly away."
+             isSelfieGood.value = false
+          } else {
+             selfieFeedbackMsg.value = "Perfect! Keep still."
+             isSelfieGood.value = true
+          }
+        } else {
+          selfieFeedbackMsg.value = "No face detected. Look directly at the camera."
+          isSelfieGood.value = false
+        }
+      } catch (e) {
+         console.error(e)
+      }
+    }
+    requestAnimationFrame(loop)
+  }
+  loop()
+}
+
+function captureSelfie() {
+  if (!selfieVideoElement.value) return
+  const canvas = document.createElement('canvas')
+  canvas.width = selfieVideoElement.value.videoWidth
+  canvas.height = selfieVideoElement.value.videoHeight
+  const ctx = canvas.getContext('2d')
+  ctx.drawImage(selfieVideoElement.value, 0, 0, canvas.width, canvas.height)
+  
+  canvas.toBlob((blob) => {
+    selfieFile.value = new File([blob], "selfie.jpg", { type: "image/jpeg" })
+    selfiePreview.value = URL.createObjectURL(blob)
+    stopSelfieCamera()
+  }, 'image/jpeg', 0.95)
+}
+
+function retakeSelfie() {
+  selfiePreview.value = null
+  selfieFile.value = null
+  faceMatchStatus.value = null
+  faceMatchErrorMsg.value = null
+  startSelfieCamera()
 }
 
 async function loadImageFromUrl(url) {
@@ -514,7 +631,7 @@ async function loadImageFromUrl(url) {
 async function matchFace() {
   if (!idPreview.value || !selfiePreview.value) {
     faceMatchStatus.value = 'error'
-    faceMatchErrorMsg.value = 'Please upload both ID and Selfie.'
+    faceMatchErrorMsg.value = 'Please capture a selfie.'
     return
   }
   isMatchingFace.value = true
@@ -522,25 +639,17 @@ async function matchFace() {
   faceMatchErrorMsg.value = null
   
   try {
-    // 1. Create Image Elements
     const idImg = await loadImageFromUrl(idPreview.value)
     const selfieImg = await loadImageFromUrl(selfiePreview.value)
     
-    // 2. Detect Faces and Compute Descriptors (128d vectors)
     const idDetection = await faceapi.detectSingleFace(idImg).withFaceLandmarks().withFaceDescriptor()
     const selfieDetection = await faceapi.detectSingleFace(selfieImg).withFaceLandmarks().withFaceDescriptor()
     
-    if (!idDetection) {
-      throw new Error("Could not detect a clear face on the ID Card.")
-    }
-    if (!selfieDetection) {
-      throw new Error("Could not detect a clear face in your Selfie.")
-    }
+    if (!idDetection) throw new Error("Could not detect a clear face on the ID Card.")
+    if (!selfieDetection) throw new Error("Could not detect a clear face in your Selfie.")
     
-    // 3. Compare Descriptors
     const distance = faceapi.euclideanDistance(idDetection.descriptor, selfieDetection.descriptor)
     
-    // Threshold is typically 0.6. Lower is a closer match.
     if (distance < 0.6) {
       faceMatchStatus.value = 'success'
       setTimeout(() => {
@@ -742,6 +851,7 @@ function stopCamera() {
 
 
 onBeforeUnmount(() => {
+  stopSelfieCamera()
   stopCamera()
   // Restore global overflow/height states
   document.body.style.overflow = ''
