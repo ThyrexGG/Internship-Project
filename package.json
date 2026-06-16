@@ -9,6 +9,9 @@
   },
   "dependencies": {
     "core-js": "^3.8.3",
+    "cropperjs": "^2.1.1",
+    "face-api.js": "^0.22.2",
+    "firebase": "^12.13.0",
     "vue": "^3.2.13",
     "vue-router": "^4.6.4"
   },

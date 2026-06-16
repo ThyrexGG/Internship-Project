@@ -1,0 +1,1277 @@
+<template>
+  <div class="search-results-page">
+    <!-- Top Nav Header -->
+    <header class="top-nav">
+      <button class="logo" type="button" @click="$router.push('/home')" aria-label="Go to Home">
+        <div class="logo-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 18 L16 18" />
+            <path d="M4 18 L4 12 L9 7 L16 14" />
+            <path d="M12 18 L12 4 L16 4 L16 18 Z" />
+            <path d="M12 14 L16 14" />
+          </svg>
+        </div>
+        <span class="logo-text">HomeSweet</span>
+      </button>
+
+      <div class="nav-right">
+        <span class="host-text" @click="$router.push('/home')">Become a host</span>
+        <div class="profile-menu" @click="$router.push('/home')" aria-label="Go to Profile">
+          <div class="avatar">
+            <img :src="userProfile.avatar || defaultAvatar" referrerpolicy="no-referrer" @error="setDefaultAvatar" alt="User" />
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content Workspace -->
+    <div class="search-workspace">
+      <!-- Left: Listings Column -->
+      <div class="results-column" v-show="!showMapView || isDesktop">
+        
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+          <!-- Price Filter Pill -->
+          <div class="filter-dropdown-wrapper">
+            <button class="filter-pill-btn" :class="{ active: isPriceFilterActive || activeDropdown === 'price' }" @click.stop="toggleDropdown('price')">
+              <span>Price</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+            <div class="filter-popover" v-if="activeDropdown === 'price'" @click.stop>
+              <div class="popover-title">Price range</div>
+              <div class="popover-price-inputs">
+                <div class="price-input-box">
+                  <span class="popover-currency">$</span>
+                  <input type="number" v-model.number="filterState.priceMin" min="0" placeholder="Min" />
+                </div>
+                <span class="input-dash">-</span>
+                <div class="price-input-box">
+                  <span class="popover-currency">$</span>
+                  <input type="number" v-model.number="filterState.priceMax" placeholder="Max" />
+                </div>
+              </div>
+              <div class="popover-footer">
+                <button class="popover-clear" @click="resetPriceFilter">Clear</button>
+                <button class="popover-apply" @click="activeDropdown = null">Apply</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rate Filter Pill -->
+          <div class="filter-dropdown-wrapper">
+            <button class="filter-pill-btn" :class="{ active: filterState.rate !== 'Any' || activeDropdown === 'rate' }" @click.stop="toggleDropdown('rate')">
+              <span>Rate</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+            <div class="filter-popover" v-if="activeDropdown === 'rate'" @click.stop>
+              <div class="popover-title">Minimum rating</div>
+              <div class="popover-options">
+                <label class="option-label" v-for="r in ['Any', '4.5+', '4.0+', '3.5+']" :key="r">
+                  <input type="radio" :value="r" v-model="filterState.rate" />
+                  <span>{{ r }}</span>
+                </label>
+              </div>
+              <div class="popover-footer">
+                <button class="popover-clear" @click="filterState.rate = 'Any'">Reset</button>
+                <button class="popover-apply" @click="activeDropdown = null">Apply</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Period Filter Pill -->
+          <div class="filter-dropdown-wrapper">
+            <button class="filter-pill-btn" :class="{ active: filterState.period !== 'Any' || activeDropdown === 'period' }" @click.stop="toggleDropdown('period')">
+              <span>Period</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+            <div class="filter-popover" v-if="activeDropdown === 'period'" @click.stop>
+              <div class="popover-title">Lease duration</div>
+              <div class="popover-options">
+                <label class="option-label" v-for="p in ['Any', 'Short-term', 'Long-term']" :key="p">
+                  <input type="radio" :value="p" v-model="filterState.period" />
+                  <span>{{ p }}</span>
+                </label>
+              </div>
+              <div class="popover-footer">
+                <button class="popover-clear" @click="filterState.period = 'Any'">Reset</button>
+                <button class="popover-apply" @click="activeDropdown = null">Apply</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Conveniences Filter Pill -->
+          <div class="filter-dropdown-wrapper">
+            <button class="filter-pill-btn" :class="{ active: filterState.amenities.length > 0 || activeDropdown === 'conveniences' }" @click.stop="toggleDropdown('conveniences')">
+              <span>Conveniences</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+            <div class="filter-popover wide" v-if="activeDropdown === 'conveniences'" @click.stop>
+              <div class="popover-title">Conveniences</div>
+              <div class="popover-checkbox-grid">
+                <label class="popover-checkbox" v-for="amenity in availableAmenities" :key="amenity.id">
+                  <input type="checkbox" :value="amenity.id" v-model="filterState.amenities" />
+                  <span>{{ amenity.label }}</span>
+                </label>
+              </div>
+              <div class="popover-footer">
+                <button class="popover-clear" @click="filterState.amenities = []">Clear</button>
+                <button class="popover-apply" @click="activeDropdown = null">Apply</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- More Filter Pill -->
+          <div class="filter-dropdown-wrapper">
+            <button class="filter-pill-btn" :class="{ active: isMoreFilterActive || activeDropdown === 'more' }" @click.stop="toggleDropdown('more')">
+              <span>More</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+            <div class="filter-popover counter-popover" v-if="activeDropdown === 'more'" @click.stop>
+              <div class="popover-title">More filters</div>
+              <div class="popover-counters">
+                <!-- Bedrooms -->
+                <div class="popover-counter-row">
+                  <span>Bedrooms</span>
+                  <div class="popover-counter-controls">
+                    <button class="counter-btn" :disabled="filterState.bedrooms === 0" @click="filterState.bedrooms > 0 ? filterState.bedrooms-- : null">-</button>
+                    <span class="counter-val">{{ filterState.bedrooms === 0 ? 'Any' : filterState.bedrooms }}</span>
+                    <button class="counter-btn" @click="filterState.bedrooms++">+</button>
+                  </div>
+                </div>
+                <!-- Beds -->
+                <div class="popover-counter-row">
+                  <span>Beds</span>
+                  <div class="popover-counter-controls">
+                    <button class="counter-btn" :disabled="filterState.beds === 0" @click="filterState.beds > 0 ? filterState.beds-- : null">-</button>
+                    <span class="counter-val">{{ filterState.beds === 0 ? 'Any' : filterState.beds }}</span>
+                    <button class="counter-btn" @click="filterState.beds++">+</button>
+                  </div>
+                </div>
+                <!-- Bathrooms -->
+                <div class="popover-counter-row">
+                  <span>Bathrooms</span>
+                  <div class="popover-counter-controls">
+                    <button class="counter-btn" :disabled="filterState.bathrooms === 0" @click="filterState.bathrooms > 0 ? filterState.bathrooms-- : null">-</button>
+                    <span class="counter-val">{{ filterState.bathrooms === 0 ? 'Any' : filterState.bathrooms }}</span>
+                    <button class="counter-btn" @click="filterState.bathrooms++">+</button>
+                  </div>
+                </div>
+              </div>
+              <div class="popover-footer">
+                <button class="popover-clear" @click="resetMoreFilters">Clear</button>
+                <button class="popover-apply" @click="activeDropdown = null">Apply</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Headline Results -->
+        <div class="stats-header">
+          <h2 class="stats-title">{{ filteredProperties.length }} Result founds in {{ searchQuery || 'Phnom Penh' }}</h2>
+          <p class="stats-subtitle">Find and book a comfortable home for your living.</p>
+        </div>
+
+        <!-- Listings Grid (2 columns) -->
+        <div class="listings-grid">
+          <div v-for="property in filteredProperties" :key="property.id" class="search-property-card" @click="handleCardClick($event, property.id)">
+            <!-- Carousel -->
+            <div 
+              class="card-carousel"
+              @touchstart="handleTouchStart"
+              @touchmove="handleTouchMove"
+              @touchend="handleTouchEnd($event, property)"
+            >
+              <div class="carousel-track" :style="{ transform: `translateX(-${property.activeSlide * 100}%)` }">
+                <img
+                  v-for="(img, i) in property.images" :key="i"
+                  :src="img" :alt="property.name"
+                  class="carousel-img" draggable="false"
+                />
+              </div>
+              <button class="heart-btn" :class="{ liked: property.liked }" @click.stop="property.liked = !property.liked">
+                <svg width="13" height="13" viewBox="0 0 24 24" :fill="property.liked ? '#111' : 'none'" :stroke="property.liked ? '#111' : '#555'" stroke-width="2">
+                  <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+                </svg>
+              </button>
+              <div class="carousel-dots">
+                <span v-for="(_, i) in property.images" :key="i" class="cdot" :class="{ active: property.activeSlide === i }" @click.stop="property.activeSlide = i" />
+              </div>
+              <button v-if="property.activeSlide > 0" class="carousel-arrow left" @click.stop="property.activeSlide--">‹</button>
+              <button v-if="property.activeSlide < property.images.length - 1" class="carousel-arrow right" @click.stop="property.activeSlide++">›</button>
+            </div>
+
+            <!-- Card Info -->
+            <div class="card-info">
+              <div class="card-title-row">
+                <span class="card-name">{{ property.name }}</span>
+                <span class="card-price">${{ property.price }}</span>
+              </div>
+              <div class="card-location">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" />
+                </svg>
+                <span>{{ property.location }}</span>
+              </div>
+              <div class="card-meta">
+                <div class="meta-tags">
+                  <span class="tag">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                    {{ property.beds }}
+                  </span>
+                  <span class="tag">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                    {{ property.baths }}
+                  </span>
+                  <span class="tag">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                    {{ property.sqft }}
+                  </span>
+                </div>
+                <span class="match">{{ property.match }}%</span>
+              </div>
+            </div>
+          </div>
+          
+          <div v-if="filteredProperties.length === 0" class="empty-results">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/><path d="M8 15h8M9 9h.01M15 9h.01"/>
+            </svg>
+            <p>No properties match your filter preferences.</p>
+            <button class="btn-clear-all" @click="clearAllFilters">Clear all filters</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Map Column -->
+      <div class="map-column" v-show="showMapView || isDesktop">
+        <!-- Google Map Container -->
+        <div class="map-outer-wrapper">
+          <!-- Search input box aligned over the map on top right -->
+          <div class="map-search-container">
+            <div class="map-search-box">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2">
+                <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
+              </svg>
+              <input v-model="searchQuery" type="text" placeholder="Search" />
+            </div>
+          </div>
+
+          <div ref="mapContainer" class="map-element"></div>
+          <div v-if="!isMapLoaded" class="map-loading-overlay">
+            <span>{{ mapMessage }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile toggle Map/List float button -->
+    <button class="mobile-toggle-btn" @click="showMapView = !showMapView" v-if="!isDesktop">
+      <span v-if="showMapView">
+        List
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 4px;">
+          <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+        </svg>
+      </span>
+      <span v-else>
+        Map
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 4px;">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" />
+        </svg>
+      </span>
+    </button>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { properties, globalSearchQuery, globalFilterState } from '../../store.js'
+import { auth, db } from '../../firebase'
+import { doc, getDoc } from 'firebase/firestore'
+import { onAuthStateChanged } from 'firebase/auth'
+
+const router = useRouter()
+
+const defaultAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23dfa37b'/><stop offset='100%' stop-color='%23c0784a'/></linearGradient></defs><circle cx='50' cy='50' r='50' fill='url(%23g)'/><circle cx='50' cy='37' r='17' fill='%23fff'/><path d='M50 58c-18 0-32 9-32 20v4h64v-4c0-11-14-20-32-20z' fill='%23fff'/></svg>"
+
+function setDefaultAvatar(event) {
+  event.target.src = defaultAvatar
+}
+
+// Reactive references tied to global store
+const searchQuery = globalSearchQuery
+const filterState = globalFilterState
+
+// UI states
+const activeDropdown = ref(null)
+const showMapView = ref(false)
+const isDesktop = ref(window.innerWidth > 992)
+
+const mapContainer = ref(null)
+const isMapLoaded = ref(false)
+const mapMessage = ref('Loading Map...')
+
+let map = null
+let markers = []
+let infoWindow = null
+
+// User Profile Data
+const userProfile = ref({
+  avatar: '',
+  firstName: 'Soth',
+  lastName: 'Sokhomal'
+})
+
+// Hobbies/conveniences list
+const availableAmenities = [
+  { id: 'wifi', label: 'Wifi' },
+  { id: 'kitchen', label: 'Kitchen' },
+  { id: 'washer', label: 'Washer' },
+  { id: 'ac', label: 'Air conditioning' },
+  { id: 'parking', label: 'Free parking' },
+  { id: 'pool', label: 'Pool' }
+]
+
+// Drag & Prevention setup
+let touchStartX = 0
+let touchStartY = 0
+let isSwiping = false
+
+function handleTouchStart(event) {
+  touchStartX = event.touches[0].clientX
+  touchStartY = event.touches[0].clientY
+  isSwiping = false
+}
+
+function handleTouchMove(event) {
+  const diffX = event.touches[0].clientX - touchStartX
+  if (Math.abs(diffX) > 10) {
+    isSwiping = true
+  }
+}
+
+function handleTouchEnd(event, property) {
+  const touchEndX = event.changedTouches[0].clientX
+  const touchEndY = event.changedTouches[0].clientY
+  
+  const diffX = touchEndX - touchStartX
+  const diffY = touchEndY - touchStartY
+  
+  if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+    if (diffX > 0) {
+      if (property.activeSlide > 0) property.activeSlide--
+    } else {
+      if (property.activeSlide < property.images.length - 1) property.activeSlide++
+    }
+  }
+}
+
+function handleCardClick(event, propertyId) {
+  if (isSwiping) {
+    isSwiping = false
+    return
+  }
+  router.push(`/property/${propertyId}`)
+}
+
+// Dropdown Toggling
+function toggleDropdown(name) {
+  activeDropdown.value = activeDropdown.value === name ? null : name
+}
+
+// Reset operations
+function resetPriceFilter() {
+  filterState.value.priceMin = 50
+  filterState.value.priceMax = 610
+}
+
+function resetMoreFilters() {
+  filterState.value.bedrooms = 0
+  filterState.value.beds = 0
+  filterState.value.bathrooms = 0
+}
+
+function clearAllFilters() {
+  searchQuery.value = ''
+  filterState.value.type = 'Any type'
+  resetPriceFilter()
+  resetMoreFilters()
+  filterState.value.amenities = []
+  filterState.value.rate = 'Any'
+  filterState.value.period = 'Any'
+}
+
+// Filter Status Check computed variables (to highlight filter pills)
+const isPriceFilterActive = computed(() => {
+  return filterState.value.priceMin !== 50 || filterState.value.priceMax !== 610
+})
+
+const isMoreFilterActive = computed(() => {
+  return filterState.value.bedrooms > 0 || filterState.value.beds > 0 || filterState.value.bathrooms > 0
+})
+
+// Main Property Filtering computed property
+const filteredProperties = computed(() => {
+  return properties.value.filter(p => {
+    // 1. Text Search matching name or location
+    if (searchQuery.value) {
+      const q = searchQuery.value.toLowerCase()
+      const matchName = p.name.toLowerCase().includes(q)
+      const matchLocation = p.location.toLowerCase().includes(q)
+      if (!matchName && !matchLocation) return false
+    }
+
+    // 2. Type of Place matching
+    if (filterState.value.type !== 'Any type') {
+      if (filterState.value.type === 'Room' && p.type !== 'condo' && p.type !== 'apartment') return false
+      if (filterState.value.type === 'Entire home' && p.type !== 'house') return false
+    }
+
+    // 3. Price Range matching
+    if (p.price < filterState.value.priceMin || p.price > filterState.value.priceMax) return false
+
+    // 4. Counters matching (More filter)
+    if (filterState.value.bedrooms > 0 && p.beds < filterState.value.bedrooms) return false
+    if (filterState.value.beds > 0 && p.beds < filterState.value.beds) return false
+    if (filterState.value.bathrooms > 0 && p.baths < filterState.value.bathrooms) return false
+
+    // 5. Conveniences (Amenities) matching
+    if (filterState.value.amenities && filterState.value.amenities.length > 0) {
+      const pAmenities = p.amenities || []
+      const hasAll = filterState.value.amenities.every(amenityId => pAmenities.includes(amenityId))
+      if (!hasAll) return false
+    }
+
+    // 6. Review Rating matching
+    if (filterState.value.rate !== 'Any') {
+      const reqRating = parseFloat(filterState.value.rate.replace('+', ''))
+      if (!p.rating || p.rating < reqRating) return false
+    }
+
+    // 7. Lease Period matching
+    if (filterState.value.period !== 'Any') {
+      if (p.period !== filterState.value.period) return false
+    }
+
+    return true
+  })
+})
+
+// Google Maps Setup
+function initMap() {
+  isMapLoaded.value = true;
+  if (!mapContainer.value) return;
+  
+  map = new window.google.maps.Map(mapContainer.value, {
+    center: { lat: 11.588, lng: 104.925 }, // Center on Phnom Penh / Chroy Chongva
+    zoom: 13,
+    disableDefaultUI: true,
+    zoomControl: true,
+    styles: [
+      { featureType: "water", stylers: [{ color: "#b9e2f5" }] },
+      { featureType: "landscape", stylers: [{ color: "#f3fbf1" }] },
+      { featureType: "poi", stylers: [{ visibility: "off" }] },
+      { featureType: "transit", stylers: [{ visibility: "off" }] },
+      { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+      { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#e5ede5" }, { weight: 1 }] },
+      { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#a5b5a5" }] },
+      { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+      { featureType: "administrative", elementType: "labels.text.fill", stylers: [{ color: "#8a9a8a" }] },
+      { featureType: "landscape.natural", stylers: [{ color: "#dcf0d9" }] }
+    ]
+  });
+
+  infoWindow = new window.google.maps.InfoWindow();
+
+  updateMapMarkers();
+}
+
+function updateMapMarkers() {
+  if (!map) return;
+
+  // Clear existing markers
+  markers.forEach(m => m.setMap(null));
+  markers = [];
+
+  const getMarkerIcon = (property) => {
+    const score = property.match || 90;
+    const text = `✨ ${score}%`;
+    const svgWidth = 84;
+    const svgHeight = 44;
+
+    const svg = `
+      <svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity="0.18"/>
+          </filter>
+        </defs>
+        <rect x="6" y="6" width="${svgWidth - 12}" height="28" rx="14" fill="#ffffff" filter="url(#shadow)"/>
+        <text x="${svgWidth / 2}" y="25" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#222" text-anchor="middle">${text}</text>
+      </svg>
+    `;
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+  };
+
+  filteredProperties.value.forEach(property => {
+    if (!property.lat) return;
+
+    const marker = new window.google.maps.Marker({
+      position: { lat: property.lat, lng: property.lng },
+      map,
+      title: property.name,
+      icon: {
+        url: getMarkerIcon(property),
+        scaledSize: new window.google.maps.Size(84, 44),
+        anchor: new window.google.maps.Point(42, 22)
+      },
+      animation: window.google.maps.Animation.DROP,
+    });
+
+    marker.addListener('click', () => {
+      const content = `
+        <div style="padding: 4px; font-family: 'DM Sans', sans-serif; max-width: 160px;">
+          <img src="${property.images[0]}" style="width: 100%; height: 90px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" />
+          <h3 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: #111;">${property.name}</h3>
+          <p style="margin: 0; font-size: 13px; color: #555; font-weight: 500;">$${property.price} / mo</p>
+        </div>
+      `;
+      infoWindow.setContent(content);
+      infoWindow.open({ anchor: marker, map });
+    });
+
+    markers.push(marker);
+  });
+}
+
+// Lifecycle Events & Handlers
+const handleGlobalClick = (event) => {
+  if (activeDropdown.value) {
+    const closestWrapper = event.target.closest('.filter-dropdown-wrapper')
+    if (!closestWrapper) {
+      activeDropdown.value = null
+    }
+  }
+}
+
+const handleResize = () => {
+  isDesktop.value = window.innerWidth > 992
+}
+
+async function fetchUserProfile(user) {
+  try {
+    const docSnap = await getDoc(doc(db, 'users', user.uid));
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      if (data.firstName) userProfile.value.firstName = data.firstName;
+      if (data.lastName) userProfile.value.lastName = data.lastName;
+      if (data.avatar) userProfile.value.avatar = data.avatar;
+    }
+  } catch (err) {
+    console.error("Error fetching profile on search page:", err);
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('click', handleGlobalClick)
+  window.addEventListener('resize', handleResize)
+
+  // Auth fetch
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      await fetchUserProfile(user);
+    }
+  });
+
+  // Load Map Script
+  const apiKey = process.env.VUE_APP_GOOGLE_MAPS_API_KEY;
+  if (!apiKey || apiKey === 'your_api_key_here') {
+    mapMessage.value = 'Please add your Google Maps API key to .env file'
+    console.warn('Google Maps API key is missing.');
+    return;
+  }
+
+  if (window.google && window.google.maps) {
+    initMap();
+    return;
+  }
+
+  window.initGoogleMap = initMap;
+  const script = document.createElement('script');
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initGoogleMap`;
+  script.async = true;
+  script.defer = true;
+  document.head.appendChild(script);
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('click', handleGlobalClick)
+  window.removeEventListener('resize', handleResize)
+})
+
+// Watch filters to redraw markers on map
+watch(filteredProperties, () => {
+  if (isMapLoaded.value && map) {
+    updateMapMarkers();
+  }
+}, { deep: true })
+</script>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.search-results-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  background: #fff;
+  font-family: 'DM Sans', sans-serif;
+  overflow: hidden;
+}
+
+/* Header Nav */
+.top-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 40px;
+  background: #fff;
+  border-bottom: 1px solid #ebebeb;
+  height: 70px;
+  flex-shrink: 0;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #5C4E4A;
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+}
+.logo-icon {
+  width: 32px; height: 32px; color: #5C4E4A;
+  display: flex; align-items: center; justify-content: center;
+}
+.logo-text { font-size: 1.3rem; font-weight: 600; color: #5C4E4A; letter-spacing: -0.5px; }
+
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.host-text { font-size: 0.9rem; font-weight: 600; color: #222; cursor: pointer; padding: 12px; border-radius: 20px; transition: background 0.2s; }
+.host-text:hover { background: #f7f7f7; }
+.profile-menu {
+  display: flex; align-items: center; justify-content: center; margin-left: 8px;
+  border-radius: 50%; padding: 4px; cursor: pointer; transition: background 0.2s;
+}
+.profile-menu:hover { background: #f0f0f0; }
+.avatar img {
+  width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid #ebebeb;
+}
+
+/* Workspace Panels */
+.search-workspace {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 70px);
+  overflow: hidden;
+}
+
+/* Left Listings Column */
+.results-column {
+  width: 55%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 24px 32px 100px 40px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #ebebeb;
+}
+
+/* Horizontal Filters Bar */
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  z-index: 10;
+  flex-wrap: wrap;
+}
+
+.filter-dropdown-wrapper {
+  position: relative;
+}
+
+.filter-pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 50px;
+  background: #fff;
+  color: #333;
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-pill-btn:hover {
+  border-color: #999;
+}
+
+.filter-pill-btn.active {
+  border-color: #111;
+  background: #f7f7f7;
+  color: #111;
+  font-weight: 600;
+}
+
+.filter-pill-btn svg {
+  transition: transform 0.2s ease;
+}
+
+.filter-pill-btn.active svg {
+  transform: rotate(180deg);
+}
+
+/* Dropdown popover styling */
+.filter-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: #fff;
+  border: 1px solid #eaeaea;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  padding: 16px 20px;
+  min-width: 260px;
+  z-index: 99;
+  animation: popoverFadeIn 0.2s ease;
+}
+
+.filter-popover.wide {
+  min-width: 320px;
+}
+
+@keyframes popoverFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.popover-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 12px;
+}
+
+/* Price range popover elements */
+.popover-price-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.price-input-box {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: #fafafa;
+  flex: 1;
+}
+
+.popover-currency {
+  color: #888;
+  font-weight: 600;
+  margin-right: 4px;
+  font-size: 0.9rem;
+}
+
+.price-input-box input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: inherit;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+.input-dash {
+  color: #aaa;
+  font-weight: 500;
+}
+
+/* Radio options and checkboxes */
+.popover-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.option-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: #444;
+  cursor: pointer;
+}
+
+.option-label input {
+  cursor: pointer;
+  accent-color: #111;
+}
+
+.popover-checkbox-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.popover-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #444;
+  cursor: pointer;
+}
+
+.popover-checkbox input {
+  cursor: pointer;
+  accent-color: #111;
+}
+
+/* Counters for bedrooms/beds (More filter) */
+.popover-counters {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.popover-counter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  color: #444;
+}
+
+.popover-counter-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.counter-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.counter-btn:hover:not(:disabled) {
+  border-color: #111;
+  background: #f7f7f7;
+}
+
+.counter-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.counter-val {
+  font-weight: 600;
+  min-width: 24px;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+/* Popover action footers */
+.popover-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #f2f2f2;
+  padding-top: 12px;
+  margin-top: 8px;
+}
+
+.popover-clear {
+  border: none;
+  background: transparent;
+  color: #666;
+  text-decoration: underline;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.popover-clear:hover {
+  color: #111;
+}
+
+.popover-apply {
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.popover-apply:hover {
+  background: #333;
+}
+
+/* Stats Header block */
+.stats-header {
+  margin-bottom: 20px;
+}
+
+.stats-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 4px;
+}
+
+.stats-subtitle {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Listings Grid */
+.listings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px 14px;
+}
+
+/* 2-column property card */
+.search-property-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  min-width: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 12px;
+  padding: 8px;
+}
+
+.search-property-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  background: #fafafa;
+}
+
+.card-carousel {
+  position: relative; border-radius: 12px;
+  overflow: hidden; aspect-ratio: 1.48; background: #f0f0f0;
+}
+
+.carousel-track {
+  display: flex; height: 100%;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.carousel-img {
+  min-width: 100%; height: 100%; object-fit: cover;
+  flex-shrink: 0; pointer-events: none; user-select: none;
+}
+
+.heart-btn {
+  position: absolute; top: 8px; right: 8px;
+  width: 26px; height: 26px; background: #fff; border: none;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  transition: transform 0.15s; z-index: 2;
+}
+
+.heart-btn.liked {
+  transform: scale(1.05);
+}
+
+.carousel-dots {
+  position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 3px; z-index: 2;
+}
+
+.cdot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: rgba(255,255,255,0.5); cursor: pointer;
+  transition: background 0.2s, width 0.2s;
+}
+
+.cdot.active { background: #fff; width: 12px; border-radius: 4px; }
+
+.carousel-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  background: rgba(255,255,255,0.88); border: none; border-radius: 50%;
+  width: 20px; height: 20px; font-size: 0.85rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 2; transition: background 0.15s; line-height: 1;
+}
+
+.carousel-arrow:hover { background: #fff; }
+.carousel-arrow.left { left: 6px; }
+.carousel-arrow.right { right: 6px; }
+
+/* Card Info */
+.card-info { display: flex; flex-direction: column; gap: 4px; padding: 0 1px; }
+
+.card-title-row {
+  display: flex; justify-content: space-between; align-items: center; gap: 4px;
+}
+
+.card-name {
+  font-weight: 700; font-size: 0.85rem; color: #111;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.card-price { font-weight: 700; font-size: 0.85rem; color: #111; flex-shrink: 0; }
+
+.card-location { display: flex; align-items: center; gap: 3px; font-size: 0.72rem; color: #aaa; }
+
+.card-meta { display: flex; align-items: center; justify-content: space-between; }
+
+.meta-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+
+.tag {
+  display: flex; align-items: center; gap: 2px;
+  padding: 2px 6px; background: #f5f5f5; border-radius: 50px;
+  font-size: 0.65rem; color: #555; font-weight: 500;
+}
+
+.match { font-size: 0.72rem; color: #aaa; font-weight: 500; flex-shrink: 0; }
+
+/* Empty state */
+.empty-results {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #666;
+}
+
+.empty-results p {
+  margin-top: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.btn-clear-all {
+  margin-top: 16px;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-clear-all:hover {
+  background: #333;
+}
+
+/* Right: Map Column */
+/* ====================================================
+   CHOOSE YOUR MAP LAYOUT:
+   To switch back to full-screen map (Option 1), uncomment
+   Option 1 below and comment out Option 2.
+   ==================================================== */
+
+/* --- OPTION 1: Full-column Map (No spacing) ---
+/*
+.map-column {
+  width: 45%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+*/
+
+/* --- OPTION 2: Floating Card Map (With spacing & rounded corners) - ACTIVE --- */
+.map-column {
+  width: 45%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #f7f9fb;
+  padding: 24px 24px 24px 20px;
+  position: relative;
+}
+
+/* Search Box Overlay on Map */
+.map-search-container {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  width: 320px;
+}
+
+.map-search-box {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1.5px solid #e8e8e8;
+  border-radius: 50px;
+  padding: 8px 16px;
+  background: #fff;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.map-search-box input {
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: #333;
+  flex: 1;
+  background: transparent;
+}
+
+.map-search-box input::placeholder {
+  color: #bbb;
+}
+
+/* --- OPTION 1: Full-column Map (No spacing) ---
+/*
+.map-outer-wrapper {
+  flex: 1;
+  height: 100%;
+  width: 100%;
+  background: #eee;
+  position: relative;
+}
+*/
+
+/* --- OPTION 2: Floating Card Map (With spacing & rounded corners) - ACTIVE --- */
+.map-outer-wrapper {
+  flex: 1;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e5e8;
+}
+
+.map-element {
+  width: 100%;
+  height: 100%;
+}
+
+.map-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 0.9rem;
+  font-weight: 500;
+  z-index: 2;
+}
+
+/* Floating toggles and mobile styles */
+.mobile-toggle-btn {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  padding: 12px 24px;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  font-family: inherit;
+}
+
+.mobile-toggle-btn:active {
+  transform: translateX(-50%) scale(0.98);
+}
+
+/* Responsive queries */
+@media (max-width: 992px) {
+  .top-nav {
+    padding: 12px 20px;
+  }
+  .results-column {
+    width: 100%;
+    padding: 16px 20px 100px;
+  }
+  .map-column {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 5;
+  }
+  .listings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .listings-grid {
+    grid-template-columns: 1fr;
+  }
+  .filter-bar {
+    gap: 6px;
+  }
+  .filter-pill-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+}
+</style>
