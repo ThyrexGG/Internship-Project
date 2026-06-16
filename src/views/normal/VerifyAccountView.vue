@@ -237,7 +237,7 @@
         <div class="liveness-guide-card">
           <div class="guide-anim-wrapper">
             <!-- Turn Head Animation (Shown during turn stage) -->
-            <div v-if="!isCameraActive || livenessStage === 'turn'" class="animation-container">
+            <div v-if="!isCameraActive || livenessStage !== 'done'" class="animation-container">
               <div class="anim-avatar">
                 <svg viewBox="0 0 100 100" class="avatar-svg">
                   <!-- Head -->
@@ -251,7 +251,11 @@
                   </g>
                 </svg>
               </div>
-              <p class="anim-label">Slowly turn head to the side</p>
+              <p class="anim-label" v-if="livenessStage === 'turnRight'">Slowly turn head to the right</p>
+              <p class="anim-label" v-else-if="livenessStage === 'turnLeft'">Now turn head to the left</p>
+              <p class="anim-label" v-else-if="livenessStage === 'lookUp'">Now look up slightly</p>
+              <p class="anim-label" v-else-if="livenessStage === 'lookDown'">Now look down slightly</p>
+              <p class="anim-label" v-else>Follow the instructions</p>
             </div>
 
             <!-- Verified State (Shown when done) -->
@@ -716,8 +720,8 @@ async function matchFace() {
 // --- STEP 3: REAL LIVENESS CHECK (Webcam Head Turn Detection) ---
 const videoElement = ref(null)
 const isCameraActive = ref(false)
-const livenessMsg = ref("Position your face and look at the camera.")
-const livenessStage = ref('turn')
+const livenessMsg = ref("Please look straight at the camera.")
+const livenessStage = ref('turnRight')
 
 let mediaStream = null
 let livenessLoopRunning = false
@@ -731,21 +735,58 @@ async function analyzeLiveness() {
     if (detection) {
       const landmarks = detection.landmarks
       
-      if (livenessStage.value === 'turn') {
-        // Head turn detection using 3D pose estimation from 2D landmarks
+      if (livenessStage.value === 'turnRight') {
         const positions = landmarks.positions;
-        const noseTip = positions[30]; // Tip of the nose
-        const leftJaw = positions[0];  // Left edge of face
-        const rightJaw = positions[16]; // Right edge of face
-        
+        const noseTip = positions[30];
+        const leftJaw = positions[0];
+        const rightJaw = positions[16];
         const distL = noseTip.x - leftJaw.x;
         const distR = rightJaw.x - noseTip.x;
-        
         if (distR > 0) {
           const ratio = distL / distR;
-          
-          // If ratio > 1.7 (turned left) or ratio < 0.6 (turned right)
-          if (ratio > 1.7 || ratio < 0.6) {
+          if (ratio < 0.6) {
+            livenessStage.value = 'turnLeft';
+            livenessMsg.value = "Great! Now turn your head left.";
+          }
+        }
+      } else if (livenessStage.value === 'turnLeft') {
+        const positions = landmarks.positions;
+        const noseTip = positions[30];
+        const leftJaw = positions[0];
+        const rightJaw = positions[16];
+        const distL = noseTip.x - leftJaw.x;
+        const distR = rightJaw.x - noseTip.x;
+        if (distR > 0) {
+          const ratio = distL / distR;
+          if (ratio > 1.7) {
+            livenessStage.value = 'lookUp';
+            livenessMsg.value = "Good! Now look up slightly.";
+          }
+        }
+      } else if (livenessStage.value === 'lookUp') {
+        const positions = landmarks.positions;
+        const noseTop = positions[27];
+        const noseTip = positions[30];
+        const chin = positions[8];
+        const distUp = noseTip.y - noseTop.y;
+        const distDown = chin.y - noseTip.y;
+        if (distDown > 0) {
+          const ratioY = distUp / distDown;
+          if (ratioY < 0.6) {
+            livenessStage.value = 'lookDown';
+            livenessMsg.value = "Awesome! Finally, look down slightly.";
+          }
+        }
+      } else if (livenessStage.value === 'lookDown') {
+        const positions = landmarks.positions;
+        const noseTop = positions[27];
+        const noseTip = positions[30];
+        const chin = positions[8];
+        const distUp = noseTip.y - noseTop.y;
+        const distDown = chin.y - noseTip.y;
+        if (distDown > 0) {
+          const ratioY = distUp / distDown;
+          if (ratioY > 1.25) {
             livenessStage.value = 'done';
             livenessMsg.value = "✅ Liveness Verified! Saving your profile...";
             stopLivenessLoop();
@@ -822,7 +863,7 @@ async function startCamera() {
         isCameraActive.value = true
         livenessMsg.value = "Initializing AI..."
         videoElement.value.play();
-        livenessStage.value = 'turn';
+        livenessStage.value = 'turnRight';
         startLivenessLoop();
       }
     }
