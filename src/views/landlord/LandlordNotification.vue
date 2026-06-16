@@ -138,8 +138,8 @@
             <div class="profile-actions-row">
               <button v-if="!isEditingProfile" class="btn-save-profile" @click="isEditingProfile = true">Edit Profile</button>
               <template v-else>
-                <button class="btn-save-profile" style="background: #22c55e;" @click="saveProfileInfo">Save Profile</button>
-                <button class="btn-save-profile outline" style="background: transparent; color: #111; border: 1.5px solid #e0e0e0;" @click="isEditingProfile = false">Cancel</button>
+                <button class="btn-save-profile" style="background: #5C4E4E;" @click="saveProfileInfo">Save Profile</button>
+                <button class="btn-save-profile outline" style="background: transparent; color: #5C4E4E; border: 1.5px solid #e0e0e0;" @click="isEditingProfile = false">Cancel</button>
               </template>
             </div>
           </div>
@@ -191,7 +191,7 @@
                       <path d="M12 14 L16 14" />
                     </svg>
                   </div>
-                  <div v-else-if="notif.type === 'payment'" class="notif-badge-logo" style="color: #16a34a; background: #dcfce7;">
+                  <div v-else-if="notif.type === 'payment'" class="notif-badge-logo" style="color: #5C4E4E; background: #D1D0D0;">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                       <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
                       <line x1="2" y1="10" x2="22" y2="10"></line>
@@ -229,7 +229,7 @@
                       <path d="M12 14 L16 14" />
                     </svg>
                   </div>
-                  <div v-else-if="notif.type === 'payment'" class="notif-badge-logo" style="color: #16a34a; background: #dcfce7;">
+                  <div v-else-if="notif.type === 'payment'" class="notif-badge-logo" style="color: #5C4E4E; background: #D1D0D0;">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                       <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
                       <line x1="2" y1="10" x2="22" y2="10"></line>
@@ -325,7 +325,7 @@
                 View Tenant Profile
               </button>
               <button class="btn-action outline confirm" @click="confirmBooking" :disabled="bookingStatus !== 'pending'">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5C4E4E" stroke-width="2.5">
                   <polyline points="20 6 9 17 4 12"/>
                 </svg>
                 {{ bookingStatus === 'confirmed' ? 'Confirmed' : 'Confirm Booking' }}
@@ -402,7 +402,7 @@
                 Download PDF Receipt
               </button>
             </div>
-            <div v-else class="booking-details" style="padding: 24px; border: 1.5px solid #efefef; border-radius: 12px; background: #fafafa; width: 100%;">
+            <div v-else class="booking-details" style="padding: 24px; border: 1.5px solid #efefef; border-radius: 12px; background: #e0e0e0; width: 100%;">
               <p style="font-size: 0.9rem; color: #333; line-height: 1.6; margin: 0;">
                 {{ currentNotification?.desc }}
               </p>
@@ -807,7 +807,7 @@
     <div v-if="showCreateListingModal" class="chat-modal-overlay" @click.self="showCreateListingModal = false">
       <div class="chat-modal-box">
         <header class="chat-modal-header">
-          <h3 style="font-weight: 700; color: #111; margin: 0;">Create New Rental Listing</h3>
+          <h3 style="font-weight: 700; color: #5C4E4E; margin: 0;">Create New Rental Listing</h3>
           <button class="chat-close-btn" @click="showCreateListingModal = false">&times;</button>
         </header>
         <div class="chat-modal-body" style="max-height: 65vh; overflow-y: auto; overflow-x: hidden;">
@@ -932,14 +932,14 @@
     <div v-if="showTenantProfileModal" class="chat-modal-overlay" @click.self="showTenantProfileModal = false">
       <div class="chat-modal-box">
         <header class="chat-modal-header">
-          <h3 style="font-weight: 700; color: #111; margin: 0;">Tenant Screening Profile</h3>
+          <h3 style="font-weight: 700; color: #5C4E4E; margin: 0;">Tenant Screening Profile</h3>
           <button class="chat-close-btn" @click="showTenantProfileModal = false">&times;</button>
         </header>
         <div class="chat-modal-body" style="text-align: center;">
           <div style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; margin: 0 auto 16px auto; border: 2px solid #efede8;">
             <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&q=80" alt="Chlorinde Avatar" style="width: 100%; height: 100%; object-fit: cover;" />
           </div>
-          <h3 style="font-weight: 700; color: #111; margin-bottom: 4px;">Chlorinde</h3>
+          <h3 style="font-weight: 700; color: #5C4E4E; margin-bottom: 4px;">Chlorinde</h3>
           <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">Safety Security Inspector • Tenant Rating 4.9 ★</p>
 
           <div class="info-list-container" style="text-align: left; padding: 16px; margin-bottom: 0;">
@@ -953,15 +953,15 @@
             </div>
             <div class="info-row" style="margin-bottom: 8px; display: flex; justify-content: space-between; font-size: 0.8rem;">
               <span class="info-label" style="color: #666; font-weight: 500;">Identity Check:</span>
-              <span class="info-value" style="color: #16a34a; font-weight: 600;">✓ Verified</span>
+              <span class="info-value" style="color: #5C4E4E; font-weight: 600;">✓ Verified</span>
             </div>
             <div class="info-row" style="margin-bottom: 8px; display: flex; justify-content: space-between; font-size: 0.8rem;">
               <span class="info-label" style="color: #666; font-weight: 500;">Credit Background:</span>
-              <span class="info-value" style="color: #16a34a; font-weight: 600;">✓ Excellent (98%)</span>
+              <span class="info-value" style="color: #5C4E4E; font-weight: 600;">✓ Excellent (98%)</span>
             </div>
             <div class="info-row" style="display: flex; justify-content: space-between; font-size: 0.8rem;">
               <span class="info-label" style="color: #666; font-weight: 500;">Reference check:</span>
-              <span class="info-value" style="color: #16a34a; font-weight: 600;">✓ Highly Recommended</span>
+              <span class="info-value" style="color: #5C4E4E; font-weight: 600;">✓ Highly Recommended</span>
             </div>
           </div>
         </div>
@@ -978,7 +978,7 @@
     <div v-if="showReplyTenantModal" class="chat-modal-overlay" @click.self="showReplyTenantModal = false">
       <div class="chat-modal-box">
         <header class="chat-modal-header">
-          <h3 style="font-weight: 700; color: #111; margin: 0;">Direct Message to Chlorinde</h3>
+          <h3 style="font-weight: 700; color: #5C4E4E; margin: 0;">Direct Message to Chlorinde</h3>
           <button class="chat-close-btn" @click="showReplyTenantModal = false">&times;</button>
         </header>
         <div class="chat-modal-body">
@@ -1517,8 +1517,8 @@ function changePin() {
   transition: background 0.18s, color 0.18s;
   width: 100%;
 }
-.nav-item:hover { background: #f7f7f7; color: #111; }
-.nav-item.active { background: #D1D0D0; color: #111; font-weight: 600; }
+.nav-item:hover { background: #f7f7f7; color: #5C4E4E; }
+.nav-item.active { background: #D1D0D0; color: #5C4E4E; font-weight: 600; }
 .nav-item svg { flex-shrink: 0; color: inherit; }
 
 /* ── MAIN ── */
@@ -1547,7 +1547,7 @@ function changePin() {
 
 .page-title {
   font-family: 'DM Sans', sans-serif;
-  font-size: 1.3rem; font-weight: 600; color: #111;
+  font-size: 1.3rem; font-weight: 600; color: #5C4E4E;
 }
 
 /* ── NOTIFICATION CARD ── */
@@ -1568,7 +1568,7 @@ function changePin() {
 
 .notif-header-text { flex: 1; }
 
-.notif-title { font-weight: 600; font-size: 0.95rem; color: #111; margin-bottom: 3px; }
+.notif-title { font-weight: 600; font-size: 0.95rem; color: #5C4E4E; margin-bottom: 3px; }
 .notif-sub { font-size: 0.8rem; color: #888; }
 
 .notif-actions-top {
@@ -1611,7 +1611,7 @@ function changePin() {
 }
 
 .info-value {
-  font-size: 0.83rem; color: #111; font-weight: 500;
+  font-size: 0.83rem; color: #5C4E4E; font-weight: 500;
 }
 
 /* Action buttons */
@@ -1637,7 +1637,7 @@ function changePin() {
 }
 .btn-action.outline:hover { background: #f8f8f8; border-color: #bbb; }
 
-.btn-action.confirm { color: #16a34a; }
+.btn-action.confirm { color: #5C4E4E; }
 .btn-action.confirm:hover { background: #f0fdf4; border-color: #86efac; }
 
 .btn-action.reject { color: #dc2626; }
@@ -1669,11 +1669,11 @@ function changePin() {
 }
 
 .notif-tab-btn:hover {
-  color: #111;
+  color: #5C4E4E;
 }
 
 .notif-tab-btn.active {
-  color: #111;
+  color: #5C4E4E;
 }
 
 .notif-tab-btn.active::after {
@@ -1683,7 +1683,7 @@ function changePin() {
   left: 0;
   right: 0;
   height: 2.5px;
-  background: #111;
+  background: #5C4E4E;
   border-radius: 2px;
 }
 
@@ -1765,7 +1765,7 @@ function changePin() {
 .notif-item-title {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #111;
+  color: #5C4E4E;
 }
 
 .notif-item-desc {
@@ -1793,7 +1793,7 @@ function changePin() {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #22c55e;
+  background: #5C4E4E;
   flex-shrink: 0;
 }
 
@@ -1816,7 +1816,7 @@ function changePin() {
 .section-subtitle {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #111;
+  color: #5C4E4E;
   margin-bottom: 24px;
   padding-bottom: 12px;
   border-bottom: 1px solid #f0f0f0;
@@ -1852,7 +1852,7 @@ function changePin() {
 .profile-hero-info h3 {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #111;
+  color: #5C4E4E;
   margin: 0 0 6px 0;
 }
 
@@ -1894,7 +1894,7 @@ function changePin() {
   border-radius: 10px;
   font-family: inherit;
   font-size: 0.85rem;
-  color: #111;
+  color: #5C4E4E;
   background: #fafafa;
   outline: none;
   transition: border-color 0.2s;
@@ -1912,7 +1912,7 @@ function changePin() {
 }
 
 .btn-save-profile {
-  background: #111111;
+  background: #5C4E4E;
   color: #ffffff;
   border: none;
   border-radius: 10px;
@@ -1950,7 +1950,7 @@ function changePin() {
   padding: 8px 14px;
   font-size: 0.82rem;
   font-weight: 600;
-  color: #111;
+  color: #5C4E4E;
   cursor: pointer;
   background: #fff;
   transition: border-color 0.2s;
@@ -1962,7 +1962,7 @@ function changePin() {
 
 /* Donut Summary Card */
 .donut-summary-card {
-  background: #ffffff;
+  background: #e0e0e0;
   border: 1px solid #D1D0D0;
   border-radius: 16px;
   padding: 32px;
@@ -2041,7 +2041,7 @@ function changePin() {
 .donut-total {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #111;
+  color: #5C4E4E;
   margin: 2px 0;
 }
 
@@ -2082,7 +2082,7 @@ function changePin() {
 
 .stat-value {
   font-size: 1.1rem;
-  color: #111;
+  color: #5C4E4E;
   font-weight: 600;
 }
 
@@ -2094,7 +2094,7 @@ function changePin() {
 }
 
 .kpi-card {
-  background: #ffffff;
+  background: #e0e0e0;
   border: 1px solid #D1D0D0;
   border-radius: 12px;
   padding: 18px 20px;
@@ -2116,10 +2116,10 @@ function changePin() {
   flex-shrink: 0;
 }
 
-.kpi-properties { background: #e0f2fe; color: #0284c7; }
-.kpi-revenue { background: #dcfce7; color: #16a34a; }
+.kpi-properties { background: #D1D0D0; color: #5C4E4E; }
+.kpi-revenue { background: #D1D0D0; color: #5C4E4E; }
 .kpi-tenants { background: #D1D0D0; color: #5C4E4E; }
-.kpi-maintenance { background: #fee2e2; color: #ef4444; }
+.kpi-maintenance { background: #D1D0D0; color: #5C4E4E; }
 
 .kpi-copy {
   display: flex;
@@ -2155,7 +2155,7 @@ function changePin() {
 }
 
 .table-card {
-  background: #ffffff;
+  background: #e0e0e0;
   border: 1px solid #D1D0D0;
   border-radius: 16px;
   padding: 24px;
@@ -2167,7 +2167,7 @@ function changePin() {
 .table-card-title {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #111;
+  color: #5C4E4E;
   margin: 0 0 16px 0;
 }
 
@@ -2206,7 +2206,7 @@ function changePin() {
 }
 
 .income-value-cell.green {
-  color: #16a34a;
+  color: #5C4E4E;
 }
 
 .table-action-link-btn {
@@ -2222,7 +2222,7 @@ function changePin() {
 }
 
 .table-action-link-btn:hover {
-  color: #111;
+  color: #5C4E4E;
 }
 
 /* --- Rental Tab --- */
@@ -2264,7 +2264,7 @@ function changePin() {
 .btn-create-new {
   background: #ffffff;
   border: 1.5px solid #111111;
-  color: #111111;
+  color: #5C4E4E;
   border-radius: 8px;
   padding: 8px 16px;
   font-size: 0.85rem;
@@ -2277,7 +2277,7 @@ function changePin() {
 }
 
 .btn-create-new:hover {
-  background: #111111;
+  background: #5C4E4E;
   color: #ffffff;
 }
 
@@ -2290,7 +2290,7 @@ function changePin() {
 .properties-title {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #111;
+  color: #5C4E4E;
   margin: 0;
 }
 
@@ -2345,7 +2345,7 @@ function changePin() {
 }
 
 .lease-table-card {
-  background: #ffffff;
+  background: #e0e0e0;
   border: 1px solid #efefef;
   border-radius: 16px;
   padding: 24px;
@@ -2422,7 +2422,7 @@ function changePin() {
 }
 
 .faq-item.open {
-  border-color: #111;
+  border-color: #5C4E4E;
 }
 
 .faq-question {
@@ -2436,7 +2436,7 @@ function changePin() {
   font-family: inherit;
   font-size: 0.88rem;
   font-weight: 600;
-  color: #111;
+  color: #5C4E4E;
   text-align: left;
   cursor: pointer;
 }
@@ -2448,7 +2448,7 @@ function changePin() {
 
 .faq-item.open .faq-arrow-svg {
   transform: rotate(180deg);
-  color: #111;
+  color: #5C4E4E;
 }
 
 .faq-answer {
@@ -2479,7 +2479,7 @@ function changePin() {
 
 /* Receipt Styles */
 .receipt-card {
-  background: #ffffff;
+  background: #e0e0e0;
   border: 1px dashed #d1d5db;
   border-radius: 12px;
   padding: 24px;
@@ -2498,12 +2498,12 @@ function changePin() {
   font-size: 1.2rem;
   font-weight: 700;
   margin: 0;
-  color: #111;
+  color: #5C4E4E;
 }
 
 .status-badge.success {
-  background: #dcfce7;
-  color: #16a34a;
+  background: #D1D0D0;
+  color: #5C4E4E;
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 0.75rem;
@@ -2529,7 +2529,7 @@ function changePin() {
 }
 
 .receipt-row strong {
-  color: #111;
+  color: #5C4E4E;
   font-weight: 600;
   text-align: right;
 }
@@ -2569,7 +2569,7 @@ function changePin() {
 }
 
 .security-card {
-  background: #ffffff;
+  background: #e0e0e0;
   border: 1px solid #efefef;
   border-radius: 16px;
   padding: 24px;
@@ -2595,7 +2595,7 @@ function changePin() {
 .security-text-col h3 {
   font-size: 0.92rem;
   font-weight: 600;
-  color: #111;
+  color: #5C4E4E;
   margin: 0 0 4px 0;
 }
 
@@ -2641,7 +2641,7 @@ function changePin() {
 }
 
 input:checked + .toggle-slider {
-  background-color: #111111;
+  background-color: #5C4E4E;
 }
 
 input:checked + .toggle-slider:before {
@@ -2657,7 +2657,7 @@ input:checked + .toggle-slider:before {
 .btn-change-pin {
   background: none;
   border: 1.5px solid #111111;
-  color: #111111;
+  color: #5C4E4E;
   border-radius: 8px;
   padding: 8px 14px;
   font-size: 0.8rem;
@@ -2667,7 +2667,7 @@ input:checked + .toggle-slider:before {
 }
 
 .btn-change-pin:hover {
-  background: #111111;
+  background: #5C4E4E;
   color: #fff;
 }
 
@@ -2680,7 +2680,7 @@ input:checked + .toggle-slider:before {
 }
 
 .account-status-card {
-  background: #ffffff;
+  background: #e0e0e0;
   border: 1px solid #efefef;
   border-radius: 16px;
   padding: 28px;
@@ -2701,14 +2701,14 @@ input:checked + .toggle-slider:before {
   gap: 8px;
   font-size: 0.9rem;
   font-weight: 700;
-  color: #111;
+  color: #5C4E4E;
 }
 
 .status-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #22c55e;
+  background: #5C4E4E;
 }
 
 .status-valid-date {
@@ -2746,7 +2746,7 @@ input:checked + .toggle-slider:before {
 
 .usage-progress-fill {
   height: 100%;
-  background: #111111;
+  background: #5C4E4E;
   border-radius: 3px;
 }
 
@@ -2774,7 +2774,7 @@ input:checked + .toggle-slider:before {
 }
 .month-picker-item:hover {
   background: #f7f7f7;
-  color: #111;
+  color: #5C4E4E;
 }
 .month-picker-item.active {
   background: #D1D0D0;
@@ -2865,7 +2865,7 @@ input:checked + .toggle-slider:before {
 }
 
 .chat-textarea:focus {
-  border-color: #111;
+  border-color: #5C4E4E;
 }
 
 .chat-modal-footer {
@@ -2897,7 +2897,7 @@ input:checked + .toggle-slider:before {
 .chat-send-btn {
   padding: 10px 20px;
   border: none;
-  background: #111111;
+  background: #5C4E4E;
   color: #fff;
   border-radius: 8px;
   font-size: 0.88rem;
@@ -2926,7 +2926,7 @@ input:checked + .toggle-slider:before {
   bottom: 32px;
   left: 50%;
   transform: translateX(-50%);
-  background: #111111;
+  background: #5C4E4E;
   color: #ffffff;
   padding: 12px 24px;
   border-radius: 30px;

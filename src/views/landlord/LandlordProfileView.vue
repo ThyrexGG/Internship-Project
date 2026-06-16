@@ -47,7 +47,7 @@
             <div class="landlord-name-row">
               <h1 class="landlord-name">{{ landlordInfo.firstName }} {{ landlordInfo.lastName }}</h1>
               <span class="verified-badge" title="Verified Landlord">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="#4ade80" stroke="#fff" stroke-width="2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#5C4E4E" stroke="#fff" stroke-width="2">
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                   <polyline points="22 4 12 14.01 9 11.01" />
                 </svg>
@@ -217,7 +217,7 @@
               <div class="chat-landlord-info">
                 <h3>{{ landlordInfo.firstName }} {{ landlordInfo.lastName }}</h3>
                 <span class="chat-verified-badge">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#4ade80" stroke="#fff" stroke-width="2">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#5C4E4E" stroke="#fff" stroke-width="2">
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                     <polyline points="22 4 12 14.01 9 11.01" />
                   </svg>
@@ -432,8 +432,8 @@ function shareProfile() {
 
 .landlord-profile-page {
   font-family: 'DM Sans', sans-serif;
-  background: #ffffff;
-  color: #111111;
+  background: #e0e0e0;
+  color: #5C4E4E;
   height: 100vh;
   overflow-y: auto;
   padding-bottom: 60px;
@@ -447,7 +447,7 @@ function shareProfile() {
   justify-content: space-between;
   padding: 0 40px;
   border-bottom: 1px solid #ebebeb;
-  background: #fff;
+  background: #e0e0e0;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -463,7 +463,7 @@ function shareProfile() {
 .logo-icon {
   width: 32px;
   height: 32px;
-  background: #111;
+  background: #5C4E4E;
   border-radius: 8px;
   color: #fff;
   display: flex;
@@ -474,7 +474,7 @@ function shareProfile() {
 .logo-text {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #111;
+  color: #5C4E4E;
 }
 
 .profile-menu .avatar {
@@ -495,7 +495,7 @@ function shareProfile() {
 .profile-hero {
   position: relative;
   width: 100%;
-  background: #ffffff;
+  background: #e0e0e0;
   border-bottom: 1px solid #eaeaea;
 }
 
@@ -509,7 +509,7 @@ function shareProfile() {
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(0, 0, 0, 0.08);
-  color: #111;
+  color: #5C4E4E;
   padding: 8px 16px;
   border-radius: 20px;
   font-size: 0.85rem;
@@ -521,7 +521,7 @@ function shareProfile() {
 }
 
 .back-btn:hover {
-  background: #ffffff;
+  background: #e0e0e0;
   transform: translateX(-3px);
 }
 
@@ -570,7 +570,7 @@ function shareProfile() {
   border: 5px solid #ffffff;
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  background: #fff;
+  background: #e0e0e0;
   flex-shrink: 0;
 }
 
@@ -594,7 +594,7 @@ function shareProfile() {
 .landlord-name {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #111;
+  color: #5C4E4E;
   margin: 0;
 }
 
@@ -612,7 +612,7 @@ function shareProfile() {
 }
 
 .message-btn {
-  background: #111111;
+  background: #5C4E4E;
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -633,7 +633,7 @@ function shareProfile() {
 
 /* --- Navigation Tabs --- */
 .profile-tabs-section {
-  background: #ffffff;
+  background: #e0e0e0;
   border-bottom: 1px solid #eaeaea;
 }
 
@@ -664,11 +664,11 @@ function shareProfile() {
 }
 
 .tab-btn:hover {
-  color: #111;
+  color: #5C4E4E;
 }
 
 .tab-btn.active {
-  color: #111;
+  color: #5C4E4E;
 }
 
 .tab-btn.active::after {
@@ -678,7 +678,7 @@ function shareProfile() {
   left: 0;
   right: 0;
   height: 2.5px;
-  background: #111;
+  background: #5C4E4E;
   border-radius: 2px;
 }
 
@@ -703,7 +703,7 @@ function shareProfile() {
 }
 
 .tab-action-icon-btn:hover {
-  background: #f5f5f5;
+  background: #e0e0e0;
 }
 
 /* --- Main Content Area --- */
@@ -735,7 +735,7 @@ function shareProfile() {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  background: #fafafa;
+  background: #e0e0e0;
   padding: 32px;
   border-radius: 16px;
   border: 1px solid #f0f0f0;
@@ -750,7 +750,7 @@ function shareProfile() {
 
 .info-label {
   font-weight: 500;
-  color: #111;
+  color: #5C4E4E;
   min-width: 140px;
 }
 
@@ -770,7 +770,7 @@ function shareProfile() {
 .section-title {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #111;
+  color: #5C4E4E;
   margin-top: 0;
   margin-bottom: 24px;
 }
@@ -842,7 +842,7 @@ function shareProfile() {
   padding: 20px;
   border-radius: 12px;
   border: 1px solid #eaeaea;
-  background: #ffffff;
+  background: #e0e0e0;
   transition: border-color 0.2s ease;
 }
 
@@ -863,8 +863,8 @@ function shareProfile() {
 }
 
 .ver-icon-wrapper.verified {
-  background: #dcfce7;
-  color: #16a34a;
+  background: #D1D0D0;
+  color: #5C4E4E;
 }
 
 .ver-copy {
@@ -875,7 +875,7 @@ function shareProfile() {
   font-size: 0.95rem;
   font-weight: 600;
   margin: 0 0 4px 0;
-  color: #111;
+  color: #5C4E4E;
 }
 
 .ver-copy p {
@@ -894,7 +894,7 @@ function shareProfile() {
 }
 
 .ver-status-label.verified {
-  background: #dcfce7;
+  background: #D1D0D0;
   color: #15803d;
 }
 
@@ -909,7 +909,7 @@ function shareProfile() {
   display: flex;
   gap: 60px;
   align-items: center;
-  background: #fafafa;
+  background: #e0e0e0;
   padding: 32px;
   border-radius: 16px;
   border: 1px solid #f0f0f0;
@@ -925,7 +925,7 @@ function shareProfile() {
 .rating-num {
   font-size: 3.2rem;
   font-weight: 800;
-  color: #111;
+  color: #5C4E4E;
   line-height: 1;
   margin-bottom: 8px;
 }
@@ -992,7 +992,7 @@ function shareProfile() {
   padding: 24px;
   border: 1px solid #eaeaea;
   border-radius: 16px;
-  background: #fff;
+  background: #e0e0e0;
   transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
@@ -1023,7 +1023,7 @@ function shareProfile() {
   font-size: 0.92rem;
   font-weight: 600;
   margin: 0 0 2px 0;
-  color: #111;
+  color: #5C4E4E;
 }
 
 .reviewer-meta .review-date {
@@ -1139,7 +1139,7 @@ function shareProfile() {
 .chat-modal-box {
   width: 90%;
   max-width: 500px;
-  background: #ffffff;
+  background: #e0e0e0;
   border-radius: 16px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   overflow: hidden;
@@ -1184,7 +1184,7 @@ function shareProfile() {
 .chat-landlord-info h3 {
   font-size: 1rem;
   font-weight: 700;
-  color: #111;
+  color: #5C4E4E;
   margin: 0 0 3px 0;
 }
 
@@ -1193,7 +1193,7 @@ function shareProfile() {
   align-items: center;
   gap: 4px;
   font-size: 0.72rem;
-  color: #16a34a;
+  color: #5C4E4E;
   font-weight: 600;
 }
 
@@ -1211,7 +1211,7 @@ function shareProfile() {
 }
 
 .chat-close-btn:hover {
-  background: #f5f5f5;
+  background: #e0e0e0;
   color: #333;
 }
 
@@ -1243,7 +1243,7 @@ function shareProfile() {
 }
 
 .chat-textarea:focus {
-  border-color: #111;
+  border-color: #5C4E4E;
 }
 
 .chat-textarea:disabled {
@@ -1270,7 +1270,7 @@ function shareProfile() {
 .chat-cancel-btn {
   padding: 10px 18px;
   border: 1px solid #e2e8f0;
-  background: #fff;
+  background: #e0e0e0;
   color: #4a5568;
   border-radius: 8px;
   font-size: 0.88rem;
@@ -1292,7 +1292,7 @@ function shareProfile() {
 .chat-send-btn {
   padding: 10px 20px;
   border: none;
-  background: #111111;
+  background: #5C4E4E;
   color: #fff;
   border-radius: 8px;
   font-size: 0.88rem;
@@ -1334,7 +1334,7 @@ function shareProfile() {
   bottom: 32px;
   left: 50%;
   transform: translateX(-50%);
-  background: #111111;
+  background: #5C4E4E;
   color: #ffffff;
   padding: 12px 24px;
   border-radius: 30px;

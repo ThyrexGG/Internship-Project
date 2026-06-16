@@ -907,7 +907,7 @@ function handleGuest() { router.push('/home') }
   background: rgba(255,255,255,0.95);
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
-  color: #c0784a;
+  color: #5C4E4E;
   box-shadow: 0 2px 12px rgba(0,0,0,0.15);
 }
 
@@ -987,7 +987,7 @@ function handleGuest() { router.push('/home') }
   justify-content: center;
   padding: 32px 24px;
   overflow-y: auto;
-  background: #fafafa;
+  background: #e0e0e0;
   position: relative;
 }
 
@@ -999,7 +999,7 @@ function handleGuest() { router.push('/home') }
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #111;
+  color: #5C4E4E;
 }
 
 .desktop-logo .logo-icon {
@@ -1010,7 +1010,7 @@ function handleGuest() { router.push('/home') }
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #c0784a;
+  color: #5C4E4E;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
   border: 1px solid #eee;
 }
@@ -1019,7 +1019,7 @@ function handleGuest() { router.push('/home') }
   font-weight: 600;
   font-size: 0.95rem;
   letter-spacing: 0.01em;
-  color: #111;
+  color: #5C4E4E;
 }
 
 .form-inner {
@@ -1036,7 +1036,7 @@ function handleGuest() { router.push('/home') }
   gap: 10px;
   margin-bottom: 24px;
   justify-content: center;
-  color: #111;
+  color: #5C4E4E;
 }
 
 /* ── AUTHENTICATION TABS & STATE FORMS ── */
@@ -1064,7 +1064,7 @@ function handleGuest() { router.push('/home') }
 
 .tab-btn.active {
   background: #fff;
-  color: #111;
+  color: #5C4E4E;
   box-shadow: 0 1px 6px rgba(0,0,0,0.1);
 }
 
@@ -1101,7 +1101,7 @@ function handleGuest() { router.push('/home') }
 
 .method-btn.active {
   background: #ffffff;
-  color: #111111;
+  color: #5C4E4E;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
@@ -1113,7 +1113,7 @@ function handleGuest() { router.push('/home') }
   font-family: 'DM Serif Display', serif;
   font-size: clamp(1.8rem, 2.5vw, 2.3rem);
   font-weight: 400;
-  color: #111;
+  color: #5C4E4E;
   margin-bottom: 5px;
   line-height: 1.15;
 }
@@ -1133,7 +1133,7 @@ function handleGuest() { router.push('/home') }
 .field-label { font-size: 0.78rem; font-weight: 600; color: #444; letter-spacing: 0.01em; }
 
 .forgot-link {
-  font-size: 0.73rem; color: #c0784a; background: none; border: none;
+  font-size: 0.73rem; color: #5C4E4E; background: none; border: none;
   cursor: pointer; font-family: 'DM Sans', sans-serif; transition: color 0.2s;
   font-weight: 500;
 }
@@ -1154,13 +1154,13 @@ function handleGuest() { router.push('/home') }
   border-radius: 11px;
   font-family: 'DM Sans', sans-serif;
   font-size: 0.85rem;
-  color: #111;
+  color: #5C4E4E;
   background: #fff;
   transition: border-color 0.2s, box-shadow 0.2s;
   outline: none;
 }
 .field-input::placeholder { color: #ccc; }
-.field-input:focus { border-color: #c0784a; box-shadow: 0 0 0 3px rgba(192,120,74,0.1); }
+.field-input:focus { border-color: #5C4E4E; box-shadow: 0 0 0 3px rgba(92,78,78,0.1); }
 .field-input.error { border-color: #e55; }
 
 .password-wrapper .field-input { padding-right: 42px; }
@@ -1185,7 +1185,7 @@ function handleGuest() { router.push('/home') }
   transition: all 0.2s; flex-shrink: 0;
 }
 .check-input:checked + .check-box {
-  background: #111; border-color: #111;
+  background: #5C4E4E; border-color: #5C4E4E;
 }
 .check-input:checked + .check-box::after {
   content: '✓'; font-size: 10px; color: #fff; line-height: 1;
@@ -1196,7 +1196,7 @@ function handleGuest() { router.push('/home') }
 .btn-primary {
   width: 100%;
   padding: 13px;
-  background: #111;
+  background: #5C4E4E;
   color: #fff;
   border: none;
   border-radius: 11px;
@@ -1275,7 +1275,7 @@ function handleGuest() { router.push('/home') }
   font-family: 'DM Sans', sans-serif;
   font-size: 0.78rem;
   font-weight: 500;
-  color: #c0784a;
+  color: #5C4E4E;
   cursor: pointer;
   transition: color 0.2s;
 }
@@ -1327,15 +1327,15 @@ function handleGuest() { router.push('/home') }
   text-align: center;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #111;
+  color: #5C4E4E;
   background: #fff;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .otp-input:focus {
-  border-color: #c0784a;
-  box-shadow: 0 0 0 3px rgba(192,120,74,0.1);
+  border-color: #5C4E4E;
+  box-shadow: 0 0 0 3px rgba(92,78,78,0.1);
 }
 
 /* ID Card scanner styling */
@@ -1360,7 +1360,7 @@ function handleGuest() { router.push('/home') }
 }
 
 .id-scanner-upload:hover {
-  border-color: #c0784a;
+  border-color: #5C4E4E;
   background: #fcf8f5;
 }
 
@@ -1415,7 +1415,7 @@ function handleGuest() { router.push('/home') }
 .scanner-text {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #c0784a;
+  color: #5C4E4E;
   z-index: 2;
   animation: pulse 1.5s infinite;
 }
@@ -1450,7 +1450,7 @@ function handleGuest() { router.push('/home') }
   font-size: 0.83rem; font-weight: 500; z-index: 100;
   box-shadow: 0 4px 20px rgba(0,0,0,0.12);
 }
-.toast.success { background: #111; color: #fff; }
+.toast.success { background: #5C4E4E; color: #fff; }
 .toast.info { background: #fff; color: #333; border: 1px solid #e0e0e0; }
 .toast.error { background: #e55; color: #fff; }
 .toast-enter-active, .toast-leave-active { transition: all 0.3s ease; }
@@ -1489,7 +1489,7 @@ function handleGuest() { router.push('/home') }
 
 .role-btn.active {
   background: #ffffff;
-  color: #111111;
+  color: #5C4E4E;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
@@ -1511,7 +1511,7 @@ function handleGuest() { router.push('/home') }
   .form-panel { padding: 24px 16px; align-items: flex-start; justify-content: center; background: transparent; }
   .form-inner { 
     max-width: 100%; 
-    background: #fff; 
+    background: #e0e0e0; 
     padding: 32px 24px; 
     border-radius: 24px; 
     box-shadow: 0 10px 40px rgba(0,0,0,0.06); 
