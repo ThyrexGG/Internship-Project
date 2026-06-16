@@ -261,7 +261,7 @@
             <!-- Notif Header -->
             <div class="notif-header">
               <div class="notif-icon-wrap">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c0784a" stroke-width="2">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5C4E4E" stroke-width="2">
                   <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
                   <path d="M9 21V12h6v9"/>
                 </svg>
@@ -303,7 +303,7 @@
                 </div>
                 <div class="info-row">
                   <span class="info-label">Booking Status:</span>
-                  <span class="info-value" style="text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;" :style="{ color: bookingStatus === 'confirmed' ? '#22c55e' : (bookingStatus === 'rejected' ? '#ef4444' : '#c0784a') }">
+                  <span class="info-value" style="text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;" :style="{ color: bookingStatus === 'confirmed' ? '#22c55e' : (bookingStatus === 'rejected' ? '#ef4444' : '#5C4E4E') }">
                     {{ bookingStatus }}
                   </span>
                 </div>
@@ -355,16 +355,58 @@
                 </svg>
               </div>
               <div class="notif-header-text">
-                <p class="notif-title">Payment Completed</p>
-                <p class="notif-sub">Green Ville, room 201 has completed their payment!</p>
+                <p class="notif-title">{{ currentNotification?.title || 'Notification' }}</p>
+                <p class="notif-sub">{{ currentNotification?.desc }}</p>
               </div>
               <div class="notif-actions-top">
-                <span class="notif-time">Apr 25, 2024, 13:01 PM</span>
+                <span class="notif-time">{{ currentNotification?.date }}, {{ currentNotification?.time }}</span>
               </div>
             </div>
-            <div class="booking-details" style="padding: 24px; border: 1.5px solid #efefef; border-radius: 12px; background: #fafafa; width: 100%;">
+            <div v-if="currentNotification?.type === 'payment'" class="receipt-card">
+              <div class="receipt-header">
+                <h3>Payment Receipt</h3>
+                <span class="status-badge success">Paid</span>
+              </div>
+              <div class="receipt-body">
+                <div class="receipt-row">
+                  <span>Transaction ID</span>
+                  <strong>#TXN-{{ Math.floor(Math.random() * 900000) + 100000 }}</strong>
+                </div>
+                <div class="receipt-row">
+                  <span>Payment Date</span>
+                  <strong>{{ currentNotification?.date }}, {{ currentNotification?.time }}</strong>
+                </div>
+                <div class="receipt-row">
+                  <span>Room / Property</span>
+                  <strong>{{ currentNotification?.roomName || 'Room 201' }}</strong>
+                </div>
+                <div class="receipt-row">
+                  <span>Payment Method</span>
+                  <strong>Bank Transfer</strong>
+                </div>
+                <div class="receipt-divider"></div>
+                <div class="receipt-row">
+                  <span>Rent Amount</span>
+                  <strong>{{ currentNotification?.amount || '$350' }}</strong>
+                </div>
+                <div class="receipt-row">
+                  <span>Service Fee</span>
+                  <strong>$0.00</strong>
+                </div>
+                <div class="receipt-divider"></div>
+                <div class="receipt-row total">
+                  <span>Total Paid</span>
+                  <strong style="color: #5C4E4E;">{{ currentNotification?.amount || '$350' }}</strong>
+                </div>
+              </div>
+              <button class="btn-dark download-btn" style="margin-top: 24px; width: 100%; display: flex; justify-content: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Download PDF Receipt
+              </button>
+            </div>
+            <div v-else class="booking-details" style="padding: 24px; border: 1.5px solid #efefef; border-radius: 12px; background: #fafafa; width: 100%;">
               <p style="font-size: 0.9rem; color: #333; line-height: 1.6; margin: 0;">
-                Your tenant in <strong>Green Ville, Room 201</strong> has successfully transferred their monthly rent payment of <strong>$350</strong>. The funds have been processed and credited to your landlord account.
+                {{ currentNotification?.desc }}
               </p>
             </div>
             <div class="booking-actions">
@@ -414,8 +456,8 @@
             <div class="donut-center-col">
               <div class="donut-chart-container">
                 <svg class="donut-svg" viewBox="0 0 36 36">
-                  <path class="donut-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f3ede8" stroke-width="3"></path>
-                  <path class="donut-segment" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#c0784a" stroke-width="3" :stroke-dasharray="`${donutOffset} ${100 - donutOffset}`" stroke-dashoffset="25"></path>
+                  <path class="donut-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#D1D0D0" stroke-width="3"></path>
+                  <path class="donut-segment" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#5C4E4E" stroke-width="3" :stroke-dasharray="`${donutOffset} ${100 - donutOffset}`" stroke-dashoffset="25"></path>
                 </svg>
                 <div class="donut-inner-text">
                   <span class="donut-month">{{ selectedMonth.split(' ')[0] }}</span>
@@ -912,14 +954,16 @@ const sidebarSearchQuery = ref('')
 
 // Notification List with unread markers
 const notifications = ref([
-  { id: 'booking-1', type: 'booking', title: 'New Booking Request', desc: 'Green Ville, room 201 has completed their payment!', time: '13:01', group: 'Today', unread: true, date: 'Apr 25, 2024' },
-  { id: 'payment-1', type: 'payment', title: 'Payment', desc: 'Green Ville, room 201 has completed their payment!', time: '13:01', group: 'Today', unread: true, date: 'Apr 25, 2024' },
-  { id: 'payment-2', type: 'payment', title: 'Payment', desc: 'Green Ville, room 201 has completed their payment!', time: '13:01', group: 'Today', unread: false, date: 'Apr 25, 2024' },
-  { id: 'payment-3', type: 'payment', title: 'Payment', desc: 'Green Ville, room 201 has completed their payment!', time: '13:01', group: 'Today', unread: false, date: 'Apr 25, 2024' },
-  { id: 'payment-4', type: 'payment', title: 'Payment', desc: 'Green Ville, room 201 has completed their payment!', time: '13:01', group: 'Yesterday', unread: false, date: 'Apr 24, 2024' },
-  { id: 'payment-5', type: 'payment', title: 'Payment', desc: 'Green Ville, room 201 has completed their payment!', time: '13:01', group: 'Yesterday', unread: false, date: 'Apr 24, 2024' },
-  { id: 'payment-6', type: 'payment', title: 'Payment', desc: 'Green Ville, room 201 has completed their payment!', time: '13:01', group: 'Yesterday', unread: false, date: 'Apr 24, 2024' }
+  { id: 'booking-1', type: 'booking', title: 'New Booking Request', desc: 'New user Alice has requested to book Sunrise Apartments, room 105.', time: '13:01', group: 'Today', unread: true, date: 'Apr 25, 2024', roomName: 'Sunrise Apartments, Room 105', amount: '$400' },
+  { id: 'payment-1', type: 'payment', title: 'Payment', desc: 'Green Ville, room 201 has completed their payment!', time: '13:01', group: 'Today', unread: true, date: 'Apr 25, 2024', roomName: 'Green Ville, Room 201', amount: '$350' },
+  { id: 'payment-2', type: 'payment', title: 'Payment', desc: 'Blue Horizon, room 304 has completed their payment!', time: '11:45', group: 'Today', unread: false, date: 'Apr 25, 2024', roomName: 'Blue Horizon, Room 304', amount: '$420' },
+  { id: 'payment-3', type: 'payment', title: 'Payment', desc: 'Maple Residency, room 112 has completed their payment!', time: '09:30', group: 'Today', unread: false, date: 'Apr 25, 2024', roomName: 'Maple Residency, Room 112', amount: '$310' },
+  { id: 'payment-4', type: 'payment', title: 'Payment', desc: 'Oakwood Estate, room 405 has completed their payment!', time: '16:20', group: 'Yesterday', unread: false, date: 'Apr 24, 2024', roomName: 'Oakwood Estate, Room 405', amount: '$500' },
+  { id: 'payment-5', type: 'payment', title: 'Payment', desc: 'Sunset Villa, room 210 has completed their payment!', time: '14:15', group: 'Yesterday', unread: false, date: 'Apr 24, 2024', roomName: 'Sunset Villa, Room 210', amount: '$380' },
+  { id: 'payment-6', type: 'payment', title: 'Payment', desc: 'Riverfront Heights, room 501 has completed their payment!', time: '10:05', group: 'Yesterday', unread: false, date: 'Apr 24, 2024', roomName: 'Riverfront Heights, Room 501', amount: '$450' }
 ])
+
+const currentNotification = computed(() => notifications.value.find(n => n.id === selectedNotif.value))
 
 const filteredNotifications = computed(() => {
   let list = notifications.value
@@ -1232,9 +1276,9 @@ function changePin() {
   align-items: center;
   justify-content: space-between;
   padding: 12px 28px;
-  border-bottom: 1px solid #efefef;
+  border-bottom: none;
   flex-shrink: 0;
-  background: #fff;
+  background: #5C4E4E;
   z-index: 10;
 }
 
@@ -1242,17 +1286,17 @@ function changePin() {
 
 .logo-icon {
   width: 32px; height: 32px;
-  background: #f5f0eb; border-radius: 8px;
+  background: rgba(255,255,255,0.15); border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
-  color: #c0784a;
+  color: #ffffff;
 }
 
-.logo-text { font-weight: 600; font-size: 0.9rem; color: #111; }
+.logo-text { font-weight: 600; font-size: 1rem; color: #ffffff; }
 
 .avatar {
   width: 38px; height: 38px;
   border-radius: 50%; overflow: hidden;
-  border: 2px solid #eee;
+  border: 2px solid rgba(255,255,255,0.5);
 }
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -1280,7 +1324,7 @@ function changePin() {
   font-family: 'DM Serif Display', serif;
   font-size: 1.55rem;
   font-weight: 400;
-  color: #111;
+  color: #5C4E4E;
   line-height: 1.2;
   padding: 0 4px;
 }
@@ -1325,7 +1369,7 @@ function changePin() {
   width: 100%;
 }
 .nav-item:hover { background: #f7f7f7; color: #111; }
-.nav-item.active { background: #f3ede8; color: #111; font-weight: 600; }
+.nav-item.active { background: #D1D0D0; color: #111; font-weight: 600; }
 .nav-item svg { flex-shrink: 0; color: inherit; }
 
 /* ── MAIN ── */
@@ -1369,7 +1413,7 @@ function changePin() {
 
 .notif-icon-wrap {
   width: 52px; height: 52px; flex-shrink: 0;
-  background: #f3ede8; border-radius: 14px;
+  background: #D1D0D0; border-radius: 14px;
   display: flex; align-items: center; justify-content: center;
 }
 
@@ -1545,8 +1589,8 @@ function changePin() {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #f3ede8;
-  color: #c0784a;
+  background: #D1D0D0;
+  color: #5C4E4E;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1668,8 +1712,8 @@ function changePin() {
   font-weight: 600;
   padding: 4px 10px;
   border-radius: 20px;
-  background: #f3ede8;
-  color: #c0784a;
+  background: #D1D0D0;
+  color: #5C4E4E;
 }
 
 .profile-details-grid {
@@ -1708,7 +1752,7 @@ function changePin() {
 }
 
 .profile-input:focus {
-  border-color: #c0784a;
+  border-color: #5C4E4E;
   background: #fff;
 }
 
@@ -1770,7 +1814,7 @@ function changePin() {
 /* Donut Summary Card */
 .donut-summary-card {
   background: #ffffff;
-  border: 1px solid #f3ede8;
+  border: 1px solid #D1D0D0;
   border-radius: 16px;
   padding: 32px;
   display: flex;
@@ -1793,7 +1837,7 @@ function changePin() {
 .amount-collected-red {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #c0784a;
+  color: #5C4E4E;
 }
 
 .amount-collected-blue {
@@ -1884,7 +1928,7 @@ function changePin() {
 
 .kpi-card {
   background: #ffffff;
-  border: 1px solid #f3ede8;
+  border: 1px solid #D1D0D0;
   border-radius: 12px;
   padding: 18px 20px;
   display: flex;
@@ -1907,7 +1951,7 @@ function changePin() {
 
 .kpi-properties { background: #e0f2fe; color: #0284c7; }
 .kpi-revenue { background: #dcfce7; color: #16a34a; }
-.kpi-tenants { background: #f3ede8; color: #c0784a; }
+.kpi-tenants { background: #D1D0D0; color: #5C4E4E; }
 .kpi-maintenance { background: #fee2e2; color: #ef4444; }
 
 .kpi-copy {
@@ -1945,7 +1989,7 @@ function changePin() {
 
 .table-card {
   background: #ffffff;
-  border: 1px solid #f3ede8;
+  border: 1px solid #D1D0D0;
   border-radius: 16px;
   padding: 24px;
   display: flex;
@@ -2255,6 +2299,108 @@ function changePin() {
   max-width: 600px;
 }
 
+/* Booking Detail Info */
+.booking-details {
+  background: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Receipt Styles */
+.receipt-card {
+  background: #ffffff;
+  border: 1px dashed #d1d5db;
+  border-radius: 12px;
+  padding: 24px;
+  width: 100%;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.receipt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.receipt-header h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+  color: #111;
+}
+
+.status-badge.success {
+  background: #dcfce7;
+  color: #16a34a;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.receipt-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.receipt-row span {
+  color: #6b7280;
+}
+
+.receipt-row strong {
+  color: #111;
+  font-weight: 600;
+  text-align: right;
+}
+
+.receipt-row.total {
+  font-size: 1.1rem;
+}
+
+.receipt-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 8px 0;
+}
+
+.download-btn {
+  background: #5C4E4E;
+  color: #fff;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(92, 78, 78, 0.2);
+}
+
+.download-btn:hover {
+  background: #4A3E3E;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(92, 78, 78, 0.3);
+}
+
+.download-btn:active {
+  transform: translateY(0);
+}
+
 .security-card {
   background: #ffffff;
   border: 1px solid #efefef;
@@ -2464,8 +2610,8 @@ input:checked + .toggle-slider:before {
   color: #111;
 }
 .month-picker-item.active {
-  background: #f3ede8;
-  color: #c0784a;
+  background: #D1D0D0;
+  color: #5C4E4E;
   font-weight: 600;
 }
 
