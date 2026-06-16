@@ -110,33 +110,40 @@
               </div>
             </div>
 
+            <h3 class="section-subtitle">Account Details</h3>
             <div class="profile-details-grid">
               <div class="profile-detail-item">
                 <label>First Name</label>
-                <input type="text" v-model="landlordProfile.firstName" class="profile-input" />
+                <input type="text" v-model="landlordProfile.firstName" class="profile-input" :disabled="!isEditingProfile" />
               </div>
               <div class="profile-detail-item">
                 <label>Last Name</label>
-                <input type="text" v-model="landlordProfile.lastName" class="profile-input" />
+                <input type="text" v-model="landlordProfile.lastName" class="profile-input" :disabled="!isEditingProfile" />
               </div>
               <div class="profile-detail-item">
                 <label>Email</label>
-                <input type="email" v-model="landlordProfile.email" class="profile-input" />
+                <input type="email" v-model="landlordProfile.email" class="profile-input" :disabled="!isEditingProfile" />
               </div>
               <div class="profile-detail-item">
                 <label>Phone Number</label>
-                <input type="text" v-model="landlordProfile.phone" class="profile-input" />
+                <input type="text" v-model="landlordProfile.phone" class="profile-input" :disabled="!isEditingProfile" />
               </div>
-              <div class="profile-detail-item full-row">
+              <div class="profile-detail-item">
                 <label>Office Address</label>
-                <input type="text" v-model="landlordProfile.address" class="profile-input" />
+                <input type="text" v-model="landlordProfile.address" class="profile-input" :disabled="!isEditingProfile" />
               </div>
               <div class="profile-detail-item">
                 <label>Business License</label>
-                <input type="text" v-model="landlordProfile.license" class="profile-input" disabled />
+                <input type="text" v-model="landlordProfile.license" class="profile-input" :disabled="!isEditingProfile" />
               </div>
             </div>
-            <button class="btn-save-profile" @click="saveProfileInfo">Save Profile</button>
+            <div class="profile-actions-row">
+              <button v-if="!isEditingProfile" class="btn-save-profile" @click="isEditingProfile = true">Edit Profile</button>
+              <template v-else>
+                <button class="btn-save-profile" style="background: #22c55e;" @click="saveProfileInfo">Save Profile</button>
+                <button class="btn-save-profile outline" style="background: transparent; color: #111; border: 1.5px solid #e0e0e0;" @click="isEditingProfile = false">Cancel</button>
+              </template>
+            </div>
           </div>
         </div>
 
@@ -186,6 +193,12 @@
                       <path d="M12 14 L16 14" />
                     </svg>
                   </div>
+                  <div v-else-if="notif.type === 'payment'" class="notif-badge-logo" style="color: #16a34a; background: #dcfce7;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
+                      <line x1="2" y1="10" x2="22" y2="10"></line>
+                    </svg>
+                  </div>
                   <div v-else class="notif-badge-circle"></div>
                   <div class="notif-item-copy">
                     <span class="notif-item-title">{{ notif.title }}</span>
@@ -216,6 +229,12 @@
                       <path d="M4 18 L4 12 L9 7 L16 14" />
                       <path d="M12 18 L12 4 L16 4 L16 18 Z" />
                       <path d="M12 14 L16 14" />
+                    </svg>
+                  </div>
+                  <div v-else-if="notif.type === 'payment'" class="notif-badge-logo" style="color: #16a34a; background: #dcfce7;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
+                      <line x1="2" y1="10" x2="22" y2="10"></line>
                     </svg>
                   </div>
                   <div v-else class="notif-badge-circle"></div>
@@ -395,8 +414,8 @@
             <div class="donut-center-col">
               <div class="donut-chart-container">
                 <svg class="donut-svg" viewBox="0 0 36 36">
-                  <path class="donut-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#243444" stroke-width="3"></path>
-                  <path class="donut-segment" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#ef4444" stroke-width="3" :stroke-dasharray="`${donutOffset} ${100 - donutOffset}`" stroke-dashoffset="25"></path>
+                  <path class="donut-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f3ede8" stroke-width="3"></path>
+                  <path class="donut-segment" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#c0784a" stroke-width="3" :stroke-dasharray="`${donutOffset} ${100 - donutOffset}`" stroke-dashoffset="25"></path>
                 </svg>
                 <div class="donut-inner-text">
                   <span class="donut-month">{{ selectedMonth.split(' ')[0] }}</span>
@@ -427,7 +446,7 @@
           <!-- KPI Cards Row -->
           <div class="kpi-grid">
             <div class="kpi-card">
-              <div class="kpi-icon-wrapper">
+              <div class="kpi-icon-wrapper kpi-properties">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><polyline points="9 22 9 12 15 12 15 22"/>
                 </svg>
@@ -439,7 +458,7 @@
             </div>
 
             <div class="kpi-card">
-              <div class="kpi-icon-wrapper">
+              <div class="kpi-icon-wrapper kpi-revenue">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                 </svg>
@@ -451,7 +470,7 @@
             </div>
 
             <div class="kpi-card">
-              <div class="kpi-icon-wrapper">
+              <div class="kpi-icon-wrapper kpi-tenants">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                 </svg>
@@ -463,7 +482,7 @@
             </div>
 
             <div class="kpi-card">
-              <div class="kpi-icon-wrapper">
+              <div class="kpi-icon-wrapper kpi-maintenance">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
                 </svg>
@@ -860,7 +879,7 @@ import { properties } from '../../store.js'
 
 const route = useRoute()
 const router = useRouter()
-const activePage = ref(route.query.tab || 'notification')
+const activePage = ref(route.query.tab || 'profile')
 const selectedNotif = ref(null)
 const activeNotifTab = ref('main')
 
@@ -1144,6 +1163,7 @@ const dashboardProperties = ref([
 ])
 
 // Landlord Profile form data
+const isEditingProfile = ref(false)
 const landlordProfile = ref({
   firstName: 'Sangonomiya',
   lastName: 'Kokomi',
@@ -1156,6 +1176,7 @@ const landlordProfile = ref({
 })
 
 function saveProfileInfo() {
+  isEditingProfile.value = false
   triggerToast('Profile updated successfully!')
 }
 
@@ -1595,7 +1616,23 @@ function changePin() {
   border: 1px solid #efefef;
   border-radius: 16px;
   padding: 32px;
-  max-width: 680px;
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+}
+
+.section-subtitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.profile-actions-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 .profile-hero-mini {
@@ -1638,7 +1675,7 @@ function changePin() {
 .profile-details-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 20px;
   margin-bottom: 28px;
 }
 
@@ -1733,14 +1770,14 @@ function changePin() {
 /* Donut Summary Card */
 .donut-summary-card {
   background: #ffffff;
-  border: 1px solid #efefef;
+  border: 1px solid #f3ede8;
   border-radius: 16px;
   padding: 32px;
   display: flex;
   justify-content: space-around;
   align-items: center;
   position: relative;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.01);
+  box-shadow: 0 8px 30px rgba(192, 120, 74, 0.08);
   flex-wrap: wrap;
   gap: 24px;
 }
@@ -1756,7 +1793,7 @@ function changePin() {
 .amount-collected-red {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #ef4444;
+  color: #c0784a;
 }
 
 .amount-collected-blue {
@@ -1847,12 +1884,13 @@ function changePin() {
 
 .kpi-card {
   background: #ffffff;
-  border: 1px solid #efefef;
+  border: 1px solid #f3ede8;
   border-radius: 12px;
   padding: 18px 20px;
   display: flex;
   align-items: center;
   gap: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
 }
 
 .kpi-icon-wrapper {
@@ -1866,6 +1904,11 @@ function changePin() {
   justify-content: center;
   flex-shrink: 0;
 }
+
+.kpi-properties { background: #e0f2fe; color: #0284c7; }
+.kpi-revenue { background: #dcfce7; color: #16a34a; }
+.kpi-tenants { background: #f3ede8; color: #c0784a; }
+.kpi-maintenance { background: #fee2e2; color: #ef4444; }
 
 .kpi-copy {
   display: flex;
@@ -1902,11 +1945,12 @@ function changePin() {
 
 .table-card {
   background: #ffffff;
-  border: 1px solid #efefef;
+  border: 1px solid #f3ede8;
   border-radius: 16px;
   padding: 24px;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
 }
 
 .table-card-title {
