@@ -194,7 +194,9 @@
            <span class="p-amount"></span><span class="p-period">/monthly</span>
         </div>
       </div>
-      <button class="btn-submit" @click="handleSubmit">Submit</button>
+      <button class="btn-submit" @click="handleSubmit" :disabled="isSubmitting">
+        {{ isSubmitting ? 'Submitting...' : 'Submit' }}
+      </button>
     </footer>
   </div>
 </template>
@@ -214,6 +216,7 @@ const property = computed(() => {
 })
 
 const selectedRoom = ref('101A')
+const isSubmitting = ref(false)
 
 const form = reactive({
   firstName: '',
@@ -226,9 +229,23 @@ const form = reactive({
   altPhone: ''
 })
 
-const handleSubmit = () => {
-  alert('Application submitted!')
-  router.push('/home')
+const handleSubmit = async () => {
+  if (isSubmitting.value) return; // Extra layer of protection
+
+  isSubmitting.value = true;
+  
+  try {
+    // Simulating an API/Firebase network call delay (e.g., 1.5 seconds)
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    alert('Application submitted!');
+    router.push('/home');
+  } catch (error) {
+    console.error("Submission error:", error);
+    alert('Failed to submit. Please try again.');
+  } finally {
+    isSubmitting.value = false;
+  }
 }
 
 const goBack = () => {
@@ -473,9 +490,14 @@ const goBack = () => {
   width: 100%; padding: 18px; border-radius: 8px;
   background: #111; color: #fff; border: none;
   font-size: 1.1rem; font-weight: 500; cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, opacity 0.2s;
 }
-.btn-submit:hover { background: #222; }
+.btn-submit:hover:not(:disabled) { background: #222; }
+.btn-submit:disabled {
+  background: #666;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
