@@ -128,24 +128,24 @@
         <h2 class="section-title">Verify Identity</h2>
         <p class="section-subtitle">Take a clear selfie to match your face with your ID document.</p>
 
-        <div v-if="!selfiePreview" class="camera-container">
-          <video v-show="isSelfieCameraActive" ref="selfieVideoElement" autoplay playsinline muted class="camera-video"></video>
-          <div v-show="isSelfieCameraActive" class="camera-overlay">
+        <div v-show="isSelfieCameraActive && !selfiePreview" class="camera-container">
+          <video ref="selfieVideoElement" autoplay playsinline muted class="camera-video"></video>
+          <div class="camera-overlay">
             <div class="oval-cutout"></div>
           </div>
-          <div v-if="isSelfieCameraActive" class="liveness-msg" :class="{'text-success': isSelfieGood}">
+          <div class="liveness-msg" :class="{'text-success': isSelfieGood}">
             {{ selfieFeedbackMsg }}
           </div>
-          
-          <div v-if="!isSelfieCameraActive" class="upload-placeholder" style="padding: 40px 0; background: #fff; border: 2px dashed #cbd5e1; border-radius: 12px; margin-bottom: 16px;">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2" style="margin-bottom: 12px; display: block; margin-left: auto; margin-right: auto;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>
-            <span style="display: block; text-align: center; color: #64748b;">Ready to take your selfie</span>
-          </div>
+        </div>
+        
+        <div v-if="!isSelfieCameraActive && !selfiePreview" class="upload-placeholder" @click="startSelfieCamera" style="padding: 40px 0; background: #fff; border: 2px dashed #cbd5e1; border-radius: 12px; margin-bottom: 16px; cursor: pointer; transition: background 0.2s;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2" style="margin-bottom: 12px; display: block; margin-left: auto; margin-right: auto;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>
+          <span style="display: block; text-align: center; color: #64748b;">Tap here to open camera and take selfie</span>
         </div>
 
-        <div v-else class="upload-box" style="cursor: default;">
+        <div v-if="selfiePreview" class="upload-box" style="cursor: default;">
           <div class="preview-container">
-            <img :src="selfiePreview" alt="Selfie Preview" class="preview-image" style="object-fit: cover;" />
+            <img :src="selfiePreview" alt="Selfie Preview" class="preview-image" style="object-fit: contain; background: #000;" />
           </div>
         </div>
 
@@ -188,6 +188,15 @@
           </div>
         </div>
 
+        <div v-if="availableCameras.length > 1 && !selfiePreview" class="camera-selector" style="margin-top: 16px;">
+          <label for="selfie-camera-select" style="font-weight: 500; font-size: 14px; margin-right: 8px;">Switch Camera:</label>
+          <select id="selfie-camera-select" v-model="selectedCameraId" @change="onSelfieCameraSelectChange" style="padding: 6px; border-radius: 6px; border: 1px solid #ccc;">
+            <option v-for="cam in availableCameras" :key="cam.deviceId" :value="cam.deviceId">
+              {{ cam.label || 'Camera ' + (availableCameras.indexOf(cam) + 1) }}
+            </option>
+          </select>
+        </div>
+
         <button v-if="!isSelfieCameraActive && !selfiePreview" class="btn-primary" style="margin-top: 16px;" @click="startSelfieCamera">
           Open Camera
         </button>
@@ -227,26 +236,8 @@
         <!-- Dynamic Liveness Instruction Panel -->
         <div class="liveness-guide-card">
           <div class="guide-anim-wrapper">
-            <!-- Blink Animation (Shown during blink stage) -->
-            <div v-if="!isCameraActive || livenessStage === 'blink'" class="animation-container">
-              <div class="anim-avatar">
-                <svg viewBox="0 0 100 100" class="avatar-svg">
-                  <!-- Head -->
-                  <circle cx="50" cy="50" r="40" fill="#f8fafc" stroke="#4f46e5" stroke-width="2"/>
-                  <!-- Blinking Eyes -->
-                  <ellipse cx="36" cy="45" rx="5" ry="5" fill="#1e1b4b" class="eye-blink" />
-                  <ellipse cx="64" cy="45" rx="5" ry="5" fill="#1e1b4b" class="eye-blink" />
-                  <!-- Nose -->
-                  <path d="M50 48 L47 58 L53 58 Z" fill="#4f46e5" />
-                  <!-- Mouth -->
-                  <path d="M38 65 Q50 72 62 65" fill="none" stroke="#1e1b4b" stroke-width="3" stroke-linecap="round"/>
-                </svg>
-              </div>
-              <p class="anim-label">Blink both eyes twice</p>
-            </div>
-
             <!-- Turn Head Animation (Shown during turn stage) -->
-            <div v-if="isCameraActive && livenessStage === 'turn'" class="animation-container">
+            <div v-if="!isCameraActive || livenessStage === 'turn'" class="animation-container">
               <div class="anim-avatar">
                 <svg viewBox="0 0 100 100" class="avatar-svg">
                   <!-- Head -->
@@ -284,6 +275,15 @@
           <div v-if="isCameraActive" class="liveness-msg">
             {{ livenessMsg }}
           </div>
+        </div>
+
+        <div v-if="availableCameras.length > 1 && !isCameraActive" class="camera-selector" style="margin-top: 16px;">
+          <label for="liveness-camera-select" style="font-weight: 500; font-size: 14px; margin-right: 8px;">Switch Camera:</label>
+          <select id="liveness-camera-select" v-model="selectedCameraId" style="padding: 6px; border-radius: 6px; border: 1px solid #ccc;">
+            <option v-for="cam in availableCameras" :key="cam.deviceId" :value="cam.deviceId">
+              {{ cam.label || 'Camera ' + (availableCameras.indexOf(cam) + 1) }}
+            </option>
+          </select>
         </div>
 
         <button v-if="!isCameraActive" class="btn-primary" style="margin-top: 16px;" @click="startCamera">
@@ -389,6 +389,9 @@ onMounted(async () => {
     console.error("Error loading face-api models", e)
     alert("Failed to load AI models. Please ensure they are in public/models/")
   }
+
+  // Attempt to populate cameras early if permissions were already granted previously
+  await populateCameras()
 })
 
 function goBack() {
@@ -522,12 +525,43 @@ const isMatchingFace = ref(false)
 const faceMatchStatus = ref(null)
 const faceMatchErrorMsg = ref(null)
 
+// --- CAMERA SELECTION LOGIC ---
+const availableCameras = ref([])
+const selectedCameraId = ref('')
+
+async function populateCameras() {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices()
+    const videoInputs = devices.filter(device => device.kind === 'videoinput')
+    availableCameras.value = videoInputs
+    if (videoInputs.length > 0 && !selectedCameraId.value) {
+      const userCam = videoInputs.find(c => c.label.toLowerCase().includes('front') || c.label.toLowerCase().includes('user'))
+      selectedCameraId.value = userCam ? userCam.deviceId : videoInputs[0].deviceId
+    }
+  } catch (err) {
+    console.error("Error enumerating cameras:", err)
+  }
+}
+
 let selfieMediaStream = null
 let selfieLoopRunning = false
 
+function onSelfieCameraSelectChange() {
+  if (isSelfieCameraActive.value) {
+    stopSelfieCamera()
+    startSelfieCamera()
+  }
+}
+
 async function startSelfieCamera() {
   try {
-    selfieMediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+    let constraints = { video: true }
+    if (selectedCameraId.value) {
+      constraints = { video: { deviceId: { exact: selectedCameraId.value } } }
+    }
+    selfieMediaStream = await navigator.mediaDevices.getUserMedia(constraints)
+    await populateCameras()
+    
     if (selfieVideoElement.value) {
       selfieVideoElement.value.srcObject = selfieMediaStream
       selfieVideoElement.value.onloadedmetadata = () => {
@@ -539,7 +573,13 @@ async function startSelfieCamera() {
     }
   } catch (err) {
     console.error("Camera error:", err)
-    alert("Camera access denied or unavailable.")
+    // Even if it failed, try to list cameras. The user might be able to select a working one.
+    await populateCameras()
+    if (availableCameras.value.length > 1 && !selectedCameraId.value) {
+        alert("Primary camera failed. A camera dropdown has been enabled. Please select a different camera from the list.")
+    } else {
+        alert("Camera access denied or unavailable. Please check your browser permissions or connection.")
+    }
   }
 }
 
@@ -629,7 +669,12 @@ async function loadImageFromUrl(url) {
 }
 
 async function matchFace() {
-  if (!idPreview.value || !selfiePreview.value) {
+  if (!idPreview.value) {
+    faceMatchStatus.value = 'error'
+    faceMatchErrorMsg.value = 'Missing ID Card. Please go back to Step 1 and upload your ID.'
+    return
+  }
+  if (!selfiePreview.value) {
     faceMatchStatus.value = 'error'
     faceMatchErrorMsg.value = 'Please capture a selfie.'
     return
@@ -668,30 +713,14 @@ async function matchFace() {
   }
 }
 
-// --- STEP 3: REAL LIVENESS CHECK (Webcam Blink Detection) ---
+// --- STEP 3: REAL LIVENESS CHECK (Webcam Head Turn Detection) ---
 const videoElement = ref(null)
 const isCameraActive = ref(false)
 const livenessMsg = ref("Position your face and look at the camera.")
-const livenessStage = ref('blink')
-const blinkCount = ref(0)
+const livenessStage = ref('turn')
+
 let mediaStream = null
 let livenessLoopRunning = false
-let isBlinking = false
-const baselineEAR = ref(0)
-let earSamples = []
-
-// Calculates Eye Aspect Ratio to detect blinks
-function calculateEAR(eye) {
-  const p1 = eye[1], p2 = eye[5]; // Vertical 1
-  const p3 = eye[2], p4 = eye[4]; // Vertical 2
-  const p5 = eye[0], p6 = eye[3]; // Horizontal
-  
-  const vertical1 = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
-  const vertical2 = Math.sqrt(Math.pow(p3.x - p4.x, 2) + Math.pow(p3.y - p4.y, 2));
-  const horizontal = Math.sqrt(Math.pow(p5.x - p6.x, 2) + Math.pow(p5.y - p6.y, 2));
-  
-  return (vertical1 + vertical2) / (2.0 * horizontal);
-}
 
 async function analyzeLiveness() {
   if (!videoElement.value || !isCameraActive.value) return;
@@ -702,47 +731,7 @@ async function analyzeLiveness() {
     if (detection) {
       const landmarks = detection.landmarks
       
-      if (livenessStage.value === 'blink') {
-        const leftEye = landmarks.getLeftEye()
-        const rightEye = landmarks.getRightEye()
-        
-        const leftEAR = calculateEAR(leftEye)
-        const rightEAR = calculateEAR(rightEye)
-        const avgEAR = (leftEAR + rightEAR) / 2
-        
-        // Calibration Phase (collect 10 open-eye samples)
-        if (earSamples.length < 10) {
-          earSamples.push(avgEAR)
-          livenessMsg.value = `Calibrating sensors... Keep eyes open.`
-          return
-        }
-        
-        if (baselineEAR.value === 0) {
-          baselineEAR.value = earSamples.reduce((a, b) => a + b, 0) / earSamples.length
-        }
-        
-        // Calculate blink threshold dynamically (20% drop from baseline, bounded between 0.18 and 0.24)
-        const blinkThreshold = Math.max(0.18, Math.min(0.24, baselineEAR.value * 0.80))
-        
-        if (avgEAR < blinkThreshold) {
-          if (!isBlinking) {
-            isBlinking = true;
-            blinkCount.value++;
-            
-            if (blinkCount.value < 2) {
-              livenessMsg.value = `Blink detected! (${blinkCount.value}/2)`;
-            } else {
-              livenessStage.value = 'turn';
-              livenessMsg.value = "Great! Now slowly turn your head to one side.";
-            }
-          }
-        } else {
-          isBlinking = false;
-          if (blinkCount.value === 0) {
-              livenessMsg.value = "Face detected. Please blink twice.";
-          }
-        }
-      } else if (livenessStage.value === 'turn') {
+      if (livenessStage.value === 'turn') {
         // Head turn detection using 3D pose estimation from 2D landmarks
         const positions = landmarks.positions;
         const noseTip = positions[30]; // Tip of the nose
@@ -819,7 +808,13 @@ function stopLivenessLoop() {
 
 async function startCamera() {
   try {
-    mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+    let constraints = { video: true }
+    if (selectedCameraId.value) {
+      constraints = { video: { deviceId: { exact: selectedCameraId.value } } }
+    }
+    mediaStream = await navigator.mediaDevices.getUserMedia(constraints)
+    await populateCameras()
+    
     if (videoElement.value) {
       videoElement.value.srcObject = mediaStream
       
@@ -827,16 +822,18 @@ async function startCamera() {
         isCameraActive.value = true
         livenessMsg.value = "Initializing AI..."
         videoElement.value.play();
-        blinkCount.value = 0;
-        livenessStage.value = 'blink';
-        baselineEAR.value = 0;
-        earSamples = [];
+        livenessStage.value = 'turn';
         startLivenessLoop();
       }
     }
   } catch (err) {
     console.error("Camera error:", err)
-    alert("Camera access denied or unavailable.")
+    await populateCameras()
+    if (availableCameras.value.length > 1 && !selectedCameraId.value) {
+        alert("Primary camera failed. A camera dropdown has been enabled. Please select a different camera from the list.")
+    } else {
+        alert("Camera access denied or unavailable. Please check your browser permissions or connection.")
+    }
   }
 }
 
