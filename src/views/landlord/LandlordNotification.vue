@@ -14,9 +14,7 @@
         </div>
         <span class="logo-text">HomeSweet</span>
       </div>
-      <div class="avatar">
-        <img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=80&q=80" alt="User" />
-      </div>
+
     </header>
 
     <div class="body">
@@ -362,7 +360,7 @@
                 <span class="notif-time">{{ currentNotification?.date }}, {{ currentNotification?.time }}</span>
               </div>
             </div>
-            <div v-if="currentNotification?.type === 'payment'" class="receipt-card">
+            <div v-if="currentNotification?.type === 'payment'" class="receipt-card" id="receipt-pdf-target">
               <div class="receipt-header">
                 <h3>Payment Receipt</h3>
                 <span class="status-badge success">Paid</span>
@@ -399,7 +397,7 @@
                   <strong style="color: #5C4E4E;">{{ currentNotification?.amount || '$350' }}</strong>
                 </div>
               </div>
-              <button class="btn-dark download-btn" style="margin-top: 24px; width: 100%; display: flex; justify-content: center; gap: 8px;">
+              <button class="btn-dark download-btn" @click="downloadReceipt" style="margin-top: 24px; width: 100%; display: flex; justify-content: center; gap: 8px;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 Download PDF Receipt
               </button>
@@ -475,12 +473,24 @@
             <!-- Footer Stats row inside card -->
             <div class="donut-card-footer">
               <div class="footer-stat-group">
-                <span>Occupied : {{ currentMonthStats.occupied }}</span>
-                <span>Vacant : {{ currentMonthStats.vacant }}</span>
+                <div class="stat-col">
+                  <span class="stat-label">Occupied</span>
+                  <span class="stat-value">{{ currentMonthStats.occupied }}</span>
+                </div>
+                <div class="stat-col">
+                  <span class="stat-label">Vacant</span>
+                  <span class="stat-value">{{ currentMonthStats.vacant }}</span>
+                </div>
               </div>
               <div class="footer-stat-group">
-                <span>Properties : {{ rentalProperties.length }}</span>
-                <span>Tenants : {{ currentMonthStats.tenants }}</span>
+                <div class="stat-col">
+                  <span class="stat-label">Properties</span>
+                  <span class="stat-value">{{ rentalProperties.length }}</span>
+                </div>
+                <div class="stat-col">
+                  <span class="stat-label">Tenants</span>
+                  <span class="stat-value">{{ currentMonthStats.tenants }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -800,29 +810,113 @@
           <h3 style="font-weight: 700; color: #111; margin: 0;">Create New Rental Listing</h3>
           <button class="chat-close-btn" @click="showCreateListingModal = false">&times;</button>
         </header>
-        <div class="chat-modal-body">
-          <div style="display: flex; flex-direction: column; gap: 14px;">
-            <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px;">
-              <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Property Name</label>
-              <input type="text" v-model="newListingName" class="profile-input" placeholder="e.g. Green Village Suite" />
+        <div class="chat-modal-body" style="max-height: 65vh; overflow-y: auto; overflow-x: hidden;">
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            
+            <!-- Basic Info Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+              <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px; grid-column: span 2;">
+                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Property Name (Title)</label>
+                <input type="text" v-model="newListingName" class="profile-input" placeholder="e.g. Green Village Suite" />
+              </div>
+
+              <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Property Type</label>
+                <select v-model="newListingType" class="profile-input">
+                  <option value="Apartment">Apartment</option>
+                  <option value="House">House</option>
+                  <option value="Condo">Condo</option>
+                  <option value="Studio">Studio</option>
+                </select>
+              </div>
+
+              <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Lease Period</label>
+                <select v-model="newListingPeriod" class="profile-input">
+                  <option value="Long-term">Long-term (1 yr+)</option>
+                  <option value="Short-term">Short-term (Month-to-month)</option>
+                </select>
+              </div>
+
+              <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px; grid-column: span 2;">
+                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Full Address / Location</label>
+                <input type="text" v-model="newListingLocation" class="profile-input" placeholder="e.g. Sen Sok, Phnom Penh" />
+              </div>
             </div>
-            <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px;">
-              <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Location</label>
-              <input type="text" v-model="newListingLocation" class="profile-input" placeholder="e.g. Sen Sok, Phnom Penh" />
+
+            <!-- Details Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+              <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Price ($/mo)</label>
+                <input type="number" v-model="newListingPrice" class="profile-input" min="0" />
+              </div>
+              <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Square Footage (sqft)</label>
+                <input type="number" v-model="newListingSqft" class="profile-input" min="0" />
+              </div>
+              <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Bedrooms</label>
+                <input type="number" v-model="newListingBedrooms" class="profile-input" min="0" />
+              </div>
+              <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Beds</label>
+                <input type="number" v-model="newListingBeds" class="profile-input" min="0" />
+              </div>
+              <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Baths</label>
+                <input type="number" v-model="newListingBaths" class="profile-input" min="0" step="0.5" />
+              </div>
             </div>
+
+            <!-- Description -->
             <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px;">
-              <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Price ($/month)</label>
-              <input type="number" v-model="newListingPrice" class="profile-input" />
+              <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Property Description</label>
+              <textarea v-model="newListingDescription" class="profile-input" rows="3" placeholder="Describe the property highlights..."></textarea>
             </div>
-            <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px;">
-              <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Property Image Thumbnail</label>
-              <select v-model="newListingImage" class="profile-input">
-                <option value="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80">Luxury Villa Modern</option>
-                <option value="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=80">Cozy Apartment Warm</option>
-                <option value="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400&q=80">Premium Suite Penthouse</option>
-                <option value="https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=400&q=80">Urban Studio Minimalist</option>
-              </select>
+
+            <!-- Amenities -->
+            <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 8px;">
+              <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Amenities</label>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #333; cursor: pointer;">
+                  <input type="checkbox" v-model="newListingAmenities" value="wifi" /> WiFi
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #333; cursor: pointer;">
+                  <input type="checkbox" v-model="newListingAmenities" value="ac" /> Air Conditioning
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #333; cursor: pointer;">
+                  <input type="checkbox" v-model="newListingAmenities" value="kitchen" /> Kitchen
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #333; cursor: pointer;">
+                  <input type="checkbox" v-model="newListingAmenities" value="parking" /> Parking
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #333; cursor: pointer;">
+                  <input type="checkbox" v-model="newListingAmenities" value="gym" /> Gym
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #333; cursor: pointer;">
+                  <input type="checkbox" v-model="newListingAmenities" value="pool" /> Swimming Pool
+                </label>
+              </div>
             </div>
+
+            <!-- Image Upload -->
+            <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 1px solid #efefef;">
+              <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Property Image (Cover)</label>
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div v-if="newListingImage" style="width: 80px; height: 60px; border-radius: 6px; border: 1px solid #ddd; overflow: hidden; flex-shrink: 0;">
+                  <img :src="newListingImage" style="width: 100%; height: 100%; object-fit: cover;" alt="Preview" />
+                </div>
+                <div v-else style="width: 80px; height: 60px; border-radius: 6px; border: 1px dashed #ccc; background: #fafafa; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #999;">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                </div>
+                <label class="btn-dark" style="padding: 12px 20px; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; margin: 0; border-radius: 8px; font-weight: 600; background: #5C4E4E; color: #fff; border: none; flex: 1; justify-content: center;">
+                  <input type="file" accept="image/*" @change="handleRealUpload" style="display: none;" />
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  Upload from Device
+                </label>
+              </div>
+            </div>
+
           </div>
         </div>
         <footer class="chat-modal-footer">
@@ -871,8 +965,9 @@
             </div>
           </div>
         </div>
-        <footer class="chat-modal-footer">
-          <button class="chat-send-btn" style="width: 100%;" @click="showTenantProfileModal = false">Close Profile</button>
+        <footer class="chat-modal-footer" style="display: flex; gap: 12px;">
+          <button class="chat-cancel-btn" style="flex: 1;" @click="showTenantProfileModal = false">Close</button>
+          <button class="chat-send-btn" style="flex: 1; background: #5C4E4E;" @click="goToFullProfile">View Full Profile</button>
         </footer>
       </div>
     </div>
@@ -918,10 +1013,11 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { properties } from '../../store.js'
+import html2pdf from 'html2pdf.js'
 
 const route = useRoute()
 const router = useRouter()
-const activePage = ref(route.query.tab || 'profile')
+const activePage = ref(route.query.tab || 'dashboard')
 const selectedNotif = ref(null)
 const activeNotifTab = ref('main')
 
@@ -1003,8 +1099,30 @@ function triggerToast(msg) {
   }, 3000)
 }
 
+function downloadReceipt() {
+  const element = document.getElementById('receipt-pdf-target')
+  if (!element) return
+  
+  const opt = {
+    margin:       10,
+    filename:     'Payment_Receipt.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  }
+  
+  html2pdf().set(opt).from(element).save().then(() => {
+    triggerToast("Receipt downloaded successfully!")
+  })
+}
+
 function viewTenantProfile() {
   showTenantProfileModal.value = true
+}
+
+function goToFullProfile() {
+  showTenantProfileModal.value = false
+  router.push('/roommate-match')
 }
 
 function openChatWithTenant() {
@@ -1134,7 +1252,27 @@ const showCreateListingModal = ref(false)
 const newListingName = ref('')
 const newListingLocation = ref('')
 const newListingPrice = ref(250)
-const newListingImage = ref('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80')
+const newListingType = ref('Apartment')
+const newListingBedrooms = ref(1)
+const newListingBeds = ref(1)
+const newListingBaths = ref(1)
+const newListingSqft = ref(500)
+const newListingPeriod = ref('Long-term')
+const newListingAmenities = ref([])
+const newListingDescription = ref('')
+const newListingImage = ref('')
+
+function handleRealUpload(event) {
+  const file = event.target.files[0]
+  if (!file) return
+  
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    newListingImage.value = e.target.result
+    triggerToast('Image uploaded successfully!')
+  }
+  reader.readAsDataURL(file)
+}
 
 function createNewListing() {
   if (!newListingName.value.trim()) return
@@ -1144,21 +1282,22 @@ function createNewListing() {
     id: newId,
     name: newListingName.value,
     price: newListingPrice.value || 250,
-    type: 'apartment',
-    location: newListingLocation.value || 'Sen Sok, Phnom Penh',
+    type: newListingType.value,
+    location: newListingLocation.value || 'Phnom Penh',
     lat: 11.5750 + (Math.random() - 0.5) * 0.05,
     lng: 104.8850 + (Math.random() - 0.5) * 0.05,
-    beds: 2,
-    baths: 2,
-    sqft: 120,
+    bedrooms: newListingBedrooms.value,
+    beds: newListingBeds.value,
+    baths: newListingBaths.value,
+    sqft: newListingSqft.value,
     match: 95,
     liked: false,
     activeSlide: 0,
     rating: 5.0,
-    period: 'Long-term',
-    amenities: ['wifi', 'kitchen', 'ac', 'parking'],
-    images: [newListingImage.value],
-    image: newListingImage.value
+    period: newListingPeriod.value,
+    amenities: newListingAmenities.value.length ? newListingAmenities.value : ['wifi'],
+    images: [newListingImage.value || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80'],
+    image: newListingImage.value || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80'
   }
   
   properties.value.unshift(newProperty)
@@ -1172,8 +1311,18 @@ function createNewListing() {
   })
 
   triggerToast(`Property "${newListingName.value}" listed successfully!`)
+  
+  // Reset form
   newListingName.value = ''
   newListingLocation.value = ''
+  newListingPrice.value = 250
+  newListingType.value = 'Apartment'
+  newListingBedrooms.value = 1
+  newListingBeds.value = 1
+  newListingBaths.value = 1
+  newListingSqft.value = 500
+  newListingAmenities.value = []
+  
   showCreateListingModal.value = false
 }
 
@@ -1917,6 +2066,24 @@ function changePin() {
 .footer-stat-group {
   display: flex;
   gap: 24px;
+}
+
+.stat-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  color: #111;
+  font-weight: 600;
 }
 
 /* KPI Grid */
@@ -2795,5 +2962,155 @@ input:checked + .toggle-slider:before {
 .toast-fade-leave-to {
   opacity: 0;
   transform: translate(-50%, -10px);
+}
+
+/* --- Mobile Responsive Rules --- */
+@media (max-width: 768px) {
+  .body {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid #efefef;
+    padding: 12px 16px;
+    flex-direction: row;
+    align-items: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 8px;
+    z-index: 5;
+    background: #fff;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .sidebar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .sidebar-title, .search-box, .nav-group-label {
+    display: none;
+  }
+  
+  .sidebar-nav {
+    flex-direction: row;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  
+  .nav-item {
+    padding: 8px 16px;
+    width: auto;
+    white-space: nowrap;
+    border-radius: 20px;
+    background: #f1f1f1;
+    font-size: 0.85rem;
+    justify-content: center;
+  }
+  
+  .nav-item.active {
+    background: #5C4E4E;
+    color: #fff;
+  }
+
+  .main-content {
+    padding: 16px;
+    overflow: visible;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  /* Dashboard */
+  .dashboard-grid, .finance-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .quick-actions {
+    flex-wrap: wrap;
+  }
+
+  .action-btn {
+    flex: 1 1 calc(50% - 12px);
+  }
+
+  /* Rental */
+  .properties-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Notifications */
+  .notif-container {
+    flex-direction: column;
+    height: auto;
+    max-height: none;
+  }
+  
+  .notif-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #efefef;
+    max-height: 350px;
+  }
+
+  .notif-main {
+    min-height: 400px;
+  }
+
+  .chat-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  /* Security / Profile */
+  .security-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .profile-details-grid, .account-tab-content {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-actions-row {
+    flex-direction: column;
+  }
+
+  .btn-save-profile {
+    width: 100%;
+  }
+
+  /* Tables & Leasing */
+  .lease-table-card, .table-card {
+    padding: 16px;
+    overflow-x: auto;
+  }
+  
+  .lease-table {
+    min-width: 700px;
+  }
+  
+  .dashboard-table {
+    min-width: 450px;
+  }
+
+  /* Modals */
+  .chat-modal-box {
+    width: 95%;
+  }
+
+  .chat-modal-body > div > div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+  }
 }
 </style>
