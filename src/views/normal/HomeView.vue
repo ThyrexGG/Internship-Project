@@ -1628,7 +1628,6 @@ const navigateToSearch = () => {
 
 const applyFiltersAndNavigate = () => {
   filterOpen.value = false
-  navigateToSearch()
 }
 
 
@@ -2082,11 +2081,45 @@ const favoriteProperties = computed(() => {
 })
 
 const filteredProperties = computed(() => {
-  if (!searchQuery.value) return properties.value
-  return properties.value.filter(p =>
-    p.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    p.location.toLowerCase().includes(searchQuery.value.toLowerCase())
-  )
+  let list = properties.value
+
+  if (searchQuery.value) {
+    const q = searchQuery.value.toLowerCase()
+    list = list.filter(p => p.name.toLowerCase().includes(q) || p.location.toLowerCase().includes(q))
+  }
+
+  const state = filterState.value
+  
+  if (state.type !== 'Any type') {
+    list = list.filter(p => {
+      const pType = (p.type || '').toLowerCase()
+      const sType = state.type.toLowerCase().replace('entire ', '')
+      return pType === state.type.toLowerCase() || pType.includes(sType)
+    })
+  }
+  
+  list = list.filter(p => p.price >= state.priceMin && p.price <= state.priceMax)
+  
+  if (state.bedrooms > 0) list = list.filter(p => (p.bedrooms || p.beds) >= state.bedrooms)
+  if (state.beds > 0) list = list.filter(p => p.beds >= state.beds)
+  if (state.bathrooms > 0) list = list.filter(p => p.baths >= state.bathrooms)
+  
+  if (state.amenities && state.amenities.length > 0) {
+    list = list.filter(p => state.amenities.every(a => p.amenities && p.amenities.includes(a)))
+  }
+  
+  if (state.period !== 'Any') {
+    list = list.filter(p => p.period === state.period)
+  }
+
+  if (state.rate !== 'Any') {
+    const minRate = parseFloat(state.rate)
+    if (!isNaN(minRate)) {
+      list = list.filter(p => p.rating >= minRate)
+    }
+  }
+  
+  return list
 })
 </script>
 

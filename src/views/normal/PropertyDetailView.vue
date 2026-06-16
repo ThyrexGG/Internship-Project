@@ -213,13 +213,10 @@ const scrollGallery = (dir) => {
 }
 
 const goBack = () => {
-  const from = route.query.from
-  if (from && from.startsWith('landlord')) {
-    const tab = from.split('-')[1]
-    const query = tab ? `?tab=${tab}` : ''
-    router.push(`/landlord${query}`)
+  if (window.history.length > 1) {
+    router.back()
   } else {
-    router.push('/home')
+    router.push('/')
   }
 }
 
