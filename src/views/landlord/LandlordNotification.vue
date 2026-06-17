@@ -64,6 +64,12 @@
             </svg>
             Leasing
           </button>
+          <button class="nav-item nav-item-create" :class="{ active: activePage === 'create' }" @click="activePage = 'create'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            Create Listing
+          </button>
 
           <p class="nav-group-label">Account &amp; Help</p>
           <button class="nav-item" :class="{ active: activePage === 'help' }" @click="activePage = 'help'">
@@ -613,12 +619,6 @@
               </svg>
               <input type="text" placeholder="Search properties..." v-model="rentalSearchQuery" />
             </div>
-            <button class="btn-create-new" @click="showCreateListingModal = true">
-              Create new
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </button>
           </div>
 
           <!-- Properties section -->
@@ -694,7 +694,178 @@
           </div>
         </div>
 
-        <!-- CASE 6: HELP PAGE -->
+        <!-- CASE 6: CREATE LISTING PAGE -->
+        <div v-else-if="activePage === 'create'" class="create-tab-content">
+          <div class="page-header">
+            <h2 class="page-title">Create New Rental Listing</h2>
+          </div>
+          <div class="create-layout">
+            <div class="create-left">
+              <!-- Image Upload Area -->
+              <div class="image-upload-area" :class="{ 'has-image': newListingImages.length > 0 }">
+                <div v-if="newListingImages.length > 0" class="image-grid">
+                  <div v-for="(img, idx) in newListingImages" :key="idx" class="image-preview">
+                    <img :src="img" alt="Preview" />
+                    <button class="btn-remove-image" @click="newListingImages.splice(idx, 1)">&times;</button>
+                  </div>
+                  <label class="add-more-card">
+                    <input type="file" accept="image/*" multiple @change="handleRealUpload" style="display: none;" />
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    <span>Add More</span>
+                  </label>
+                </div>
+                <div v-else class="image-placeholder">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <polyline points="21 15 16 10 5 21"></polyline>
+                  </svg>
+                  <p>Drag and drop photos or</p>
+                  <label class="btn-dark" style="margin-top: 12px; cursor: pointer; background: #5C4E4E; color: white; padding: 10px 24px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; display: inline-block; text-align: center;">
+                    <input type="file" accept="image/*" multiple @change="handleRealUpload" style="display: none;" />
+                    Upload from Device
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="create-right">
+              <!-- Basic Info -->
+              <div class="form-section">
+                <h3 class="section-title">Basic Info</h3>
+                <div class="form-group full-width">
+                  <label>Property Name (Title)</label>
+                  <input type="text" v-model="newListingName" class="form-input" placeholder="e.g. Green Village Suite" />
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Property Type</label>
+                    <select v-model="newListingType" class="form-input">
+                      <option value="Apartment">Apartment</option>
+                      <option value="House">House</option>
+                      <option value="Condo">Condo</option>
+                      <option value="Studio">Studio</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Lease Period</label>
+                    <select v-model="newListingPeriod" class="form-input">
+                      <option value="Long-term">Long-term (1 yr+)</option>
+                      <option value="Short-term">Short-term (Month-to-month)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group full-width">
+                  <label>Full Address / Location</label>
+                  <input type="text" v-model="newListingLocation" class="form-input" placeholder="e.g. Sen Sok, Phnom Penh" />
+                </div>
+              </div>
+
+              <!-- Details -->
+              <div class="form-section">
+                <h3 class="section-title">Details & Pricing</h3>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Price ($/mo)</label>
+                    <input type="number" v-model="newListingPrice" class="form-input" min="0" />
+                  </div>
+                  <div class="form-group">
+                    <label>Square Footage (sqft)</label>
+                    <input type="number" v-model="newListingSqft" class="form-input" min="0" />
+                  </div>
+                </div>
+                <div class="form-row three-cols">
+                  <div class="form-group">
+                    <label>Bedrooms</label>
+                    <input type="number" v-model="newListingBedrooms" class="form-input" min="0" />
+                  </div>
+                  <div class="form-group">
+                    <label>Beds</label>
+                    <input type="number" v-model="newListingBeds" class="form-input" min="0" />
+                  </div>
+                  <div class="form-group">
+                    <label>Baths</label>
+                    <input type="number" v-model="newListingBaths" class="form-input" min="0" step="0.5" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Max Occupancy (Pax)</label>
+                    <input type="text" v-model="newListingPax" class="form-input" placeholder="e.g. 2/4" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Description -->
+              <div class="form-section">
+                <h3 class="section-title">Description</h3>
+                <div class="form-group full-width">
+                  <textarea v-model="newListingDescription" class="form-input" rows="4" placeholder="Describe the property highlights..."></textarea>
+                </div>
+              </div>
+
+              <!-- Amenities -->
+              <div class="form-section">
+                <h3 class="section-title">Amenities</h3>
+                <div class="amenities-pills">
+                  <label class="amenity-pill" :class="{ selected: newListingAmenities.includes('wifi') }">
+                    <input type="checkbox" v-model="newListingAmenities" value="wifi" style="display: none;" />
+                    WiFi
+                  </label>
+                  <label class="amenity-pill" :class="{ selected: newListingAmenities.includes('ac') }">
+                    <input type="checkbox" v-model="newListingAmenities" value="ac" style="display: none;" />
+                    Air Conditioning
+                  </label>
+                  <label class="amenity-pill" :class="{ selected: newListingAmenities.includes('kitchen') }">
+                    <input type="checkbox" v-model="newListingAmenities" value="kitchen" style="display: none;" />
+                    Kitchen
+                  </label>
+                  <label class="amenity-pill" :class="{ selected: newListingAmenities.includes('parking') }">
+                    <input type="checkbox" v-model="newListingAmenities" value="parking" style="display: none;" />
+                    Parking
+                  </label>
+                  <label class="amenity-pill" :class="{ selected: newListingAmenities.includes('gym') }">
+                    <input type="checkbox" v-model="newListingAmenities" value="gym" style="display: none;" />
+                    Gym
+                  </label>
+                  <label class="amenity-pill" :class="{ selected: newListingAmenities.includes('pool') }">
+                    <input type="checkbox" v-model="newListingAmenities" value="pool" style="display: none;" />
+                    Swimming Pool
+                  </label>
+                </div>
+              </div>
+
+              <!-- Contact Details -->
+              <div class="form-section">
+                <h3 class="section-title">Contact Details</h3>
+                <div class="form-group full-width">
+                  <label>Contact Name / Entity</label>
+                  <input type="text" v-model="newListingContactName" class="form-input" placeholder="e.g. Skystar Condo Cambodia" />
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Phone Number(s)</label>
+                    <input type="text" v-model="newListingContactPhone" class="form-input" placeholder="e.g. 081 743 949" />
+                  </div>
+                  <div class="form-group">
+                    <label>Social / Telegram Handle</label>
+                    <input type="text" v-model="newListingContactSocial" class="form-input" placeholder="e.g. @skystar_condo" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Area -->
+              <div class="create-action-area">
+                <button class="btn-publish" @click="publishListing" :disabled="!newListingName.trim()">
+                  Publish Listing
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- CASE 7: HELP PAGE -->
         <div v-else-if="activePage === 'help'" class="help-tab-content">
           <div class="page-header">
             <h2 class="page-title">Help &amp; FAQs</h2>
@@ -802,130 +973,7 @@
     </div>
   </div>
 
-  <!-- Create Property Listing Modal -->
-  <transition name="modal-fade">
-    <div v-if="showCreateListingModal" class="chat-modal-overlay" @click.self="showCreateListingModal = false">
-      <div class="chat-modal-box">
-        <header class="chat-modal-header">
-          <h3 style="font-weight: 700; color: #5C4E4E; margin: 0;">Create New Rental Listing</h3>
-          <button class="chat-close-btn" @click="showCreateListingModal = false">&times;</button>
-        </header>
-        <div class="chat-modal-body" style="max-height: 65vh; overflow-y: auto; overflow-x: hidden;">
-          <div style="display: flex; flex-direction: column; gap: 20px;">
-            
-            <!-- Basic Info Grid -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-              <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px; grid-column: span 2;">
-                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Property Name (Title)</label>
-                <input type="text" v-model="newListingName" class="profile-input" placeholder="e.g. Green Village Suite" />
-              </div>
-
-              <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Property Type</label>
-                <select v-model="newListingType" class="profile-input">
-                  <option value="Apartment">Apartment</option>
-                  <option value="House">House</option>
-                  <option value="Condo">Condo</option>
-                  <option value="Studio">Studio</option>
-                </select>
-              </div>
-
-              <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Lease Period</label>
-                <select v-model="newListingPeriod" class="profile-input">
-                  <option value="Long-term">Long-term (1 yr+)</option>
-                  <option value="Short-term">Short-term (Month-to-month)</option>
-                </select>
-              </div>
-
-              <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px; grid-column: span 2;">
-                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Full Address / Location</label>
-                <input type="text" v-model="newListingLocation" class="profile-input" placeholder="e.g. Sen Sok, Phnom Penh" />
-              </div>
-            </div>
-
-            <!-- Details Grid -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-              <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Price ($/mo)</label>
-                <input type="number" v-model="newListingPrice" class="profile-input" min="0" />
-              </div>
-              <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Square Footage (sqft)</label>
-                <input type="number" v-model="newListingSqft" class="profile-input" min="0" />
-              </div>
-              <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Bedrooms</label>
-                <input type="number" v-model="newListingBedrooms" class="profile-input" min="0" />
-              </div>
-              <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Beds</label>
-                <input type="number" v-model="newListingBeds" class="profile-input" min="0" />
-              </div>
-              <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Baths</label>
-                <input type="number" v-model="newListingBaths" class="profile-input" min="0" step="0.5" />
-              </div>
-            </div>
-
-            <!-- Description -->
-            <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 4px;">
-              <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Property Description</label>
-              <textarea v-model="newListingDescription" class="profile-input" rows="3" placeholder="Describe the property highlights..."></textarea>
-            </div>
-
-            <!-- Amenities -->
-            <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 8px;">
-              <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Amenities</label>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #333; cursor: pointer;">
-                  <input type="checkbox" v-model="newListingAmenities" value="wifi" /> WiFi
-                </label>
-                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #333; cursor: pointer;">
-                  <input type="checkbox" v-model="newListingAmenities" value="ac" /> Air Conditioning
-                </label>
-                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #333; cursor: pointer;">
-                  <input type="checkbox" v-model="newListingAmenities" value="kitchen" /> Kitchen
-                </label>
-                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #333; cursor: pointer;">
-                  <input type="checkbox" v-model="newListingAmenities" value="parking" /> Parking
-                </label>
-                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #333; cursor: pointer;">
-                  <input type="checkbox" v-model="newListingAmenities" value="gym" /> Gym
-                </label>
-                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #333; cursor: pointer;">
-                  <input type="checkbox" v-model="newListingAmenities" value="pool" /> Swimming Pool
-                </label>
-              </div>
-            </div>
-
-            <!-- Image Upload -->
-            <div class="profile-detail-item" style="display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 1px solid #efefef;">
-              <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Property Image (Cover)</label>
-              <div style="display: flex; gap: 12px; align-items: center;">
-                <div v-if="newListingImage" style="width: 80px; height: 60px; border-radius: 6px; border: 1px solid #ddd; overflow: hidden; flex-shrink: 0;">
-                  <img :src="newListingImage" style="width: 100%; height: 100%; object-fit: cover;" alt="Preview" />
-                </div>
-                <div v-else style="width: 80px; height: 60px; border-radius: 6px; border: 1px dashed #ccc; background: #fafafa; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #999;">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                </div>
-                <label class="btn-dark" style="padding: 12px 20px; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; margin: 0; border-radius: 8px; font-weight: 600; background: #5C4E4E; color: #fff; border: none; flex: 1; justify-content: center;">
-                  <input type="file" accept="image/*" @change="handleRealUpload" style="display: none;" />
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                  Upload from Device
-                </label>
-              </div>
-            </div>
-
-          </div>
-        </div>
-        <footer class="chat-modal-footer">
-          <button class="chat-cancel-btn" @click="showCreateListingModal = false">Cancel</button>
-          <button class="chat-send-btn" @click="createNewListing" :disabled="!newListingName.trim()">Create Listing</button>
-        </footer>
-      </div>
-    </div>
-  </transition>
+  
 
   <!-- Tenant Profile Modal -->
   <transition name="modal-fade">
@@ -1248,7 +1296,7 @@ const filteredRentalProperties = computed(() => {
   return rentalProperties.value.filter(p => p.name.toLowerCase().includes(q))
 })
 
-const showCreateListingModal = ref(false)
+
 const newListingName = ref('')
 const newListingLocation = ref('')
 const newListingPrice = ref(250)
@@ -1257,24 +1305,30 @@ const newListingBedrooms = ref(1)
 const newListingBeds = ref(1)
 const newListingBaths = ref(1)
 const newListingSqft = ref(500)
+const newListingPax = ref('')
 const newListingPeriod = ref('Long-term')
 const newListingAmenities = ref([])
 const newListingDescription = ref('')
-const newListingImage = ref('')
+const newListingImages = ref([])
+const newListingContactName = ref('')
+const newListingContactPhone = ref('')
+const newListingContactSocial = ref('')
 
 function handleRealUpload(event) {
-  const file = event.target.files[0]
-  if (!file) return
+  const files = event.target.files
+  if (!files || files.length === 0) return
   
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    newListingImage.value = e.target.result
-    triggerToast('Image uploaded successfully!')
+  for (let i = 0; i < files.length; i++) {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      newListingImages.value.push(e.target.result)
+    }
+    reader.readAsDataURL(files[i])
   }
-  reader.readAsDataURL(file)
+  triggerToast(`${files.length} image(s) added!`)
 }
 
-function createNewListing() {
+function publishListing() {
   if (!newListingName.value.trim()) return
   
   const newId = properties.value.length > 0 ? Math.max(...properties.value.map(p => p.id)) + 1 : 1
@@ -1290,29 +1344,29 @@ function createNewListing() {
     beds: newListingBeds.value,
     baths: newListingBaths.value,
     sqft: newListingSqft.value,
-    match: 95,
-    liked: false,
-    activeSlide: 0,
-    rating: 5.0,
+    pax: newListingPax.value,
     period: newListingPeriod.value,
-    amenities: newListingAmenities.value.length ? newListingAmenities.value : ['wifi'],
-    images: [newListingImage.value || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80'],
-    image: newListingImage.value || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80'
+    amenities: [...newListingAmenities.value],
+    rating: 0,
+    reviews: 0,
+    contactName: newListingContactName.value,
+    contactPhone: newListingContactPhone.value,
+    contactSocial: newListingContactSocial.value,
+    renter: { name: newListingContactName.value || 'You (Landlord)', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&q=80' },
+    images: newListingImages.value.length ? [...newListingImages.value] : ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80'],
+    image: newListingImages.value[0] || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80',
+    description: newListingDescription.value
   }
   
-  properties.value.unshift(newProperty)
+  properties.value.push(newProperty)
   
-  // Also add to dashboard properties table for consistency
-  dashboardProperties.value.unshift({
-    name: newListingName.value,
-    tenants: 'Vacant',
-    status: 'Vacant',
-    income: '$0'
-  })
-
-  triggerToast(`Property "${newListingName.value}" listed successfully!`)
+  const dashboardItem = {
+    id: newId,
+    name: newProperty.name,
+    image: newProperty.image
+  }
+  rentalProperties.value.unshift(dashboardItem)
   
-  // Reset form
   newListingName.value = ''
   newListingLocation.value = ''
   newListingPrice.value = 250
@@ -1321,9 +1375,16 @@ function createNewListing() {
   newListingBeds.value = 1
   newListingBaths.value = 1
   newListingSqft.value = 500
+  newListingPax.value = ''
+  newListingPeriod.value = 'Long-term'
   newListingAmenities.value = []
+  newListingDescription.value = ''
+  newListingImages.value = []
+  newListingContactName.value = ''
+  newListingContactPhone.value = ''
+  newListingContactSocial.value = ''
   
-  showCreateListingModal.value = false
+  activePage.value = 'rental'
 }
 
 // Leases filtering
@@ -1520,6 +1581,21 @@ function changePin() {
 .nav-item:hover { background: #f7f7f7; color: #5C4E4E; }
 .nav-item.active { background: #D1D0D0; color: #5C4E4E; font-weight: 600; }
 .nav-item svg { flex-shrink: 0; color: inherit; }
+
+.nav-item.nav-item-create {
+  color: #e07a5f;
+}
+.nav-item.nav-item-create svg {
+  color: #e07a5f;
+}
+.nav-item.nav-item-create:hover {
+  background: rgba(224, 122, 95, 0.08);
+  color: #d16b50;
+}
+.nav-item.nav-item-create.active {
+  background: #e07a5f;
+  color: #ffffff;
+}
 
 /* ── MAIN ── */
 .main-content {
@@ -2464,6 +2540,207 @@ function changePin() {
   flex-direction: column;
   gap: 24px;
   max-width: 600px;
+}
+
+/* --- Create Listing Tab --- */
+.create-tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.create-layout {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+}
+.create-left {
+  flex: 0 0 400px;
+  position: sticky;
+  top: 24px;
+}
+.create-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  max-width: 700px;
+}
+.image-upload-area {
+  width: 100%;
+  aspect-ratio: 4/3;
+  border-radius: 16px;
+  border: 2px dashed #d1d5db;
+  background: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.2s;
+}
+.image-upload-area.has-image {
+  border: none;
+  background: transparent;
+}
+.image-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: #6b7280;
+  gap: 12px;
+}
+.image-preview {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  width: 100%;
+  padding: 16px;
+}
+.add-more-card {
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #6b7280;
+  cursor: pointer;
+  background: #fafafa;
+  min-height: 120px;
+  transition: all 0.2s;
+}
+.add-more-card:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+.add-more-card span {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.btn-remove-image {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  border: none;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #fff;
+  border: 1px solid #efefef;
+  border-radius: 12px;
+  padding: 24px;
+}
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 8px 0;
+}
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+.form-row.three-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+.form-group.full-width {
+  width: 100%;
+}
+.form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  outline: none;
+}
+.form-input:focus {
+  border-color: #5C4E4E;
+}
+.amenities-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.amenity-pill {
+  padding: 8px 16px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+.amenity-pill.selected {
+  background: #5C4E4E;
+  border-color: #5C4E4E;
+  color: #fff;
+}
+.create-action-area {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+}
+.btn-publish {
+  background: #111;
+  color: #fff;
+  border: none;
+  padding: 14px 32px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.btn-publish:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+.btn-publish:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
 
 /* Booking Detail Info */
