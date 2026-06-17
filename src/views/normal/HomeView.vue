@@ -376,7 +376,7 @@
           <div class="messenger-sidebar">
             <div class="messenger-header">
               <h2 class="messenger-title">Chats</h2>
-              <button class="new-msg-btn" aria-label="New Message">
+              <button class="new-msg-btn" aria-label="New Message" @click="startNewMessage">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -389,7 +389,7 @@
                 <circle cx="11" cy="11" r="8"></circle>
                 <path d="M21 21l-4.35-4.35"></path>
               </svg>
-              <input type="text" placeholder="Search Messenger" />
+              <input type="text" v-model="messengerSearchQuery" placeholder="Search Messenger" />
             </div>
 
             <div class="active-now-section">
@@ -420,7 +420,7 @@
 
             <div class="recent-messages-section">
               <div class="chat-list">
-                <div v-for="message in messages" :key="message.name" class="chat-row" :class="{ 'active-chat': selectedChatRecipient === message.name }" @click="openChat(message.name)">
+                <div v-for="message in filteredMessages" :key="message.name" class="chat-row" :class="{ 'active-chat': selectedChatRecipient === message.name }" @click="openChat(message.name)">
                   <img class="chat-avatar" :src="message.avatar" :alt="message.name" />
                   <div class="chat-info">
                     <span class="chat-name">{{ message.name }}</span>
@@ -447,9 +447,9 @@
                   </div>
                 </div>
                 <div class="chat-header-actions">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2c9efc" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2c9efc" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2c9efc" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                  <svg @click="startAudioCall" style="cursor: pointer;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2c9efc" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                  <svg @click="startVideoCall" style="cursor: pointer;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2c9efc" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                  <svg @click="toggleChatInfo" style="cursor: pointer;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2c9efc" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                 </div>
               </header>
 
@@ -498,36 +498,48 @@
               <span>Active now</span>
             </div>
             <div class="details-actions">
-              <div class="chat-action-btn">
+              <div class="chat-action-btn" @click="actionProfile" style="cursor: pointer;">
                 <div class="icon-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
                 <span>Profile</span>
               </div>
-              <div class="chat-action-btn">
+              <div class="chat-action-btn" @click="actionMute" style="cursor: pointer;">
                 <div class="icon-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg></div>
                 <span>Mute</span>
               </div>
-              <div class="chat-action-btn">
+              <div class="chat-action-btn" @click="actionSearch" style="cursor: pointer;">
                 <div class="icon-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
                 <span>Search</span>
               </div>
             </div>
             
             <div class="details-accordion">
-              <div class="accordion-item">
+              <div class="accordion-item" @click="toggleAccordion('chatInfo')" style="cursor: pointer;">
                 <span>Chat info</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :style="{ transform: showAccordion.chatInfo ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }"><polyline points="6 9 12 15 18 9"></polyline></svg>
               </div>
-              <div class="accordion-item">
+              <div v-if="showAccordion.chatInfo" style="padding: 0 16px 16px; font-size: 0.9rem; color: #666;">
+                No additional chat info available.
+              </div>
+              <div class="accordion-item" @click="toggleAccordion('customize')" style="cursor: pointer;">
                 <span>Customize chat</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :style="{ transform: showAccordion.customize ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }"><polyline points="6 9 12 15 18 9"></polyline></svg>
               </div>
-              <div class="accordion-item">
+              <div v-if="showAccordion.customize" style="padding: 0 16px 16px; font-size: 0.9rem; color: #666;">
+                Chat customization options coming soon.
+              </div>
+              <div class="accordion-item" @click="toggleAccordion('media')" style="cursor: pointer;">
                 <span>Media, files and links</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :style="{ transform: showAccordion.media ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }"><polyline points="6 9 12 15 18 9"></polyline></svg>
               </div>
-              <div class="accordion-item">
+              <div v-if="showAccordion.media" style="padding: 0 16px 16px; font-size: 0.9rem; color: #666;">
+                No media files shared yet.
+              </div>
+              <div class="accordion-item" @click="toggleAccordion('privacy')" style="cursor: pointer;">
                 <span>Privacy & support</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :style="{ transform: showAccordion.privacy ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
+              <div v-if="showAccordion.privacy" style="padding: 0 16px 16px; font-size: 0.9rem; color: #666;">
+                Privacy settings are managed in your account.
               </div>
             </div>
           </div>
@@ -1929,6 +1941,32 @@ const selectedChatRecipient = ref(null)
 const chatInputText = ref('')
 const chatMessagesContainer = ref(null)
 
+const messengerSearchQuery = ref('')
+const showAccordion = ref({
+  chatInfo: false,
+  customize: false,
+  media: false,
+  privacy: false
+})
+const startNewMessage = () => {
+  alert("Feature coming soon: Start a new message")
+}
+const startAudioCall = () => {
+  alert(`Starting audio call with ${selectedChatRecipient.value}...`)
+}
+const startVideoCall = () => {
+  alert(`Starting video call with ${selectedChatRecipient.value}...`)
+}
+const toggleChatInfo = () => {
+  alert("Toggle chat info panel")
+}
+const toggleAccordion = (section) => {
+  showAccordion.value[section] = !showAccordion.value[section]
+}
+const actionProfile = () => alert(`Viewing profile for ${selectedChatRecipient.value}`)
+const actionMute = () => alert(`Muted ${selectedChatRecipient.value}`)
+const actionSearch = () => alert(`Searching in chat with ${selectedChatRecipient.value}`)
+
 const chats = ref({
   'Yim Vatey': [
     { sender: 'them', text: 'Hey, are you home yet?', time: '10m ago' },
@@ -1986,6 +2024,15 @@ const messages = computed(() => {
         avatar
       })
     }
+  }
+  return list
+})
+
+const filteredMessages = computed(() => {
+  let list = messages.value
+  if (messengerSearchQuery.value) {
+    const q = messengerSearchQuery.value.toLowerCase()
+    list = list.filter(m => m.name.toLowerCase().includes(q) || m.preview.toLowerCase().includes(q))
   }
   return list
 })
