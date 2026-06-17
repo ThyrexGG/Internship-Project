@@ -84,7 +84,7 @@
       <section class="detail-icons">
         <h2 class="section-title">Properties Detail</h2>
         <div class="icons-row">
-          <div class="d-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg><span>2/4 pax</span></div>
+          <div class="d-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg><span>{{ property.pax || '2/4 pax' }}</span></div>
           <div class="d-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg><span>{{ property.beds }} bed</span></div>
           <div class="d-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>{{ property.baths }} bath</span></div>
           <div class="d-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18"/></svg><span>1 int</span></div>
@@ -171,15 +171,15 @@
         <div class="contact-list">
           <div class="contact-item">
             <div class="c-icon fb"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></div>
-            <span>{{ property.name }} Cambodia</span>
+            <span>{{ property.contactName || (property.name + ' Cambodia') }}</span>
           </div>
           <div class="contact-item">
             <div class="c-icon tg"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></div>
-            <span>@{{ property.name.toLowerCase().replace(/\s+/g, '_') }}_cambodia</span>
+            <span>{{ property.contactSocial || ('@' + property.name.toLowerCase().replace(/\s+/g, '_') + '_cambodia') }}</span>
           </div>
           <div class="contact-item">
             <div class="c-icon ph"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg></div>
-            <span>081 743 949 / 077 843 984</span>
+            <span>{{ property.contactPhone || '081 743 949 / 077 843 984' }}</span>
           </div>
         </div>
       </section>
