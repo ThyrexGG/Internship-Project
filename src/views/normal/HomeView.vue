@@ -367,42 +367,170 @@
             </article>
           </div>
 
-          <aside class="mates-panel">
-            <h1 class="feeds-title">Messages &amp; Mates</h1>
-            <section class="mates-card">
-              <h2>Messages</h2>
-              <div v-for="message in messages" :key="message.name" class="mate-row" @click="openChat(message.name)" style="cursor: pointer;">
-                <img class="feed-avatar" :src="message.avatar" :alt="message.name" />
-                <div class="mate-copy">
-                  <span>{{ message.name }}</span>
-                  <p>{{ message.preview }}</p>
-                </div>
-                <time>{{ message.time }}</time>
-              </div>
-            </section>
+        </section>
+      </template>
 
-            <section class="mates-card">
-              <h2>Roommates</h2>
-              <div v-for="mate in roommates" :key="mate.name" class="mate-row" @click="openChat(mate.name)" style="cursor: pointer;">
-                <img class="feed-avatar" :src="mate.avatar" :alt="mate.name" />
-                <div class="mate-copy">
-                  <span>{{ mate.name }}</span>
-                </div>
-                <small>Roommate</small>
-              </div>
-            </section>
+      <template v-else-if="activeTab === 'messages'">
+        <section class="messages-tab-section full-screen-messenger">
+          <!-- Left Column: Chats List -->
+          <div class="messenger-sidebar">
+            <div class="messenger-header">
+              <h2 class="messenger-title">Chats</h2>
+              <button class="new-msg-btn" aria-label="New Message">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+            </div>
 
-            <section class="mates-card">
-              <h2>Friends</h2>
-              <div v-for="friend in friends" :key="friend.name" class="mate-row" @click="openChat(friend.name)" style="cursor: pointer;">
-                <img class="feed-avatar" :src="friend.avatar" :alt="friend.name" />
-                <div class="mate-copy">
-                  <span>{{ friend.name }}</span>
+            <div class="messenger-search">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8e8e8e" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="M21 21l-4.35-4.35"></path>
+              </svg>
+              <input type="text" placeholder="Search Messenger" />
+            </div>
+
+            <div class="active-now-section">
+              <div 
+                class="active-users-scroller"
+                ref="activeUsersScrollerRef"
+                @mousedown="startDragActiveUsers"
+                @mousemove="onDragActiveUsers"
+                @mouseup="stopDragActiveUsers"
+                @mouseleave="stopDragActiveUsers"
+              >
+                <div v-for="mate in roommates" :key="'active-'+mate.name" class="active-user-bubble" @click="openChat(mate.name)">
+                  <div class="active-avatar-wrapper">
+                    <img :src="mate.avatar" :alt="mate.name" class="active-avatar" />
+                    <span class="online-dot"></span>
+                  </div>
+                  <span class="active-name">{{ mate.name.split(' ')[0] }}</span>
                 </div>
-                <small>Friends</small>
+                <div v-for="friend in friends" :key="'active-'+friend.name" class="active-user-bubble" @click="openChat(friend.name)">
+                  <div class="active-avatar-wrapper">
+                    <img :src="friend.avatar" :alt="friend.name" class="active-avatar" />
+                    <span class="online-dot"></span>
+                  </div>
+                  <span class="active-name">{{ friend.name.split(' ')[0] }}</span>
+                </div>
               </div>
-            </section>
-          </aside>
+            </div>
+
+            <div class="recent-messages-section">
+              <div class="chat-list">
+                <div v-for="message in messages" :key="message.name" class="chat-row" :class="{ 'active-chat': selectedChatRecipient === message.name }" @click="openChat(message.name)">
+                  <img class="chat-avatar" :src="message.avatar" :alt="message.name" />
+                  <div class="chat-info">
+                    <span class="chat-name">{{ message.name }}</span>
+                    <p class="chat-preview">
+                      <span class="preview-text" :class="{ 'unread-text': message.sender === 'them' }">{{ message.preview }}</span>
+                      <span class="chat-time">· {{ message.time }}</span>
+                    </p>
+                  </div>
+                  <div v-if="message.preview && !message.preview.startsWith('You:')" class="unread-indicator"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Center Column: Conversation -->
+          <div class="messenger-main">
+            <template v-if="selectedChatRecipient">
+              <header class="chat-main-header">
+                <div class="chat-header-user">
+                  <img :src="findAvatarByName(selectedChatRecipient)" :alt="selectedChatRecipient" class="chat-header-avatar" />
+                  <div class="chat-header-info">
+                    <h3>{{ selectedChatRecipient }}</h3>
+                    <span class="chat-status">Active now</span>
+                  </div>
+                </div>
+                <div class="chat-header-actions">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2c9efc" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2c9efc" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2c9efc" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                </div>
+              </header>
+
+              <div class="chat-main-messages" ref="chatMessagesContainer">
+                <div v-for="(msg, i) in activeChatHistory" :key="i" class="chat-bubble-wrapper" :class="msg.sender">
+                  <div class="chat-bubble">
+                    <p>{{ msg.text }}</p>
+                    <time>{{ msg.time }}</time>
+                  </div>
+                </div>
+                <div v-if="activeChatHistory.length === 0" class="empty-chat-state">
+                  <p>Say hi to {{ selectedChatRecipient }}!</p>
+                </div>
+              </div>
+
+              <footer class="chat-main-footer">
+                <div class="chat-input-wrapper">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8e8e8e" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+                  <input 
+                    v-model="chatInputText" 
+                    type="text" 
+                    placeholder="Aa" 
+                    @keydown.enter="sendChatMessage"
+                  />
+                  <button class="chat-send-btn" @click="sendChatMessage" :disabled="!chatInputText || !chatInputText.trim()" type="button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" :stroke="(!chatInputText || !chatInputText.trim()) ? '#8e8e8e' : '#0084ff'" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                  </button>
+                </div>
+              </footer>
+            </template>
+            <template v-else>
+              <div class="no-chat-selected">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#c0c0c0" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                <h2>Your Messages</h2>
+                <p>Send private photos and messages to a friend.</p>
+                <button class="btn-dark" @click="selectedChatRecipient = 'James Son'">Send Message</button>
+              </div>
+            </template>
+          </div>
+
+          <!-- Right Column: Details -->
+          <div v-if="selectedChatRecipient" class="messenger-details">
+            <div class="details-profile-header">
+              <img :src="findAvatarByName(selectedChatRecipient)" :alt="selectedChatRecipient" class="details-avatar" />
+              <h2>{{ selectedChatRecipient }}</h2>
+              <span>Active now</span>
+            </div>
+            <div class="details-actions">
+              <div class="chat-action-btn">
+                <div class="icon-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+                <span>Profile</span>
+              </div>
+              <div class="chat-action-btn">
+                <div class="icon-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg></div>
+                <span>Mute</span>
+              </div>
+              <div class="chat-action-btn">
+                <div class="icon-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
+                <span>Search</span>
+              </div>
+            </div>
+            
+            <div class="details-accordion">
+              <div class="accordion-item">
+                <span>Chat info</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
+              <div class="accordion-item">
+                <span>Customize chat</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
+              <div class="accordion-item">
+                <span>Media, files and links</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
+              <div class="accordion-item">
+                <span>Privacy & support</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
+            </div>
+          </div>
         </section>
       </template>
 
@@ -1113,49 +1241,7 @@
       </div>
     </div>
 
-    <!-- Chat Drawer -->
-    <div class="chat-drawer-overlay" :class="{ 'open': selectedChatRecipient }" @click.self="closeChat">
-      <div class="chat-drawer">
-        <header class="chat-header">
-          <button class="chat-close-btn" @click="closeChat" aria-label="Close Chat" type="button">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
-          <div class="chat-header-user">
-            <img :src="findAvatarByName(selectedChatRecipient)" :alt="selectedChatRecipient" class="chat-header-avatar" />
-            <div class="chat-header-info">
-              <h3>{{ selectedChatRecipient }}</h3>
-              <span class="chat-status">Online</span>
-            </div>
-          </div>
-        </header>
 
-        <div class="chat-messages" ref="chatMessagesContainer">
-          <div v-for="(msg, i) in activeChatHistory" :key="i" class="chat-bubble-wrapper" :class="msg.sender">
-            <div class="chat-bubble">
-              <p>{{ msg.text }}</p>
-              <time>{{ msg.time }}</time>
-            </div>
-          </div>
-          <div v-if="activeChatHistory.length === 0" class="empty-chat-state">
-            <p>Say hi to {{ selectedChatRecipient }}!</p>
-          </div>
-        </div>
-
-        <footer class="chat-footer">
-          <input 
-            v-model="chatInputText" 
-            type="text" 
-            placeholder="Type a message..." 
-            @keydown.enter="sendChatMessage"
-          />
-          <button class="chat-send-btn" @click="sendChatMessage" :disabled="!chatInputText || !chatInputText.trim()" type="button">
-            Send
-          </button>
-        </footer>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -1229,6 +1315,31 @@ function handleCardClick(event, propertyId, router) {
     return
   }
   router.push(`/property/${propertyId}`)
+}
+
+// --- Active Users Drag to Scroll ---
+const activeUsersScrollerRef = ref(null)
+let isDraggingActiveUsers = false
+let startXActiveUsers = 0
+let scrollLeftActiveUsers = 0
+
+function startDragActiveUsers(e) {
+  if (!activeUsersScrollerRef.value) return
+  isDraggingActiveUsers = true
+  startXActiveUsers = e.pageX - activeUsersScrollerRef.value.offsetLeft
+  scrollLeftActiveUsers = activeUsersScrollerRef.value.scrollLeft
+}
+
+function onDragActiveUsers(e) {
+  if (!isDraggingActiveUsers || !activeUsersScrollerRef.value) return
+  e.preventDefault()
+  const x = e.pageX - activeUsersScrollerRef.value.offsetLeft
+  const walk = (x - startXActiveUsers) * 2
+  activeUsersScrollerRef.value.scrollLeft = scrollLeftActiveUsers - walk
+}
+
+function stopDragActiveUsers() {
+  isDraggingActiveUsers = false
 }
 
 const userProfile = ref({
@@ -1881,6 +1992,7 @@ const messages = computed(() => {
 
 const openChat = (name) => {
   selectedChatRecipient.value = name
+  activeTab.value = 'messages'
   if (!chats.value[name]) {
     chats.value[name] = []
   }
@@ -1889,9 +2001,7 @@ const openChat = (name) => {
   })
 }
 
-const closeChat = () => {
-  selectedChatRecipient.value = null
-}
+
 
 const sendChatMessage = () => {
   if (!chatInputText.value || !chatInputText.value.trim() || !selectedChatRecipient.value) return
@@ -2060,6 +2170,7 @@ watch(activeTab, (val) => {
 const IconHome     = { render: () => h('svg', { class: 'home-icon', width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 2 }, [h('path', { class: 'home-body', d: 'M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z' }), h('path', { class: 'home-door', d: 'M9 21V12h6v9' })]) }
 const IconHeart    = { render: () => h('svg', { width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 2 }, [h('path', { d: 'M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z' })]) }
 const IconFeeds    = { render: () => h('svg', { class: 'feeds-icon', width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 2 }, [h('rect', { class: 'feeds-frame', x: 3, y: 3, width: 18, height: 18, rx: 2 }), h('line', { class: 'feeds-line', x1: 5, y1: 9, x2: 19, y2: 9 }), h('line', { class: 'feeds-line', x1: 5, y1: 15, x2: 19, y2: 15 })]) }
+const IconMessages = { render: () => h('svg', { class: 'messages-icon', width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 2 }, [h('path', { d: 'M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z' })]) }
 const IconBell     = { render: () => h('svg', { width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 2 }, [h('path', { d: 'M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9' }), h('path', { d: 'M13.73 21a2 2 0 01-3.46 0' })]) }
 const IconSettings = { render: () => h('svg', { class: 'settings-icon', width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 2 }, [h('path', { class: 'settings-gear', d: 'M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z' }), h('circle', { class: 'settings-center', cx: 12, cy: 12, r: 3 })]) }
 
@@ -2067,6 +2178,7 @@ const tabs = [
   { id: 'home',     label: 'Home',     icon: IconHome },
   { id: 'favorite', label: 'Favorite', icon: IconHeart },
   { id: 'feeds',    label: 'Feeds',    icon: IconFeeds },
+  { id: 'messages', label: 'Messages', icon: IconMessages },
   { id: 'noti',     label: 'Noti',     icon: IconBell },
   { id: 'settings', label: 'Settings', icon: IconSettings },
 ]
@@ -2373,16 +2485,14 @@ const filteredProperties = computed(() => {
 
 /* ── FEEDS ── */
 .feeds-section {
-  width: min(922px, 100%);
+  width: min(600px, 100%);
   margin: 22px auto 96px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 305px;
+  display: flex;
+  flex-direction: column;
   gap: 24px;
-  align-items: start;
 }
 
-.feeds-main,
-.mates-panel {
+.feeds-main {
   min-width: 0;
 }
 
@@ -2556,56 +2666,442 @@ const filteredProperties = computed(() => {
   font-weight: 500;
 }
 
-.mates-panel {
+/* MESSENGER FULL SCREEN LAYOUT */
+.full-screen-messenger {
+  position: absolute;
+  top: 71px; /* Height of the top nav */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: 360px 1fr 340px;
+  background: #ffffff;
+  z-index: 50;
+}
+
+/* LEFT SIDEBAR */
+.messenger-sidebar {
+  border-right: 1px solid #e0e0e0;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  padding: 16px 12px 90px; /* Bottom padding to clear nav pill */
+  overflow-y: auto;
+}
+.messenger-sidebar::-webkit-scrollbar { width: 4px; }
+.messenger-sidebar::-webkit-scrollbar-thumb { background: #e4e6e9; border-radius: 4px; }
+
+/* MAIN CHAT AREA */
+.messenger-main {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
-.mates-panel > .feeds-title {
-  margin-bottom: 0;
+.chat-main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e0e0e0;
 }
 
-.mates-card {
+.chat-header-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-header-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.chat-header-info h3 {
+  font-size: 1.05rem;
+  margin: 0 0 2px;
+}
+
+.chat-header-info .chat-status {
+  font-size: 0.8rem;
+  color: #65676b;
+}
+
+.chat-header-actions {
+  display: flex;
+  gap: 16px;
+  cursor: pointer;
+}
+
+.chat-main-messages {
+  flex: 1;
+  overflow-y: auto;
   padding: 24px;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+.chat-main-messages::-webkit-scrollbar { width: 6px; }
+.chat-main-messages::-webkit-scrollbar-thumb { background: #d0d0d0; border-radius: 6px; }
+
+.chat-main-footer {
+  padding: 16px 24px 100px; /* Padding for the bottom floating nav */
 }
 
-.mates-card h2 {
-  margin-bottom: 14px;
+.chat-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: #f0f2f5;
+  border-radius: 24px;
+  padding: 8px 16px;
+  gap: 12px;
 }
 
-.mate-row {
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) auto;
+.chat-input-wrapper input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.95rem;
+}
+
+.chat-send-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+/* DETAILS SIDEBAR */
+.messenger-details {
+  border-left: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px 90px; /* Padding for the bottom floating nav */
+  overflow-y: auto;
+}
+
+.details-profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.details-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 12px;
+}
+
+.details-profile-header h2 {
+  font-size: 1.15rem;
+  margin: 0 0 4px;
+}
+
+.details-profile-header span {
+  font-size: 0.85rem;
+  color: #65676b;
+}
+
+.details-actions {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 32px;
+}
+
+.chat-action-btn {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 8px;
-  min-height: 36px;
+  cursor: pointer;
+  color: #050505;
 }
 
-.mate-row + .mate-row {
-  margin-top: 3px;
+.icon-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f0f2f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #050505;
 }
 
-.mate-copy {
+.chat-action-btn span {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.details-accordion {
+  display: flex;
+  flex-direction: column;
+}
+
+.accordion-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.accordion-item:hover {
+  background: #f2f2f2;
+}
+
+/* NO CHAT SELECTED STATE */
+.no-chat-selected {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.no-chat-selected h2 {
+  font-size: 1.4rem;
+  margin: 16px 0 8px;
+}
+
+.no-chat-selected p {
+  color: #65676b;
+  margin-bottom: 24px;
+}
+
+.active-chat {
+  background: #e6f2ff !important;
+}
+
+.messenger-panel::-webkit-scrollbar {
+  width: 4px;
+}
+.messenger-panel::-webkit-scrollbar-thumb {
+  background: #e4e6e9;
+  border-radius: 4px;
+}
+
+.messenger-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.messenger-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #050505;
+  margin: 0;
+}
+
+.new-msg-btn {
+  background: #f0f2f5;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #050505;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.new-msg-btn:hover {
+  background: #e4e6e9;
+}
+
+.messenger-search {
+  display: flex;
+  align-items: center;
+  background: #f0f2f5;
+  border-radius: 20px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+
+.messenger-search svg {
+  margin-right: 8px;
+}
+
+.messenger-search input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+  width: 100%;
+  color: #050505;
+}
+
+.messenger-search input::placeholder {
+  color: #8e8e8e;
+}
+
+.active-now-section {
+  margin-bottom: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f2f5;
+}
+
+.active-users-scroller {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+}
+
+.active-users-scroller:active {
+  cursor: grabbing;
+}
+
+.active-users-scroller::-webkit-scrollbar {
+  height: 6px;
+  background: transparent;
+}
+
+.active-users-scroller::-webkit-scrollbar-thumb {
+  background: #d0d0d0;
+  border-radius: 4px;
+}
+
+.active-user-bubble {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  min-width: 52px;
+  flex-shrink: 0;
+}
+
+.active-avatar-wrapper {
+  position: relative;
+  width: 52px;
+  height: 52px;
+}
+
+.active-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 2px #e4e6e9;
+}
+
+.online-dot {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background: #31a24c;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+}
+
+.active-name {
+  font-size: 0.75rem;
+  color: #65676b;
+  font-weight: 500;
+}
+
+.chat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chat-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin: 0 -10px;
+}
+
+.chat-row:hover {
+  background: #f2f2f2;
+}
+
+.chat-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.chat-info {
+  flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.mate-copy p {
-  margin-top: 1px;
-  color: #8d8d8d;
-  font-size: 0.58rem;
-  line-height: 1.1;
+.chat-name {
+  display: block;
+  font-weight: 600;
+  color: #050505;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+}
+
+.chat-preview {
+  display: flex;
+  align-items: center;
+  color: #65676b;
+  font-size: 0.85rem;
+  margin: 0;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.mate-row time,
-.mate-row small {
-  color: #969696;
-  font-size: 0.62rem;
-  line-height: 1;
-  font-weight: 500;
+.preview-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+}
+
+.unread-text {
+  font-weight: 700;
+  color: #050505;
+}
+
+.chat-time {
+  margin-left: 4px;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+}
+
+.unread-indicator {
+  width: 10px;
+  height: 10px;
+  background: #0084ff;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 /* ── NOTIFICATION ── */

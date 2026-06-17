@@ -49,15 +49,51 @@
         <h2 class="section-title">Verify ID Document</h2>
         <p class="section-subtitle">Please upload a clear, well-lit photo of your Cambodian National ID.</p>
 
-        <div class="upload-box" @click="triggerIdInput">
+        <!-- ID Input Method Toggle -->
+        <div v-if="!idPreview" class="mode-toggle-group" style="display: flex; gap: 8px; margin-bottom: 16px;">
+          <button class="btn-secondary" style="flex: 1; padding: 8px;" :style="idScanMode === 'upload' ? 'background: #e2e8f0;' : ''" @click="switchIdMode('upload')">📁 Upload File</button>
+          <button class="btn-secondary" style="flex: 1; padding: 8px;" :style="idScanMode === 'scan' ? 'background: #e2e8f0;' : ''" @click="switchIdMode('scan')">📷 Scan ID</button>
+        </div>
+
+        <div v-if="idScanMode === 'upload' || idPreview" class="upload-box" @click="!idPreview ? triggerIdInput() : null" :style="idPreview ? 'cursor: default;' : ''">
           <input type="file" ref="idInput" accept="image/*" class="hidden-input" @change="handleIdChange" />
           <div v-if="idPreview" class="preview-container">
-            <img :src="idPreview" alt="ID Preview" class="preview-image" />
+            <img :src="idPreview" alt="ID Preview" class="preview-image" style="object-fit: contain; background: #000;" />
           </div>
           <div v-else class="upload-placeholder">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
             <span>Tap to upload ID</span>
           </div>
+        </div>
+
+        <!-- SCAN MODE -->
+        <div v-if="idScanMode === 'scan' && !idPreview" class="camera-container" style="margin-bottom: 16px;">
+          <video ref="idVideoElement" autoplay playsinline muted class="camera-video" style="transform: none;"></video>
+          <div class="camera-overlay">
+            <div class="id-cutout"></div>
+          </div>
+          <div class="liveness-msg">
+            {{ idScanMsg }}
+          </div>
+        </div>
+        
+        <div v-if="idScanMode === 'scan' && !idPreview && availableCameras.length > 1" class="camera-selector" style="margin-bottom: 16px;">
+          <label for="id-camera-select" style="font-weight: 500; font-size: 14px; margin-right: 8px;">Switch Camera:</label>
+          <select id="id-camera-select" v-model="selectedCameraId" @change="onIdCameraSelectChange" style="padding: 6px; border-radius: 6px; border: 1px solid #ccc;">
+            <option v-for="cam in availableCameras" :key="cam.deviceId" :value="cam.deviceId">
+              {{ cam.label || 'Camera ' + (availableCameras.indexOf(cam) + 1) }}
+            </option>
+          </select>
+        </div>
+
+        <button v-if="idScanMode === 'scan' && !idPreview" class="btn-primary" style="margin-bottom: 16px;" :disabled="!isIdLightingGood" @click="captureIdPhoto">
+          Capture Photo
+        </button>
+
+        <div v-if="idPreview" style="display: flex; gap: 12px; margin-bottom: 16px; margin-top: 12px;">
+           <button class="btn-secondary" style="flex: 1;" :disabled="isScanningId" @click="retakeId">
+             Retake
+           </button>
         </div>
 
         <!-- ID Upload Guidelines Card -->
@@ -237,7 +273,7 @@
         <div class="liveness-guide-card">
           <div class="guide-anim-wrapper">
             <!-- Turn Head Animation (Shown during turn stage) -->
-            <div v-if="!isCameraActive || livenessStage !== 'done'" class="animation-container">
+            <div v-if="livenessStage !== 'done'" class="animation-container">
               <div class="anim-avatar">
                 <svg viewBox="0 0 100 100" class="avatar-svg">
                   <!-- Head -->
@@ -255,6 +291,7 @@
               <p class="anim-label" v-else-if="livenessStage === 'turnLeft'">Now turn head to the left</p>
               <p class="anim-label" v-else-if="livenessStage === 'lookUp'">Now look up slightly</p>
               <p class="anim-label" v-else-if="livenessStage === 'lookDown'">Now look down slightly</p>
+              <p class="anim-label" v-else-if="livenessStage === 'processing'">Processing scan...</p>
               <p class="anim-label" v-else>Follow the instructions</p>
             </div>
 
@@ -271,13 +308,18 @@
           </div>
         </div>
 
-        <div class="camera-container">
+        <div class="camera-container" :class="{ 'flash-green': livenessFlash }">
           <video ref="videoElement" autoplay playsinline muted class="camera-video"></video>
           <div class="camera-overlay">
             <div class="oval-cutout"></div>
           </div>
           <div v-if="isCameraActive" class="liveness-msg">
-            {{ livenessMsg }}
+            <span v-if="!isFaceInFrame && livenessStage !== 'processing' && livenessStage !== 'done'" style="color: #dc2626;">
+              No face detected in frame. Please adjust.
+            </span>
+            <span v-else>
+              {{ livenessMsg }}
+            </span>
           </div>
         </div>
 
@@ -353,7 +395,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import * as faceapi from 'face-api.js'
 import { auth, db } from '../../firebase'
@@ -363,6 +405,20 @@ import { collection, addDoc, doc, setDoc } from 'firebase/firestore'
 const router = useRouter()
 const currentStep = ref(1)
 const isModelsLoaded = ref(false)
+const livenessFlash = ref(false)
+
+function triggerLivenessFlash() {
+  livenessFlash.value = true;
+  setTimeout(() => {
+    livenessFlash.value = false;
+  }, 500); // Flash for 500ms
+}
+
+onBeforeUnmount(() => {
+  stopIdCamera()
+  stopSelfieCamera()
+  stopCamera()
+})
 
 onMounted(async () => {
   // Override global body lock & #app height limits for natural mobile scroll
@@ -398,12 +454,29 @@ onMounted(async () => {
   await populateCameras()
 })
 
+watch(currentStep, (newStep) => {
+  if (newStep === 2) {
+    setTimeout(() => {
+      if (!isSelfieCameraActive.value && !selfiePreview.value) {
+        startSelfieCamera()
+      }
+    }, 500)
+  } else if (newStep === 3) {
+    setTimeout(() => {
+      if (!isCameraActive.value) {
+        startCamera()
+      }
+    }, 500)
+  }
+})
+
 function goBack() {
   if (currentStep.value > 1 && currentStep.value <= 3) {
     if (currentStep.value === 2) stopSelfieCamera()
     if (currentStep.value === 3) stopCamera()
     currentStep.value--
   } else {
+    stopIdCamera()
     router.push('/home')
   }
 }
@@ -416,6 +489,124 @@ const isScanningId = ref(false)
 const idOcrResult = ref(null)
 const idParsedData = ref(null)
 const idValidationErrors = ref([])
+
+// --- ID CAMERA SCAN MODE ---
+const idScanMode = ref('upload')
+const idVideoElement = ref(null)
+const isIdCameraActive = ref(false)
+const idScanMsg = ref("Position your ID inside the rectangle.")
+const isIdLightingGood = ref(false)
+let idMediaStream = null
+let idScanLoopRunning = false
+
+function switchIdMode(mode) {
+  idScanMode.value = mode
+  if (mode === 'scan') {
+    startIdCamera()
+  } else {
+    stopIdCamera()
+  }
+}
+
+async function startIdCamera() {
+  try {
+    let constraints = { video: { facingMode: 'environment' } }
+    if (selectedCameraId.value) {
+      constraints = { video: { deviceId: { exact: selectedCameraId.value } } }
+    }
+    idMediaStream = await navigator.mediaDevices.getUserMedia(constraints)
+    await populateCameras()
+    
+    if (idVideoElement.value) {
+      idVideoElement.value.srcObject = idMediaStream
+      idVideoElement.value.onloadedmetadata = () => {
+        isIdCameraActive.value = true
+        idVideoElement.value.play()
+        startIdScanLoop()
+      }
+    }
+  } catch (err) {
+    console.error("ID Camera error:", err)
+    alert("Camera access denied or unavailable.")
+    idScanMode.value = 'upload'
+  }
+}
+
+function stopIdCamera() {
+  idScanLoopRunning = false
+  if (idMediaStream) {
+    idMediaStream.getTracks().forEach(track => track.stop())
+    idMediaStream = null
+  }
+  isIdCameraActive.value = false
+}
+
+function startIdScanLoop() {
+  idScanLoopRunning = true
+  const loop = () => {
+    if (!idScanLoopRunning) return
+    if (idVideoElement.value && isIdCameraActive.value) {
+       const canvas = document.createElement('canvas')
+       canvas.width = 64
+       canvas.height = 64
+       const ctx = canvas.getContext('2d')
+       ctx.drawImage(idVideoElement.value, 0, 0, 64, 64)
+       const imgData = ctx.getImageData(0,0,64,64).data
+       let brightnessSum = 0
+       for (let i = 0; i < imgData.length; i += 4) {
+         brightnessSum += 0.299 * imgData[i] + 0.587 * imgData[i+1] + 0.114 * imgData[i+2]
+       }
+       const avg = brightnessSum / (imgData.length / 4)
+       
+       if (avg < 50) {
+         idScanMsg.value = "Too dark! Find better lighting."
+         isIdLightingGood.value = false
+       } else {
+         idScanMsg.value = "Align your ID and click Capture."
+         isIdLightingGood.value = true
+       }
+    }
+    setTimeout(() => requestAnimationFrame(loop), 100)
+  }
+  loop()
+}
+
+function captureIdPhoto() {
+  if (!idVideoElement.value) return
+  const canvas = document.createElement('canvas')
+  canvas.width = idVideoElement.value.videoWidth
+  canvas.height = idVideoElement.value.videoHeight
+  if (canvas.width === 0 || canvas.height === 0) return // Prevent invalid blob
+  const ctx = canvas.getContext('2d')
+  ctx.drawImage(idVideoElement.value, 0, 0, canvas.width, canvas.height)
+  
+  canvas.toBlob((blob) => {
+    if (!blob) return // Prevent TypeError on createObjectURL
+    const file = new File([blob], "scanned_id.jpg", { type: "image/jpeg" })
+    idFile.value = file
+    idPreview.value = URL.createObjectURL(blob)
+    idOcrResult.value = null
+    idValidationErrors.value = []
+    stopIdCamera()
+  }, 'image/jpeg', 0.95)
+}
+
+function onIdCameraSelectChange() {
+  if (isIdCameraActive.value) {
+    stopIdCamera()
+    startIdCamera()
+  }
+}
+
+function retakeId() {
+  idPreview.value = null
+  idFile.value = null
+  idParsedData.value = null
+  idValidationErrors.value = []
+  if (idScanMode.value === 'scan') {
+    startIdCamera()
+  }
+}
 
 function triggerIdInput() { if (idInput.value) idInput.value.click() }
 
@@ -602,33 +793,110 @@ function startSelfieLoop() {
     if (!selfieLoopRunning) return
     if (selfieVideoElement.value && isSelfieCameraActive.value) {
       try {
-        const detection = await faceapi.detectSingleFace(selfieVideoElement.value)
-        if (detection) {
-          const score = detection.score
-          const box = detection.box
-          const videoWidth = selfieVideoElement.value.videoWidth
-          const videoHeight = selfieVideoElement.value.videoHeight
-          
-          const faceArea = box.width * box.height
-          const frameArea = videoWidth * videoHeight
-          const sizeRatio = faceArea / frameArea
-          
-          if (score < 0.7) {
-             selfieFeedbackMsg.value = "Lighting might be too dark or uneven."
-             isSelfieGood.value = false
-          } else if (sizeRatio < 0.08) {
-             selfieFeedbackMsg.value = "Move closer to the camera."
-             isSelfieGood.value = false
-          } else if (sizeRatio > 0.4) {
-             selfieFeedbackMsg.value = "Move slightly away."
-             isSelfieGood.value = false
-          } else {
-             selfieFeedbackMsg.value = "Perfect! Keep still."
-             isSelfieGood.value = true
-          }
-        } else {
-          selfieFeedbackMsg.value = "No face detected. Look directly at the camera."
+        // --- NEW: Global Brightness Check ---
+        const tmpCanvas = document.createElement('canvas')
+        tmpCanvas.width = 64
+        tmpCanvas.height = 64
+        const tmpCtx = tmpCanvas.getContext('2d')
+        tmpCtx.drawImage(selfieVideoElement.value, 0, 0, 64, 64)
+        const imgData = tmpCtx.getImageData(0,0,64,64).data
+        let globalBrightnessSum = 0
+        for (let i = 0; i < imgData.length; i += 4) {
+          globalBrightnessSum += 0.299 * imgData[i] + 0.587 * imgData[i+1] + 0.114 * imgData[i+2]
+        }
+        const globalBrightness = globalBrightnessSum / (imgData.length / 4)
+
+        if (globalBrightness < 45) {
+          selfieFeedbackMsg.value = "Too dark! Please move to a well-lit area."
           isSelfieGood.value = false
+        } else {
+          const detection = await faceapi.detectSingleFace(selfieVideoElement.value).withFaceLandmarks()
+          if (detection) {
+            const score = detection.detection.score
+            const box = detection.detection.box
+            const videoWidth = selfieVideoElement.value.videoWidth
+            const videoHeight = selfieVideoElement.value.videoHeight
+            
+            const faceArea = box.width * box.height
+            const frameArea = videoWidth * videoHeight
+            const sizeRatio = faceArea / frameArea
+            
+            // Live Sunglasses Check
+            const leftEye = detection.landmarks.getLeftEye()
+            const rightEye = detection.landmarks.getRightEye()
+            const allEyePoints = [...leftEye, ...rightEye]
+            let minX = Math.min(...allEyePoints.map(p => p.x))
+            let maxX = Math.max(...allEyePoints.map(p => p.x))
+            let minY = Math.min(...allEyePoints.map(p => p.y))
+            let maxY = Math.max(...allEyePoints.map(p => p.y))
+            
+            minX = Math.max(0, minX - 10)
+            maxX = Math.min(videoWidth, maxX + 10)
+            minY = Math.max(0, minY - 10)
+            maxY = Math.min(videoHeight, maxY + 10)
+            
+            const canvas = document.createElement('canvas')
+            canvas.width = videoWidth
+            canvas.height = videoHeight
+            const ctx = canvas.getContext('2d')
+            ctx.drawImage(selfieVideoElement.value, 0, 0, videoWidth, videoHeight)
+            
+            let avgBrightness = 255
+            const w = maxX - minX
+            const h = maxY - minY
+            if (w > 0 && h > 0) {
+              const eyeData = ctx.getImageData(minX, minY, w, h).data
+              let brightnessSum = 0
+              for (let i = 0; i < eyeData.length; i += 4) {
+                brightnessSum += 0.299 * eyeData[i] + 0.587 * eyeData[i+1] + 0.114 * eyeData[i+2]
+              }
+              avgBrightness = brightnessSum / (eyeData.length / 4)
+            }
+
+            // --- NEW: Head Pose / Gaze Check ---
+            const positions = detection.landmarks.positions;
+            const leftJaw = positions[0];
+            const rightJaw = positions[16];
+            const noseTop = positions[27];
+            const noseTip = positions[30];
+            const chin = positions[8];
+
+            // Yaw (Left/Right)
+            const distLeftToNose = noseTip.x - leftJaw.x;
+            const distRightToNose = rightJaw.x - noseTip.x;
+            const yawRatio = distRightToNose > 0 ? (distLeftToNose / distRightToNose) : 1;
+
+            // Pitch (Up/Down)
+            const distNoseUp = noseTip.y - noseTop.y;
+            const distNoseDown = chin.y - noseTip.y;
+            const pitchRatio = distNoseDown > 0 ? (distNoseUp / distNoseDown) : 1;
+
+            if (score < 0.7) {
+               selfieFeedbackMsg.value = "Lighting might be too dark or uneven."
+               isSelfieGood.value = false
+            } else if (sizeRatio < 0.08) {
+               selfieFeedbackMsg.value = "Move closer to the camera."
+               isSelfieGood.value = false
+            } else if (sizeRatio > 0.4) {
+               selfieFeedbackMsg.value = "Move slightly away."
+               isSelfieGood.value = false
+            } else if (avgBrightness < 75) {
+               selfieFeedbackMsg.value = "Please remove your sunglasses!"
+               isSelfieGood.value = false
+            } else if (yawRatio < 0.7 || yawRatio > 1.4) {
+               selfieFeedbackMsg.value = "Please look straight at the camera."
+               isSelfieGood.value = false
+            } else if (pitchRatio < 0.6 || pitchRatio > 1.2) {
+               selfieFeedbackMsg.value = "Keep your head level and look straight."
+               isSelfieGood.value = false
+            } else {
+               selfieFeedbackMsg.value = "Perfect! Keep still."
+               isSelfieGood.value = true
+            }
+          } else {
+            selfieFeedbackMsg.value = "No face detected. Look directly at the camera."
+            isSelfieGood.value = false
+          }
         }
       } catch (e) {
          console.error(e)
@@ -644,10 +912,12 @@ function captureSelfie() {
   const canvas = document.createElement('canvas')
   canvas.width = selfieVideoElement.value.videoWidth
   canvas.height = selfieVideoElement.value.videoHeight
+  if (canvas.width === 0 || canvas.height === 0) return // Prevent invalid blob
   const ctx = canvas.getContext('2d')
   ctx.drawImage(selfieVideoElement.value, 0, 0, canvas.width, canvas.height)
   
   canvas.toBlob((blob) => {
+    if (!blob) return // Prevent TypeError on createObjectURL
     selfieFile.value = new File([blob], "selfie.jpg", { type: "image/jpeg" })
     selfiePreview.value = URL.createObjectURL(blob)
     stopSelfieCamera()
@@ -697,16 +967,53 @@ async function matchFace() {
     if (!idDetection) throw new Error("Could not detect a clear face on the ID Card.")
     if (!selfieDetection) throw new Error("Could not detect a clear face in your Selfie.")
     
+    // --- NEW: Sunglasses Check via Eye Region Brightness ---
+    const leftEye = selfieDetection.landmarks.getLeftEye()
+    const rightEye = selfieDetection.landmarks.getRightEye()
+    
+    const allEyePoints = [...leftEye, ...rightEye]
+    let minX = Math.min(...allEyePoints.map(p => p.x))
+    let maxX = Math.max(...allEyePoints.map(p => p.x))
+    let minY = Math.min(...allEyePoints.map(p => p.y))
+    let maxY = Math.max(...allEyePoints.map(p => p.y))
+    
+    minX = Math.max(0, minX - 10)
+    maxX = Math.min(selfieImg.width, maxX + 10)
+    minY = Math.max(0, minY - 10)
+    maxY = Math.min(selfieImg.height, maxY + 10)
+    
+    const canvas = document.createElement('canvas')
+    canvas.width = selfieImg.width
+    canvas.height = selfieImg.height
+    const ctx = canvas.getContext('2d')
+    ctx.drawImage(selfieImg, 0, 0)
+    
+    const w = maxX - minX
+    const h = maxY - minY
+    if (w > 0 && h > 0) {
+      const eyeData = ctx.getImageData(minX, minY, w, h).data
+      let brightnessSum = 0
+      for (let i = 0; i < eyeData.length; i += 4) {
+        brightnessSum += 0.299 * eyeData[i] + 0.587 * eyeData[i+1] + 0.114 * eyeData[i+2]
+      }
+      const avgBrightness = brightnessSum / (eyeData.length / 4)
+      
+      if (avgBrightness < 75) { // Dark region indicating sunglasses
+        throw new Error("Dark glasses or sunglasses detected. Please remove them and retake your selfie.")
+      }
+    }
+
     const distance = faceapi.euclideanDistance(idDetection.descriptor, selfieDetection.descriptor)
     
-    if (distance < 0.6) {
+    // Tightened threshold from 0.6 to 0.5 for strict identity verification
+    if (distance < 0.5) {
       faceMatchStatus.value = 'success'
       setTimeout(() => {
         if (currentStep.value === 2) currentStep.value = 3;
       }, 2000);
     } else {
       faceMatchStatus.value = 'error'
-      faceMatchErrorMsg.value = `Faces do not match (Distance: ${distance.toFixed(2)}).`
+      faceMatchErrorMsg.value = "Identity mismatch. The face in your selfie does not match the person on the ID card."
     }
   } catch(e) {
     console.error(e)
@@ -722,9 +1029,11 @@ const videoElement = ref(null)
 const isCameraActive = ref(false)
 const livenessMsg = ref("Please look straight at the camera.")
 const livenessStage = ref('turnRight')
+const isFaceInFrame = ref(false)
 
 let mediaStream = null
 let livenessLoopRunning = false
+let missingFaceFrames = 0
 
 async function analyzeLiveness() {
   if (!videoElement.value || !isCameraActive.value) return;
@@ -733,6 +1042,8 @@ async function analyzeLiveness() {
     const detection = await faceapi.detectSingleFace(videoElement.value).withFaceLandmarks()
     
     if (detection) {
+      missingFaceFrames = 0;
+      isFaceInFrame.value = true;
       const landmarks = detection.landmarks
       
       if (livenessStage.value === 'turnRight') {
@@ -744,9 +1055,14 @@ async function analyzeLiveness() {
         const distR = rightJaw.x - noseTip.x;
         if (distR > 0) {
           const ratio = distL / distR;
-          if (ratio < 0.6) {
-            livenessStage.value = 'turnLeft';
-            livenessMsg.value = "Great! Now turn your head left.";
+          if (ratio < 0.65) {
+            triggerLivenessFlash();
+            livenessStage.value = 'processing';
+            livenessMsg.value = "Processing scan...";
+            setTimeout(() => {
+              livenessStage.value = 'turnLeft';
+              livenessMsg.value = "Great! Now turn your head left.";
+            }, 2000);
           }
         }
       } else if (livenessStage.value === 'turnLeft') {
@@ -758,9 +1074,14 @@ async function analyzeLiveness() {
         const distR = rightJaw.x - noseTip.x;
         if (distR > 0) {
           const ratio = distL / distR;
-          if (ratio > 1.7) {
-            livenessStage.value = 'lookUp';
-            livenessMsg.value = "Good! Now look up slightly.";
+          if (ratio > 1.5) {
+            triggerLivenessFlash();
+            livenessStage.value = 'processing';
+            livenessMsg.value = "Processing scan...";
+            setTimeout(() => {
+              livenessStage.value = 'lookUp';
+              livenessMsg.value = "Good! Now look up slightly.";
+            }, 2000);
           }
         }
       } else if (livenessStage.value === 'lookUp') {
@@ -772,9 +1093,14 @@ async function analyzeLiveness() {
         const distDown = chin.y - noseTip.y;
         if (distDown > 0) {
           const ratioY = distUp / distDown;
-          if (ratioY < 0.6) {
-            livenessStage.value = 'lookDown';
-            livenessMsg.value = "Awesome! Finally, look down slightly.";
+          if (ratioY < 0.65) {
+            triggerLivenessFlash();
+            livenessStage.value = 'processing';
+            livenessMsg.value = "Processing scan...";
+            setTimeout(() => {
+              livenessStage.value = 'lookDown';
+              livenessMsg.value = "Awesome! Finally, look down slightly.";
+            }, 2000);
           }
         }
       } else if (livenessStage.value === 'lookDown') {
@@ -786,7 +1112,8 @@ async function analyzeLiveness() {
         const distDown = chin.y - noseTip.y;
         if (distDown > 0) {
           const ratioY = distUp / distDown;
-          if (ratioY > 1.25) {
+          if (ratioY > 1.15) {
+            triggerLivenessFlash();
             livenessStage.value = 'done';
             livenessMsg.value = "✅ Liveness Verified! Saving your profile...";
             stopLivenessLoop();
@@ -826,7 +1153,10 @@ async function analyzeLiveness() {
         }
       }
     } else {
-      livenessMsg.value = "No face detected in frame. Please adjust."
+      missingFaceFrames++;
+      if (missingFaceFrames > 15) {
+        isFaceInFrame.value = false;
+      }
     }
   } catch(e) {
     console.error("Liveness error:", e)
@@ -1044,11 +1374,14 @@ onBeforeUnmount(() => {
 }
 .example-box .img-wrapper {
   width: 100%;
-  height: 90px;
+  height: 120px;
   border-radius: 8px;
   overflow: hidden;
   border: 2px solid #e2e8f0;
-  background: #f8fafc;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .example-box.acceptable .img-wrapper {
   border-color: #a7f3d0;
@@ -1060,6 +1393,8 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  transform: scale(1.15);
+  mix-blend-mode: multiply;
 }
 .example-box .label {
   font-size: 0.75rem;
@@ -1194,8 +1529,13 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
   border: 2px dashed rgba(255,255,255,0.6);
 }
+.id-cutout {
+  width: 85%; aspect-ratio: 1.58; border-radius: 8px;
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
+  border: 2px dashed rgba(255,255,255,0.8);
+}
 .liveness-msg {
-  position: absolute; bottom: 20px; left: 20px; right: 20px;
+  position: absolute; top: 16px; left: 20px; right: 20px; bottom: auto;
   background: rgba(255,255,255,0.95); color: #0f172a; padding: 12px; border-radius: 8px;
   text-align: center; font-weight: 600; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
@@ -1383,4 +1723,25 @@ onBeforeUnmount(() => {
 .loading-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; }
 .spinner { width: 40px; height: 40px; border: 4px solid #f1f5f9; border-top: 4px solid #0f172a; border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* Liveness Flash */
+.camera-container::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 16px;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: inset 0 0 0 0 rgba(16, 185, 129, 0);
+}
+
+.camera-container.flash-green::after {
+  animation: flashSuccess 0.6s ease-out;
+}
+
+@keyframes flashSuccess {
+  0% { box-shadow: inset 0 0 0 0 rgba(16, 185, 129, 0); }
+  15% { box-shadow: inset 0 0 0 8px #10b981, inset 0 0 50px 15px rgba(16, 185, 129, 0.7); }
+  100% { box-shadow: inset 0 0 0 0 rgba(16, 185, 129, 0); }
+}
 </style>
