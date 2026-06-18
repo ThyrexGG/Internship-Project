@@ -3389,5 +3389,26 @@ input:checked + .toggle-slider:before {
   .chat-modal-body > div > div[style*="grid-template-columns"] {
     grid-template-columns: 1fr !important;
   }
+
+  /* Create Listing */
+  .create-layout {
+    flex-direction: column;
+    gap: 24px;
+  }
+  .create-left {
+    flex: none;
+    width: 100%;
+    position: static;
+  }
+  .create-right {
+    max-width: 100%;
+  }
+  .form-row, .form-row.three-cols {
+    flex-direction: column;
+    display: flex;
+  }
+  .image-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
