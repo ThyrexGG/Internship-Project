@@ -1150,17 +1150,22 @@ function handleGuest() { router.push('/home') }
 .field-input {
   width: 100%;
   padding: 11px 13px 11px 38px;
-  border: 1.5px solid #e8e8e8;
+  border: 1.5px solid #d1d5db;
   border-radius: 11px;
   font-family: 'DM Sans', sans-serif;
   font-size: 0.85rem;
   color: #5C4E4E;
   background: #fff;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
   outline: none;
 }
-.field-input::placeholder { color: #ccc; }
-.field-input:focus { border-color: #5C4E4E; box-shadow: 0 0 0 3px rgba(92,78,78,0.1); }
+.field-input:hover {
+  border-color: #bbb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.field-input::placeholder { color: #aaa; }
+.field-input:focus { border-color: #5C4E4E; box-shadow: 0 0 0 3px rgba(92,78,78,0.15); transform: translateY(-1px); }
 .field-input.error { border-color: #e55; }
 
 .password-wrapper .field-input { padding-right: 42px; }

@@ -185,6 +185,7 @@
       </section>
       
       <div class="spacer"></div>
+      <GlobalFooter />
     </main>
   </div>
 </template>
@@ -193,6 +194,7 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { properties } from '../../store.js'
+import GlobalFooter from '../../components/GlobalFooter.vue'
 
 const route = useRoute()
 const router = useRouter()

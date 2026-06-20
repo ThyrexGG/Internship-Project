@@ -184,6 +184,7 @@
       </section>
 
       <div class="spacer"></div>
+      <GlobalFooter />
     </main>
 
     <!-- Footer Sticky -->
@@ -204,6 +205,7 @@
 <script setup>
 import { ref, computed, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import GlobalFooter from '../../components/GlobalFooter.vue'
 import { properties } from '../../store.js'
 
 const route = useRoute()

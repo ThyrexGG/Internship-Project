@@ -250,6 +250,7 @@
             <button class="btn-clear-all" @click="clearAllFilters">Clear all filters</button>
           </div>
         </div>
+        <GlobalFooter />
       </div>
 
       <!-- Right: Map Column -->
@@ -295,6 +296,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import GlobalFooter from '../../components/GlobalFooter.vue'
 import { properties, globalSearchQuery, globalFilterState } from '../../store.js'
 import { auth, db } from '../../firebase'
 import { doc, getDoc } from 'firebase/firestore'

@@ -635,6 +635,7 @@
                 <img :src="prop.image || (prop.images && prop.images[0])" alt="Property image" class="rental-card-img" />
                 <div class="rental-card-overlay"></div>
                 <span class="rental-card-label">{{ prop.name }}</span>
+                <button class="btn-delete-property" @click.stop="deleteProperty(prop.id)">&times;</button>
               </div>
             </div>
           </div>
@@ -706,7 +707,7 @@
                 <div v-if="newListingImages.length > 0" class="image-grid">
                   <div v-for="(img, idx) in newListingImages" :key="idx" class="image-preview">
                     <img :src="img" alt="Preview" />
-                    <button class="btn-remove-image" @click="newListingImages.splice(idx, 1)">&times;</button>
+                    <button class="btn-remove-image" @click="newListingImages.splice(idx, 1); newListingFiles.splice(idx, 1)">&times;</button>
                   </div>
                   <label class="add-more-card">
                     <input type="file" accept="image/*" multiple @change="handleRealUpload" style="display: none;" />
@@ -721,6 +722,7 @@
                     <polyline points="21 15 16 10 5 21"></polyline>
                   </svg>
                   <p>Drag and drop photos or</p>
+                  <p style="font-size: 0.8rem; color: #777; margin-top: 4px;">(Min 3 images, at least 600x400. Large photos will be auto-optimized)</p>
                   <label class="btn-dark" style="margin-top: 12px; cursor: pointer; background: #5C4E4E; color: white; padding: 10px 24px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; display: inline-block; text-align: center;">
                     <input type="file" accept="image/*" multiple @change="handleRealUpload" style="display: none;" />
                     Upload from Device
@@ -798,7 +800,18 @@
 
               <!-- Description -->
               <div class="form-section">
-                <h3 class="section-title">Description</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                  <h3 class="section-title" style="margin-bottom: 0;">Description <span style="color: red; font-size: 0.9rem;">*</span></h3>
+                  <button class="btn-ai-generate" @click="generateAIDescription" :disabled="isGeneratingAI">
+                    <svg v-if="!isGeneratingAI" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+                      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+                    </svg>
+                    <svg v-else class="spin-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+                      <line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+                    </svg>
+                    {{ isGeneratingAI ? 'Thinking...' : '✨ Auto-Generate' }}
+                  </button>
+                </div>
                 <div class="form-group full-width">
                   <textarea v-model="newListingDescription" class="form-input" rows="4" placeholder="Describe the property highlights..."></textarea>
                 </div>
@@ -856,8 +869,8 @@
 
               <!-- Action Area -->
               <div class="create-action-area">
-                <button class="btn-publish" @click="publishListing" :disabled="!newListingName.trim()">
-                  Publish Listing
+                <button class="btn-publish" @click="publishListing" :disabled="!isFormValid || isPublishing" :title="!isFormValid ? 'Please fill out all required fields and upload at least 3 images' : ''">
+                  {{ isPublishing ? 'Publishing...' : 'Publish Listing' }}
                 </button>
               </div>
 
@@ -1045,6 +1058,26 @@
       </div>
     </div>
   </transition>
+  <!-- Delete Confirmation Modal -->
+  <transition name="modal-fade">
+    <div v-if="showDeleteConfirmModal" class="chat-modal-overlay" @click.self="cancelDeleteProperty">
+      <div class="delete-confirm-modal-box">
+        <div class="delete-confirm-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FF4D4D" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+        </div>
+        <h3 class="delete-confirm-title">Delete Listing</h3>
+        <p class="delete-confirm-text">
+          Are you sure you want to permanently delete this listing?
+          <br><br>
+          <span class="delete-confirm-subtext">This action cannot be undone. All property details, photos, and associated data will be removed from your dashboard and the public feed.</span>
+        </p>
+        <div class="delete-confirm-actions">
+          <button class="btn-cancel-delete" @click="cancelDeleteProperty">Cancel</button>
+          <button class="btn-confirm-delete" @click="confirmDeleteProperty">Delete</button>
+        </div>
+      </div>
+    </div>
+  </transition>
 
   <!-- Success Toast -->
   <transition name="toast-fade">
@@ -1058,14 +1091,46 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { properties } from '../../store.js'
 import html2pdf from 'html2pdf.js'
+import { db, storage, auth } from '../../firebase.js'
+import { collection, addDoc, serverTimestamp, doc, deleteDoc, getDocs } from 'firebase/firestore'
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 
 const route = useRoute()
 const router = useRouter()
 const activePage = ref(route.query.tab || 'dashboard')
+
+onMounted(async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'properties'))
+    const fetchedProperties = []
+    querySnapshot.forEach((doc) => {
+      const data = doc.data()
+      if (!data.images || data.images.length === 0) {
+        data.images = ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80']
+        data.image = data.images[0]
+      }
+      fetchedProperties.push({ id: doc.id, ...data })
+    })
+    fetchedProperties.sort((a, b) => {
+      if (a.createdAt && b.createdAt) {
+        return b.createdAt.toMillis() - a.createdAt.toMillis()
+      }
+      return 0
+    })
+    const demoProperties = properties.value.filter(p => typeof p.id === 'number')
+    if (!querySnapshot.empty) {
+      properties.value = [...fetchedProperties, ...demoProperties]
+    } else {
+      properties.value = [...demoProperties]
+    }
+  } catch (e) {
+    console.error("Error fetching properties in Dashboard: ", e)
+  }
+})
 const selectedNotif = ref(null)
 const activeNotifTab = ref('main')
 
@@ -1309,82 +1374,282 @@ const newListingPax = ref('')
 const newListingPeriod = ref('Long-term')
 const newListingAmenities = ref([])
 const newListingDescription = ref('')
+const isGeneratingAI = ref(false)
+
+async function generateAIDescription() {
+  if (!newListingName.value || !newListingType.value || !newListingLocation.value) {
+    triggerToast("Please fill out the Name, Type, and Location first so the AI has context!")
+    return
+  }
+
+  isGeneratingAI.value = true
+  
+  // Simulate network delay
+  await new Promise(resolve => setTimeout(resolve, 1500))
+  
+  const name = newListingName.value
+  const type = newListingType.value
+  const loc = newListingLocation.value
+  const beds = newListingBedrooms.value
+  const baths = newListingBaths.value
+  const amenities = newListingAmenities.value.join(", ") || "essential amenities"
+  const price = newListingPrice.value
+  const sqft = newListingSqft.value
+  const period = newListingPeriod.value
+  const pax = newListingPax.value || 'multiple'
+  
+  const generatedText = `🌟 Welcome to ${name}! 🌟\n\n` +
+    `Discover this stunning ${beds}-bedroom, ${baths}-bathroom ${type.toLowerCase()} perfectly situated in the highly sought-after area of ${loc}.\n\n` +
+    `✨ Property Highlights:\n` +
+    `• Spacious layout with ${sqft} sqft of beautiful living space\n` +
+    `• Accommodates up to ${pax} guests comfortably\n` +
+    `• Premium amenities including: ${amenities}\n\n` +
+    `Designed for both comfort and style, this property offers a premium living experience. Whether you're looking to relax or entertain, the modern finishes provide the perfect backdrop for your lifestyle.\n\n` +
+    `💰 Available for just $${price} / ${period === 'Short-term' ? 'night' : 'month'}!\n\n` +
+    `Don't miss out on making this exceptional property your next home. Contact us today to learn more!`
+    
+  newListingDescription.value = generatedText
+  isGeneratingAI.value = false
+  triggerToast("AI Description Generated!")
+}
 const newListingImages = ref([])
+const newListingFiles = ref([])
 const newListingContactName = ref('')
 const newListingContactPhone = ref('')
 const newListingContactSocial = ref('')
+const isPublishing = ref(false)
 
-function handleRealUpload(event) {
+const isFormValid = computed(() => {
+  return newListingName.value.trim() !== '' &&
+         newListingLocation.value.trim() !== '' &&
+         newListingPrice.value !== '' && newListingPrice.value > 0 &&
+         newListingSqft.value !== '' && newListingSqft.value > 0 &&
+         newListingBedrooms.value !== '' && newListingBedrooms.value > 0 &&
+         newListingBeds.value !== '' && newListingBeds.value > 0 &&
+         newListingBaths.value !== '' && newListingBaths.value > 0 &&
+         String(newListingPax.value).trim() !== '' &&
+         newListingDescription.value.trim() !== '' &&
+         newListingFiles.value.length >= 3 &&
+         newListingContactName.value.trim() !== '' &&
+         newListingContactPhone.value.trim() !== ''
+})
+
+function processImage(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.src = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(img.src)
+      
+      // Dimension check: minimum 600x400
+      if (img.width < 600 || img.height < 400) {
+        return reject(new Error(`Image "${file.name}" is too small. Minimum size is 600x400 pixels.`))
+      }
+
+      // Max dimensions for optimization
+      const MAX_WIDTH = 1920
+      const MAX_HEIGHT = 1080
+      let width = img.width
+      let height = img.height
+
+      if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+        const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height)
+        width = Math.round(width * ratio)
+        height = Math.round(height * ratio)
+      }
+
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(img, 0, 0, width, height)
+      
+      // Convert to blob
+      canvas.toBlob((blob) => {
+        if (!blob) return reject(new Error('Canvas is empty'))
+        const optimizedFile = new File([blob], file.name, {
+          type: 'image/jpeg',
+          lastModified: Date.now()
+        })
+        resolve(optimizedFile)
+      }, 'image/jpeg', 0.85) // 85% quality JPEG
+    }
+    img.onerror = () => reject(new Error(`Failed to read image "${file.name}".`))
+  })
+}
+
+async function handleRealUpload(event) {
   const files = event.target.files
   if (!files || files.length === 0) return
   
+  triggerToast("Processing images...")
+  let addedCount = 0
+  
   for (let i = 0; i < files.length; i++) {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      newListingImages.value.push(e.target.result)
+    try {
+      const optimizedFile = await processImage(files[i])
+      newListingFiles.value.push(optimizedFile)
+      
+      // Generate preview
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        newListingImages.value.push(e.target.result)
+      }
+      reader.readAsDataURL(optimizedFile)
+      addedCount++
+    } catch (err) {
+      alert(err.message)
     }
-    reader.readAsDataURL(files[i])
   }
-  triggerToast(`${files.length} image(s) added!`)
+  
+  if (addedCount > 0) {
+    triggerToast(`${addedCount} image(s) processed and added!`)
+  }
+  
+  // Clear the input so they can upload the same file again if they deleted it
+  event.target.value = ''
 }
 
-function publishListing() {
-  if (!newListingName.value.trim()) return
+async function publishListing() {
+  if (!newListingName.value.trim() || isPublishing.value) return
   
-  const newId = properties.value.length > 0 ? Math.max(...properties.value.map(p => p.id)) + 1 : 1
-  const newProperty = {
-    id: newId,
-    name: newListingName.value,
-    price: newListingPrice.value || 250,
-    type: newListingType.value,
-    location: newListingLocation.value || 'Phnom Penh',
-    lat: 11.5750 + (Math.random() - 0.5) * 0.05,
-    lng: 104.8850 + (Math.random() - 0.5) * 0.05,
-    bedrooms: newListingBedrooms.value,
-    beds: newListingBeds.value,
-    baths: newListingBaths.value,
-    sqft: newListingSqft.value,
-    pax: newListingPax.value,
-    period: newListingPeriod.value,
-    amenities: [...newListingAmenities.value],
-    rating: 0,
-    reviews: 0,
-    contactName: newListingContactName.value,
-    contactPhone: newListingContactPhone.value,
-    contactSocial: newListingContactSocial.value,
-    renter: { name: newListingContactName.value || 'You (Landlord)', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&q=80' },
-    images: newListingImages.value.length ? [...newListingImages.value] : ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80'],
-    image: newListingImages.value[0] || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80',
-    description: newListingDescription.value
+  // Validation
+  if (newListingFiles.value.length < 3) {
+    triggerToast("Please upload at least 3 images to proceed.")
+    return
+  }
+  if (!newListingDescription.value.trim()) {
+    triggerToast("Please add a description for the listing.")
+    return
+  }
+
+  isPublishing.value = true
+  triggerToast("Publishing listing... please wait.")
+  
+  try {
+    const uploadedImageUrls = []
+    
+    // Upload files to Firebase Storage
+    if (newListingFiles.value.length > 0) {
+      for (const file of newListingFiles.value) {
+        const fileRef = storageRef(storage, `property_images/${Date.now()}_${file.name}`)
+        const snapshot = await uploadBytes(fileRef, file)
+        const downloadURL = await getDownloadURL(snapshot.ref)
+        uploadedImageUrls.push(downloadURL)
+      }
+    }
+    
+    const finalImages = uploadedImageUrls.length > 0 
+      ? uploadedImageUrls 
+      : ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80']
+      
+    const landlordId = auth.currentUser ? auth.currentUser.uid : 'unknown_landlord'
+
+    const newProperty = {
+      name: newListingName.value,
+      price: newListingPrice.value || 250,
+      type: newListingType.value,
+      location: newListingLocation.value || 'Phnom Penh',
+      lat: 11.5750 + (Math.random() - 0.5) * 0.05,
+      lng: 104.8850 + (Math.random() - 0.5) * 0.05,
+      bedrooms: newListingBedrooms.value,
+      beds: newListingBeds.value,
+      baths: newListingBaths.value,
+      sqft: newListingSqft.value,
+      pax: newListingPax.value,
+      period: newListingPeriod.value,
+      amenities: [...newListingAmenities.value],
+      rating: 0,
+      reviews: 0,
+      contactName: newListingContactName.value,
+      contactPhone: newListingContactPhone.value,
+      contactSocial: newListingContactSocial.value,
+      renter: { name: newListingContactName.value || 'You (Landlord)', image: landlordProfile.value.avatar },
+      images: finalImages,
+      image: finalImages[0],
+      description: newListingDescription.value,
+      landlordId: landlordId,
+      createdAt: serverTimestamp()
+    }
+    
+    // Save to Firestore
+    const docRef = await addDoc(collection(db, 'properties'), newProperty)
+    
+    // Add id to local object to update UI immediately
+    newProperty.id = docRef.id
+    // Because rentalProperties is an alias to properties, we just unshift it once
+    properties.value.unshift(newProperty)
+    
+    triggerToast("Listing published successfully!")
+    
+    // Reset Form
+    newListingName.value = ''
+    newListingLocation.value = ''
+    newListingPrice.value = 250
+    newListingType.value = 'Apartment'
+    newListingBedrooms.value = 1
+    newListingBeds.value = 1
+    newListingBaths.value = 1
+    newListingSqft.value = 500
+    newListingPax.value = ''
+    newListingPeriod.value = 'Long-term'
+    newListingAmenities.value = []
+    newListingDescription.value = ''
+    newListingImages.value = []
+    newListingFiles.value = []
+    newListingContactName.value = ''
+    newListingContactPhone.value = ''
+    newListingContactSocial.value = ''
+    
+    activePage.value = 'rental'
+  } catch (error) {
+    console.error("Error publishing listing:", error)
+    alert("Failed to publish listing: " + error.message)
+  } finally {
+    isPublishing.value = false
+  }
+}
+
+const showDeleteConfirmModal = ref(false)
+const propertyIdToDelete = ref(null)
+
+function deleteProperty(propertyId) {
+  propertyIdToDelete.value = propertyId
+  showDeleteConfirmModal.value = true
+}
+
+async function confirmDeleteProperty() {
+  const propertyId = propertyIdToDelete.value
+  showDeleteConfirmModal.value = false
+  
+  if (!propertyId || typeof propertyId === 'number') {
+    // It's a mock property
+    const idx = properties.value.findIndex(p => p.id === propertyId)
+    if (idx !== -1) properties.value.splice(idx, 1)
+    triggerToast("Mock property deleted.")
+    return
   }
   
-  properties.value.push(newProperty)
-  
-  const dashboardItem = {
-    id: newId,
-    name: newProperty.name,
-    image: newProperty.image
+  try {
+    // Delete from Firestore
+    await deleteDoc(doc(db, 'properties', propertyId))
+    
+    // Remove from local properties array
+    const globalIndex = properties.value.findIndex(p => p.id === propertyId)
+    if (globalIndex !== -1) {
+      properties.value.splice(globalIndex, 1)
+    }
+    
+    triggerToast("Listing deleted successfully.")
+  } catch (err) {
+    console.error("Error deleting property:", err)
+    triggerToast("Failed to delete property: " + err.message)
   }
-  rentalProperties.value.unshift(dashboardItem)
-  
-  newListingName.value = ''
-  newListingLocation.value = ''
-  newListingPrice.value = 250
-  newListingType.value = 'Apartment'
-  newListingBedrooms.value = 1
-  newListingBeds.value = 1
-  newListingBaths.value = 1
-  newListingSqft.value = 500
-  newListingPax.value = ''
-  newListingPeriod.value = 'Long-term'
-  newListingAmenities.value = []
-  newListingDescription.value = ''
-  newListingImages.value = []
-  newListingContactName.value = ''
-  newListingContactPhone.value = ''
-  newListingContactSocial.value = ''
-  
-  activePage.value = 'rental'
+}
+
+function cancelDeleteProperty() {
+  showDeleteConfirmModal.value = false
+  propertyIdToDelete.value = null
 }
 
 // Leases filtering
@@ -3390,4 +3655,132 @@ input:checked + .toggle-slider:before {
     grid-template-columns: 1fr !important;
   }
 }
+  .btn-delete-property {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.2s;
+  }
+  .btn-delete-property:hover {
+    background: rgba(255, 0, 0, 0.8);
+  }
+
+  .delete-confirm-modal-box {
+    background: white;
+    width: 400px;
+    max-width: 90%;
+    border-radius: 16px;
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .delete-confirm-icon {
+    width: 64px;
+    height: 64px;
+    background: #FFF0F0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+  }
+  .delete-confirm-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 12px;
+  }
+  .delete-confirm-text {
+    font-family: 'DM Sans', sans-serif;
+    color: #222;
+    font-size: 1.15rem;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-bottom: 40px;
+    letter-spacing: 0.3px;
+    padding: 0 10px;
+  }
+  .delete-confirm-subtext {
+    font-size: 0.95rem;
+    color: #666;
+    font-weight: 400;
+    line-height: 1.6;
+    letter-spacing: 0.2px;
+  }
+  .delete-confirm-actions {
+    display: flex;
+    gap: 12px;
+  }
+  .btn-cancel-delete {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: white;
+    color: #333;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-cancel-delete:hover {
+    background: #f5f5f5;
+  }
+  .btn-confirm-delete {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: #FF4D4D;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-confirm-delete:hover {
+    background: #E63939;
+  }
+  
+  .btn-ai-generate {
+    background: linear-gradient(135deg, #a855f7, #6366f1);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-ai-generate:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  }
+  .btn-ai-generate:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .spin-icon {
+    animation: spin 1s linear infinite;
+  }
 </style>

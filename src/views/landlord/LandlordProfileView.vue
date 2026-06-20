@@ -204,6 +204,7 @@
         </div>
       </div>
     </main>
+    <GlobalFooter />
 
     <!-- Direct Messaging Popup Modal -->
     <transition name="modal-fade">
@@ -271,6 +272,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import GlobalFooter from '../../components/GlobalFooter.vue'
 import { auth, db } from '../../firebase'
 import { doc, getDoc } from 'firebase/firestore'
 import { onAuthStateChanged } from 'firebase/auth'
