@@ -79,6 +79,7 @@
                 v-for="(img, i) in property.images" :key="i"
                 :src="img" :alt="property.name"
                 class="carousel-img" draggable="false"
+                loading="lazy"
               />
             </div>
             <button class="heart-btn" :class="{ liked: property.liked }" @click.stop="property.liked = !property.liked">
@@ -968,7 +969,7 @@
                   </div>
                 </div>
 
-                <button style="background: #fff; color: #111; border: none; width: 100%; padding: 14px; font-size: 1.05rem; font-weight: 700; border-radius: 12px; cursor: pointer;">Start Earning Today</button>
+                <button @click="$router.push('/login?role=landlord')" style="background: #fff; color: #111; border: none; width: 100%; padding: 14px; font-size: 1.05rem; font-weight: 700; border-radius: 12px; cursor: pointer;">Start Earning Today</button>
               </div>
             </template>
 

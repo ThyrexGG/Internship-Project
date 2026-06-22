@@ -632,7 +632,7 @@
                 class="rental-property-card"
                 @click="$router.push('/property/' + (prop.id || 1) + '?from=landlord-rental')"
               >
-                <img :src="prop.image || (prop.images && prop.images[0])" alt="Property image" class="rental-card-img" />
+                <img :src="prop.image || (prop.images && prop.images[0])" alt="Property image" class="rental-card-img" loading="lazy" />
                 <div class="rental-card-overlay"></div>
                 <span class="rental-card-label">{{ prop.name }}</span>
                 <button class="btn-delete-property" @click.stop="deleteProperty(prop.id)">&times;</button>

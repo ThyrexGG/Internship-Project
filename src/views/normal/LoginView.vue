@@ -541,16 +541,24 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { auth, db } from '../../firebase'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { doc, setDoc } from 'firebase/firestore'
 import heroImage from '@/assets/hero_sunset_deck.png'
 
 const router = useRouter()
+const route = useRoute()
 const activeTab = ref('login')
 const selectedRole = ref('resident') // 'resident' or 'landlord'
+
+onMounted(() => {
+  if (route.query.role === 'landlord') {
+    selectedRole.value = 'landlord'
+  }
+})
+
 const email = ref('')
 const password = ref('')
 const firstName = ref('')
