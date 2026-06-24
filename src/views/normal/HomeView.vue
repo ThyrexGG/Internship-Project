@@ -126,6 +126,16 @@
           </div>
         </div>
         </section>
+
+        <div v-if="hasMoreProperties || loadingMoreProperties" style="display: flex; justify-content: center; padding: 20px 0 40px;">
+          <button 
+            @click="loadMoreProperties" 
+            :disabled="loadingMoreProperties"
+            style="padding: 12px 24px; background: #111; color: #fff; border: none; border-radius: 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; min-width: 160px;"
+          >
+            {{ loadingMoreProperties ? 'Loading...' : 'Load More Properties' }}
+          </button>
+        </div>
       </div>
         <GlobalFooter />
       </template>
@@ -239,21 +249,30 @@
                       <path d="M18 6L6 18M6 6l12 12"/>
                     </svg>
                   </button>
+                  <input v-model="newPostCaption" type="text" placeholder="Add a caption for your photo..." class="composer-caption-input" />
                 </div>
 
                 <div class="composer-actions">
-                  <button class="action-btn attachment-btn" @click="triggerPostImage" type="button">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                      <circle cx="8.5" cy="8.5" r="1.5"/>
-                      <polyline points="21 15 16 10 5 21"/>
-                    </svg>
-                    <span>Photo</span>
-                  </button>
+                  <div class="composer-actions-left">
+                    <button class="action-btn attachment-btn" @click="triggerPostImage" type="button">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
+                      </svg>
+                      <span>Photo</span>
+                    </button>
+                    <div class="location-input-wrapper">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" />
+                      </svg>
+                      <input v-model="newPostLocation" type="text" placeholder="Check in..." class="composer-location-input" />
+                    </div>
+                  </div>
                   <input type="file" ref="postImageInput" @change="handlePostImage" accept="image/*" style="display: none" />
                   
-                  <button class="composer-submit-btn btn-dark" @click="createPost" :disabled="!newPostText.trim() && !newPostImage" type="button">
-                    Post
+                  <button class="composer-submit-btn btn-dark" @click="createPost" :disabled="(!newPostText.trim() && !newPostImage) || isPosting" type="button">
+                    {{ isPosting ? 'Posting...' : 'Post' }}
                   </button>
                 </div>
               </div>
@@ -263,7 +282,10 @@
               <header class="feed-card-header">
                 <div class="feed-author">
                   <img class="feed-avatar" :src="post.avatar" :alt="post.author" />
-                  <span>{{ post.author }}</span>
+                  <div class="feed-author-details">
+                    <span class="feed-author-name">{{ post.author }}</span>
+                    <span v-if="post.location" class="feed-author-location">📍 {{ post.location }}</span>
+                  </div>
                 </div>
                 <button v-if="post.author === currentUser.name" class="feed-delete-btn" @click="deletePost(post.id)" aria-label="Delete post" type="button">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e02424" stroke-width="2">
@@ -1219,17 +1241,78 @@
 </template>
 
 <script setup>
-import { ref, computed, h, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, h, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import GlobalFooter from '../../components/GlobalFooter.vue'
 import { properties, globalSearchQuery, globalFilterState } from '../../store.js'
 import { auth, db, storage } from '../../firebase'
-import { doc, getDoc, setDoc, collection, getDocs } from 'firebase/firestore'
+import { doc, getDoc, setDoc, collection, getDocs, addDoc, onSnapshot, query, orderBy, where, deleteDoc, updateDoc, serverTimestamp, limit, startAfter } from 'firebase/firestore'
 import { onAuthStateChanged } from 'firebase/auth'
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { ref as storageRef, uploadBytes, getDownloadURL, uploadString } from 'firebase/storage'
 
 const router = useRouter()
+const currentAuthUser = ref(null)
+
+let postsUnsubscribe = null;
+let authUnsubscribe = null;
+let chatsUnsubscribe = null;
 const searchQuery = globalSearchQuery
+
+const lastPropertyDoc = ref(null);
+const loadingMoreProperties = ref(false);
+const hasMoreProperties = ref(true);
+
+const loadMoreProperties = async () => {
+  if (loadingMoreProperties.value || !hasMoreProperties.value) return;
+  loadingMoreProperties.value = true;
+  try {
+    let q;
+    if (lastPropertyDoc.value) {
+      q = query(collection(db, 'properties'), limit(10), startAfter(lastPropertyDoc.value));
+    } else {
+      q = query(collection(db, 'properties'), limit(10));
+    }
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) {
+      hasMoreProperties.value = false;
+      return;
+    }
+    
+    lastPropertyDoc.value = querySnapshot.docs[querySnapshot.docs.length - 1];
+    
+    const fetchedProperties = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (!data.images || data.images.length === 0) {
+        data.images = ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80'];
+        data.image = data.images[0];
+      }
+      data.activeSlide = 0;
+      fetchedProperties.push({ id: doc.id, ...data });
+    });
+    
+    fetchedProperties.sort((a, b) => {
+      if (a.createdAt && b.createdAt) {
+        return b.createdAt.toMillis() - a.createdAt.toMillis();
+      }
+      return 0;
+    });
+
+    const demoProperties = properties.value.filter(p => typeof p.id === 'number');
+    const existingFetchedProperties = properties.value.filter(p => typeof p.id === 'string');
+    
+    properties.value = [...existingFetchedProperties, ...fetchedProperties, ...demoProperties];
+    
+    if (querySnapshot.docs.length < 10) {
+       hasMoreProperties.value = false;
+    }
+  } catch (e) {
+    console.error("Error fetching properties: ", e);
+  } finally {
+    loadingMoreProperties.value = false;
+  }
+}
 
 const defaultAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23dfa37b'/><stop offset='100%' stop-color='%23c0784a'/></linearGradient></defs><circle cx='50' cy='50' r='50' fill='url(%23g)'/><circle cx='50' cy='37' r='17' fill='%23fff'/><path d='M50 58c-18 0-32 9-32 20v4h64v-4c0-11-14-20-32-20z' fill='%23fff'/></svg>"
 
@@ -1240,6 +1323,9 @@ function setDefaultAvatar(event) {
 const newPostText = ref('')
 const newPostImage = ref(null)
 const postImageInput = ref(null)
+const newPostCaption = ref('')
+const newPostLocation = ref('')
+const isPosting = ref(false)
 
 const isEditingProfile = ref(false)
 const isSavingProfile = ref(false)
@@ -1694,47 +1780,65 @@ async function fetchUserProfile(user) {
 }
 
 onMounted(async () => {
-  try {
-    const querySnapshot = await getDocs(collection(db, 'properties'))
-    const fetchedProperties = []
-    querySnapshot.forEach((doc) => {
-      const data = doc.data()
-      // Make sure images exist, otherwise use a placeholder
-      if (!data.images || data.images.length === 0) {
-        data.images = ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80']
-        data.image = data.images[0]
+  const postsQuery = query(collection(db, 'feed_posts'), orderBy('timestamp', 'desc'));
+  postsUnsubscribe = onSnapshot(postsQuery, (snapshot) => {
+    const newPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const mappedNewPosts = newPosts.map(p => {
+      const existing = feedPosts.value.find(e => e.id === p.id)
+      if (existing) {
+        return { ...p, showComments: existing.showComments, newCommentText: existing.newCommentText }
       }
-      // Initialize activeSlide for carousel UI
-      data.activeSlide = 0
-      fetchedProperties.push({ id: doc.id, ...data })
-    })
+      return { ...p, showComments: false, newCommentText: '' }
+    });
     
-    // Sort by newest first based on createdAt if it exists
-    fetchedProperties.sort((a, b) => {
-      if (a.createdAt && b.createdAt) {
-        return b.createdAt.toMillis() - a.createdAt.toMillis()
-      }
-      return 0
-    })
+    const currentDemoPosts = feedPosts.value.filter(p => typeof p.id === 'string' && p.id.startsWith('demo-'));
+    const demoPostsToKeep = currentDemoPosts.length > 0 ? currentDemoPosts : demoFeedPosts;
+    
+    feedPosts.value = [...mappedNewPosts, ...demoPostsToKeep];
+  });
 
-    // Keep the original demo properties
-    const demoProperties = properties.value.filter(p => typeof p.id === 'number')
-
-    if (!querySnapshot.empty) {
-      properties.value = [...fetchedProperties, ...demoProperties]
-    } else {
-      properties.value = [...demoProperties]
-    }
+  try {
+    // Reset pagination state on mount
+    lastPropertyDoc.value = null;
+    hasMoreProperties.value = true;
+    
+    // Clear previously fetched properties (strings) but keep demo (numbers)
+    const demoProperties = properties.value.filter(p => typeof p.id === 'number');
+    properties.value = [...demoProperties];
+    
+    await loadMoreProperties();
   } catch (e) {
-    console.error("Error fetching properties: ", e)
+    console.error("Error init properties: ", e)
   }
 
   // Fetch real profile from Firebase
-  onAuthStateChanged(auth, async (user) => {
+  authUnsubscribe = onAuthStateChanged(auth, async (user) => {
     if (user) {
+      currentAuthUser.value = user;
       await fetchUserProfile(user);
+      
+      if (chatsUnsubscribe) chatsUnsubscribe();
+      chatsUnsubscribe = onSnapshot(
+        query(collection(db, 'chats'), where('participants', 'array-contains', user.uid)),
+        (snapshot) => {
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            const otherParticipant = data.participants.find(p => p !== user.uid);
+            if (otherParticipant && !chats.value[otherParticipant]) {
+              chats.value[otherParticipant] = [];
+            }
+          });
+        }
+      );
     }
   });
+})
+
+onUnmounted(() => {
+  if (postsUnsubscribe) postsUnsubscribe();
+  if (authUnsubscribe) authUnsubscribe();
+  if (chatsUnsubscribe) chatsUnsubscribe();
+  if (messagesUnsubscribe) messagesUnsubscribe();
 })
 const filterOpen  = ref(false)
 const activeTab   = ref(sessionStorage.getItem('homeActiveTab') || 'home')
@@ -1791,9 +1895,9 @@ const currentUser = computed(() => {
   }
 })
 
-const feedPosts = ref([
+const demoFeedPosts = [
   {
-    id: 1,
+    id: 'demo-1',
     author: 'Dave Rim',
     avatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&q=80',
     image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1000&q=85',
@@ -1808,7 +1912,7 @@ const feedPosts = ref([
     caption: 'Take some time to give yourself a rest',
   },
   {
-    id: 2,
+    id: 'demo-2',
     author: 'James Son',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80',
     text: 'Wanna go grab a coffee with me?',
@@ -1821,7 +1925,7 @@ const feedPosts = ref([
     ],
   },
   {
-    id: 3,
+    id: 'demo-3',
     author: 'Dave Rim',
     avatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&q=80',
     image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1000&q=85',
@@ -1834,7 +1938,7 @@ const feedPosts = ref([
     caption: 'Just move in, Roommate please take care of me. ^^',
   },
   {
-    id: 4,
+    id: 'demo-4',
     author: 'James Son',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80',
     text: "Need another roommate to split the bill. I'm broke :((",
@@ -1845,7 +1949,7 @@ const feedPosts = ref([
     commentsList: [],
   },
   {
-    id: 5,
+    id: 'demo-5',
     author: 'James Son',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80',
     text: 'Our room still have a room left, looking for a roommate',
@@ -1855,7 +1959,9 @@ const feedPosts = ref([
     newCommentText: '',
     commentsList: [],
   },
-])
+]
+
+const feedPosts = ref([...demoFeedPosts])
 
 const triggerPostImage = () => {
   if (postImageInput.value) {
@@ -1880,44 +1986,88 @@ const removeAttachedImage = () => {
   }
 }
 
-const createPost = () => {
+const createPost = async () => {
   if (!newPostText.value.trim() && !newPostImage.value) return
+  if (isPosting.value) return
   
-  const newPost = {
-    id: Date.now(),
-    author: currentUser.value.name,
-    avatar: currentUser.value.avatar,
-    text: newPostText.value.trim(),
-    image: newPostImage.value,
-    imageAlt: newPostImage.value ? 'Attached Photo' : undefined,
-    likes: 0,
-    likedByMe: false,
-    showComments: false,
-    newCommentText: '',
-    commentsList: []
-  }
-  
-  feedPosts.value.unshift(newPost)
-  newPostText.value = ''
-  newPostImage.value = null
-  if (postImageInput.value) {
-    postImageInput.value.value = null
+  isPosting.value = true
+  try {
+    let finalImageUrl = null
+    if (newPostImage.value) {
+      const imgRef = storageRef(storage, `feed_images/${Date.now()}_${Math.random().toString(36).substring(7)}`)
+      await uploadString(imgRef, newPostImage.value, 'data_url')
+      finalImageUrl = await getDownloadURL(imgRef)
+    }
+
+    const newPost = {
+      author: currentUser.value.name,
+      avatar: currentUser.value.avatar,
+      text: newPostText.value.trim(),
+      image: finalImageUrl,
+      imageAlt: finalImageUrl ? 'Attached Photo' : undefined,
+      caption: newPostCaption.value.trim(),
+      location: newPostLocation.value.trim(),
+      likes: 0,
+      likedByMe: false,
+      commentsList: [],
+      timestamp: serverTimestamp()
+    }
+    
+    await addDoc(collection(db, 'feed_posts'), newPost)
+
+    newPostText.value = ''
+    newPostCaption.value = ''
+    newPostLocation.value = ''
+    newPostImage.value = null
+    if (postImageInput.value) {
+      postImageInput.value.value = null
+    }
+  } catch (err) {
+    console.error("Error creating post:", err)
+    alert("Failed to create post. Please try again.")
+  } finally {
+    isPosting.value = false
   }
 }
 
-const deletePost = (postId) => {
+const deletePost = async (postId) => {
   if (confirm("Are you sure you want to delete this post?")) {
-    feedPosts.value = feedPosts.value.filter(p => p.id !== postId)
+    if (typeof postId === 'string' && postId.startsWith('demo-')) {
+      feedPosts.value = feedPosts.value.filter(p => p.id !== postId)
+      return
+    }
+    try {
+      await deleteDoc(doc(db, 'feed_posts', postId))
+    } catch (err) {
+      console.error("Error deleting post:", err)
+    }
   }
 }
 
-const toggleLike = (post) => {
+const toggleLike = async (post) => {
+  let newLikes = post.likes
+  let newLikedByMe = post.likedByMe
+  
   if (post.likedByMe) {
-    post.likes = Math.max(0, post.likes - 1)
-    post.likedByMe = false
+    newLikes = Math.max(0, post.likes - 1)
+    newLikedByMe = false
   } else {
-    post.likes++
-    post.likedByMe = true
+    newLikes++
+    newLikedByMe = true
+  }
+  
+  post.likes = newLikes
+  post.likedByMe = newLikedByMe
+  
+  if (typeof post.id === 'string' && post.id.startsWith('demo-')) return;
+  
+  try {
+    await updateDoc(doc(db, 'feed_posts', post.id), {
+      likes: newLikes,
+      likedByMe: newLikedByMe
+    })
+  } catch (err) {
+    console.error("Error toggling like:", err)
   }
 }
 
@@ -1925,14 +2075,29 @@ const toggleComments = (post) => {
   post.showComments = !post.showComments
 }
 
-const submitComment = (post) => {
+const submitComment = async (post) => {
   if (!post.newCommentText || !post.newCommentText.trim()) return
-  post.commentsList.push({
+  const newComment = {
     author: currentUser.value.name,
     avatar: currentUser.value.avatar,
     text: post.newCommentText.trim()
-  })
+  }
+  
+  const updatedComments = [...(post.commentsList || []), newComment]
   post.newCommentText = ''
+  
+  if (typeof post.id === 'string' && post.id.startsWith('demo-')) {
+    post.commentsList = updatedComments
+    return
+  }
+  
+  try {
+    await updateDoc(doc(db, 'feed_posts', post.id), {
+      commentsList: updatedComments
+    })
+  } catch (err) {
+    console.error("Error submitting comment:", err)
+  }
 }
 
 const selectedChatRecipient = ref(null)
@@ -2035,38 +2200,85 @@ const filteredMessages = computed(() => {
   return list
 })
 
+function getChatId(uid, recipientName) {
+  return [uid, recipientName].sort().join('_');
+}
+
+let messagesUnsubscribe = null;
+
 const openChat = (name) => {
   selectedChatRecipient.value = name
   activeTab.value = 'messages'
   if (!chats.value[name]) {
     chats.value[name] = []
   }
-  nextTick(() => {
-    scrollToBottom()
-  })
+  
+  if (currentAuthUser.value) {
+    if (messagesUnsubscribe) messagesUnsubscribe();
+    
+    const chatId = getChatId(currentAuthUser.value.uid, name);
+    messagesUnsubscribe = onSnapshot(
+      query(collection(db, 'chats', chatId, 'messages'), orderBy('timestamp', 'asc')),
+      (snapshot) => {
+        const msgs = [];
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          msgs.push({
+            sender: data.senderId === currentAuthUser.value.uid ? 'me' : 'them',
+            text: data.text,
+            time: data.time || 'Just now',
+            timestamp: data.timestamp
+          });
+        });
+        chats.value[name] = msgs;
+        nextTick(() => scrollToBottom());
+      }
+    );
+  } else {
+    nextTick(() => scrollToBottom());
+  }
 }
 
 
 
-const sendChatMessage = () => {
+const sendChatMessage = async () => {
   if (!chatInputText.value || !chatInputText.value.trim() || !selectedChatRecipient.value) return
   
   const text = chatInputText.value.trim()
   const recipient = selectedChatRecipient.value
-  
-  chats.value[recipient].push({
-    sender: 'me',
-    text,
-    time: 'Just now'
-  })
-  
   chatInputText.value = ''
+  
+  if (currentAuthUser.value) {
+    const chatId = getChatId(currentAuthUser.value.uid, recipient);
+    const msg = {
+      senderId: currentAuthUser.value.uid,
+      text,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: serverTimestamp()
+    };
+    
+    try {
+      await addDoc(collection(db, 'chats', chatId, 'messages'), msg);
+      await setDoc(doc(db, 'chats', chatId), {
+        participants: [currentAuthUser.value.uid, recipient],
+        lastMessage: text,
+        lastMessageTime: serverTimestamp()
+      }, { merge: true });
+    } catch(e) {
+      console.error("Error sending message:", e);
+    }
+  } else {
+    chats.value[recipient].push({
+      sender: 'me',
+      text,
+      time: 'Just now'
+    })
+    triggerMockReply(recipient)
+  }
   
   nextTick(() => {
     scrollToBottom()
   })
-  
-  triggerMockReply(recipient)
 }
 
 const triggerMockReply = (recipient) => {
@@ -2711,6 +2923,64 @@ const filteredProperties = computed(() => {
   font-weight: 500;
 }
 
+.composer-caption-input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  outline: none;
+}
+.composer-caption-input:focus {
+  border-color: #2c9efc;
+}
+
+.composer-actions-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.location-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: #f0f2f5;
+  padding: 6px 10px;
+  border-radius: 16px;
+  gap: 6px;
+}
+.location-input-wrapper svg {
+  stroke: #8e8e8e;
+}
+
+.composer-location-input {
+  border: none;
+  background: transparent;
+  font-size: 0.75rem;
+  outline: none;
+  color: #050505;
+}
+
+.feed-author-details {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.feed-author-name {
+  font-size: 0.75rem;
+  color: #050505;
+  font-weight: 700;
+}
+
+.feed-author-location {
+  font-size: 0.65rem;
+  color: #65676b;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
 /* MESSENGER FULL SCREEN LAYOUT */
 .full-screen-messenger {
   position: absolute;
@@ -2729,11 +2999,25 @@ const filteredProperties = computed(() => {
   border-right: 1px solid #e0e0e0;
   display: flex;
   flex-direction: column;
-  padding: 16px 12px 90px; /* Bottom padding to clear nav pill */
-  overflow-y: auto;
+  padding: 16px 12px 0;
+  height: 100%;
+  overflow: hidden;
 }
-.messenger-sidebar::-webkit-scrollbar { width: 4px; }
-.messenger-sidebar::-webkit-scrollbar-thumb { background: #e4e6e9; border-radius: 4px; }
+
+.messenger-header,
+.messenger-search,
+.active-now-section {
+  flex-shrink: 0;
+}
+
+.recent-messages-section {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 90px; /* Bottom padding to clear nav pill */
+}
+
+.recent-messages-section::-webkit-scrollbar { width: 4px; }
+.recent-messages-section::-webkit-scrollbar-thumb { background: #e4e6e9; border-radius: 4px; }
 
 /* MAIN CHAT AREA */
 .messenger-main {
@@ -4033,7 +4317,7 @@ const filteredProperties = computed(() => {
 /* ── BOTTOM NAV ── */
 .bottom-nav {
   position: fixed;
-  bottom: 24px;
+  bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
   display: flex; justify-content: space-between; align-items: center;
@@ -4686,7 +4970,7 @@ const filteredProperties = computed(() => {
   padding: 8px 32px !important;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
   position: fixed !important;
-  bottom: 24px !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; margin: 0 !important;
+  bottom: 12px !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; margin: 0 !important;
   display: flex !important;
   gap: 24px !important;
   align-items: center !important;
@@ -4737,5 +5021,22 @@ const filteredProperties = computed(() => {
 .composer-row input::placeholder { color: #888888 !important; }
 .card-carousel { background: #e0e0e0 !important; }
 
+@media (max-width: 900px) {
+  .bottom-nav {
+    width: calc(100% - 24px) !important;
+    max-width: 420px !important;
+    gap: 0 !important;
+    padding: 8px 10px !important;
+  }
+  .nav-tab {
+    flex: 1 !important;
+    min-width: 0 !important;
+    padding: 6px 2px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .bottom-nav { width: calc(100% - 16px) !important; }
+}
 
 </style>
