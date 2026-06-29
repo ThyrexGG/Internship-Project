@@ -351,6 +351,99 @@
             </article>
           </div>
 
+          <!-- Discover People Sidebar -->
+          <aside class="discover-sidebar">
+            <h2 class="discover-title" @click="resetDiscoverSearch" style="cursor: pointer;" title="Reset Search">Discover People</h2>
+            
+            <div class="discover-search-wrapper">
+              <button class="search-icon-btn" @click="discoverSearchActive = discoverSearchInput" type="button" aria-label="Search">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </button>
+              <input 
+                type="text" 
+                v-model="discoverSearchInput" 
+                @keydown.enter="discoverSearchActive = discoverSearchInput" 
+                placeholder="Search" 
+                class="discover-search-input" 
+              />
+            </div>
+
+            <div class="discover-tabs">
+              <button 
+                v-for="tab in discoverTabs" 
+                :key="tab"
+                class="discover-tab-btn"
+                :class="{ active: discoverTab === tab }"
+                @click="discoverTab = tab"
+              >
+                {{ tab }}
+              </button>
+            </div>
+
+            <!-- People Block -->
+            <div class="discover-block" v-if="discoverTab === 'All' || discoverTab === 'People'">
+              <div class="discover-block-header">
+                <h3>People</h3>
+                <button class="view-all-btn" @click="discoverTab = 'People'" type="button">View all</button>
+              </div>
+              <div class="discover-list">
+                <div v-for="person in filteredDiscoverPeople" :key="'p-'+person.id" class="discover-item">
+                  <img :src="person.avatar" :alt="person.name" class="discover-avatar" />
+                  <div class="discover-info">
+                    <h4>{{ person.name }}</h4>
+                    <p v-if="person.subtitle">{{ person.subtitle }}</p>
+                  </div>
+                  <button class="discover-action-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="8.5" cy="7" r="4"></circle>
+                      <line x1="20" y1="8" x2="20" y2="14"></line>
+                      <line x1="23" y1="11" x2="17" y2="11"></line>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Posts Block -->
+            <div class="discover-block" v-if="discoverTab === 'All' || discoverTab === 'Posts'">
+              <div class="discover-block-header">
+                <h3>Posts</h3>
+                <button class="view-all-btn" @click="discoverTab = 'Posts'" type="button">View all</button>
+              </div>
+              <div class="discover-list">
+                <div v-for="post in filteredDiscoverPosts" :key="'post-'+post.id" class="discover-item post-item">
+                  <img :src="post.image" :alt="post.title" class="discover-post-img" />
+                  <div class="discover-info">
+                    <h4>{{ post.title }}</h4>
+                    <p>{{ post.author }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Roommates Block -->
+            <div class="discover-block" v-if="discoverTab === 'All' || discoverTab === 'Roommates'">
+              <div class="discover-block-header">
+                <h3>Roommates</h3>
+                <button class="view-all-btn" @click="discoverTab = 'Roommates'" type="button">View all</button>
+              </div>
+              <div class="discover-list">
+                <div v-for="roommate in filteredDiscoverRoommates" :key="'r-'+roommate.id" class="discover-item">
+                  <img :src="roommate.avatar" :alt="roommate.name" class="discover-avatar" />
+                  <div class="discover-info">
+                    <h4>{{ roommate.name }}</h4>
+                    <p>{{ roommate.subtitle }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </aside>
+
         </section>
       </template>
 
@@ -1975,6 +2068,73 @@ const demoFeedPosts = [
 
 const feedPosts = ref([...demoFeedPosts])
 
+// --- Discover People State ---
+const discoverSearchInput = ref('')
+const discoverSearchActive = ref('')
+const discoverTab = ref('All')
+const discoverTabs = ['All', 'People', 'Posts', 'Roommates', 'Friends']
+
+const discoverPeople = ref([
+  { id: 1, name: 'Yim Vatey', subtitle: '', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&q=80' },
+  { id: 2, name: 'James Son', subtitle: '', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&q=80' },
+  { id: 3, name: 'Muy Leng', subtitle: '', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&q=80' },
+  { id: 4, name: 'Neav Sveita', subtitle: '', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80' },
+  { id: 5, name: 'Dave Rim', subtitle: '', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&q=80' }
+])
+
+const discoverPosts = ref([
+  { id: 1, title: 'Take some time to give yourself a rest', author: 'Erich Summer', image: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=150&q=80' },
+  { id: 2, title: 'Sunset after a long day', author: 'Dave Rim', image: 'https://images.unsplash.com/photo-1605806616949-1e87b487cb2a?w=150&q=80' },
+  { id: 3, title: 'Coffee and good talk', author: 'Erich Summer', image: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=150&q=80' }
+])
+
+const discoverRoommates = ref([
+  { id: 1, name: 'Yim Vatey', subtitle: 'Roommate', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&q=80' }
+])
+
+const resetDiscoverSearch = () => {
+  discoverSearchInput.value = ''
+  discoverSearchActive.value = ''
+  discoverTab.value = 'All'
+}
+
+const fuzzyMatch = (target, query) => {
+  if (!target || !query) return false
+  const t = target.toLowerCase()
+  const q = query.toLowerCase().trim()
+  if (t.includes(q) || q.includes(t)) return true
+  
+  const tWords = t.split(/[\s\W]+/)
+  const qWords = q.split(/[\s\W]+/)
+  
+  for (const qw of qWords) {
+    if (qw.length < 3) continue
+    for (const tw of tWords) {
+      if (tw.length < 3) continue
+      if (tw.includes(qw) || qw.includes(tw)) return true
+    }
+  }
+  return false
+}
+
+const filteredDiscoverPeople = computed(() => {
+  const q = discoverSearchActive.value
+  if (!q.trim()) return discoverPeople.value
+  return discoverPeople.value.filter(p => fuzzyMatch(p.name, q) || fuzzyMatch(p.subtitle, q))
+})
+
+const filteredDiscoverPosts = computed(() => {
+  const q = discoverSearchActive.value
+  if (!q.trim()) return discoverPosts.value
+  return discoverPosts.value.filter(p => fuzzyMatch(p.title, q) || fuzzyMatch(p.author, q))
+})
+
+const filteredDiscoverRoommates = computed(() => {
+  const q = discoverSearchActive.value
+  if (!q.trim()) return discoverRoommates.value
+  return discoverRoommates.value.filter(r => fuzzyMatch(r.name, q) || fuzzyMatch(r.subtitle, q))
+})
+
 const triggerPostImage = () => {
   if (postImageInput.value) {
     postImageInput.value.click()
@@ -2754,11 +2914,189 @@ const filteredProperties = computed(() => {
 
 /* ── FEEDS ── */
 .feeds-section {
-  width: min(600px, 100%);
+  width: min(1200px, 100%);
   margin: 22px auto 96px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 40px;
+}
+
+/* ── DISCOVER PEOPLE SIDEBAR ── */
+.discover-sidebar {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
+}
+
+.discover-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  font-weight: 800;
+  color: #050505;
+  margin: 0;
+}
+
+.discover-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.discover-search-input {
+  width: 100%;
+  padding: 12px 42px 12px 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+}
+.discover-search-input:focus {
+  border-color: #5C4E4E;
+}
+
+.search-icon-btn {
+  position: absolute;
+  right: 14px;
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+}
+.search-icon-btn svg {
+  transition: stroke 0.2s;
+}
+.search-icon-btn:hover svg {
+  stroke: #5C4E4E;
+}
+
+.discover-tabs {
+  display: flex;
+  gap: 16px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 2px;
+}
+
+.discover-tab-btn {
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6b7280;
+  padding: 6px 4px;
+  cursor: pointer;
+  position: relative;
+}
+
+.discover-tab-btn.active {
+  color: #050505;
+}
+
+.discover-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #050505;
+}
+
+.discover-block {
+  background: #fff;
+  border: 1px solid #dedede;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.discover-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.discover-block-header h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #050505;
+  margin: 0;
+}
+
+.view-all-btn {
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #5C4E4E;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.discover-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.discover-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.discover-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.discover-post-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.discover-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.discover-info h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #050505;
+  margin: 0 0 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.discover-info p {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.discover-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+}
+.discover-action-btn:hover {
+  background: #f3f4f6;
 }
 
 .feeds-main {
@@ -4440,7 +4778,10 @@ const filteredProperties = computed(() => {
   .top-nav { padding: 10px 32px; }
   .feeds-section {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 32px;
+  }
+  .discover-sidebar {
+    grid-row: 1; /* Move discover sidebar to top or bottom? Keep bottom for now by removing grid-row */
   }
   .mates-panel {
     display: grid;
