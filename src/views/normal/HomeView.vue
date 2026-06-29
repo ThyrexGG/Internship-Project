@@ -356,10 +356,21 @@
 
       <template v-else-if="activeTab === 'messages'">
         <section class="messages-tab-section full-screen-messenger">
-          <!-- Left Column: Chats List -->
-          <div class="messenger-sidebar">
-            <div class="messenger-header">
-              <h2 class="messenger-title">Chats</h2>
+          <div class="messenger-global-header">
+            <button class="back-btn" @click="activeTab = 'home'">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+            </button>
+            <h1>Messages</h1>
+          </div>
+          
+          <div class="messenger-boxes-container">
+            <!-- Left Column: Chats List -->
+            <div class="messenger-sidebar">
+              <div class="messenger-header">
+                <h2 class="messenger-title">Messages</h2>
               <button class="new-msg-btn" aria-label="New Message" @click="startNewMessage">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -526,6 +537,7 @@
                 Privacy settings are managed in your account.
               </div>
             </div>
+          </div>
           </div>
         </section>
       </template>
@@ -2988,15 +3000,51 @@ const filteredProperties = computed(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  display: grid;
-  grid-template-columns: 360px 1fr 340px;
-  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  background: #fcfcfc;
   z-index: 50;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.messenger-global-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.messenger-global-header .back-btn {
+  background: #000;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.messenger-global-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.messenger-boxes-container {
+  display: grid;
+  grid-template-columns: 320px 1fr 300px;
+  gap: 24px;
+  flex: 1;
+  min-height: 0;
 }
 
 /* LEFT SIDEBAR */
 .messenger-sidebar {
-  border-right: 1px solid #e0e0e0;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e5e5e5;
   display: flex;
   flex-direction: column;
   padding: 16px 12px 0;
@@ -3013,7 +3061,7 @@ const filteredProperties = computed(() => {
 .recent-messages-section {
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 90px; /* Bottom padding to clear nav pill */
+  padding-bottom: 20px;
 }
 
 .recent-messages-section::-webkit-scrollbar { width: 4px; }
@@ -3021,9 +3069,13 @@ const filteredProperties = computed(() => {
 
 /* MAIN CHAT AREA */
 .messenger-main {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e5e5e5;
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow: hidden;
 }
 
 .chat-main-header {
@@ -3031,7 +3083,7 @@ const filteredProperties = computed(() => {
   justify-content: space-between;
   align-items: center;
   padding: 16px 24px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .chat-header-user {
@@ -3075,7 +3127,7 @@ const filteredProperties = computed(() => {
 .chat-main-messages::-webkit-scrollbar-thumb { background: #d0d0d0; border-radius: 6px; }
 
 .chat-main-footer {
-  padding: 16px 24px 100px; /* Padding for the bottom floating nav */
+  padding: 16px 24px;
 }
 
 .chat-input-wrapper {
@@ -3107,10 +3159,12 @@ const filteredProperties = computed(() => {
 
 /* DETAILS SIDEBAR */
 .messenger-details {
-  border-left: 1px solid #e0e0e0;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e5e5e5;
   display: flex;
   flex-direction: column;
-  padding: 24px 16px 90px; /* Padding for the bottom floating nav */
+  padding: 24px 16px;
   overflow-y: auto;
 }
 
