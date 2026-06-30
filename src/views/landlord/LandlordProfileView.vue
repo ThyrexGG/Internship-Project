@@ -2,7 +2,7 @@
   <div class="landlord-profile-page">
     <!-- Top Nav -->
     <header class="top-nav">
-      <div class="logo" @click="goBack">
+      <div class="logo" @click="$router.push('/home')">
         <div class="logo-icon">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 18 L16 18" />
@@ -14,22 +14,18 @@
         <span class="logo-text">HomeSweet</span>
       </div>
       <div class="nav-right">
-        <div class="profile-menu">
-          <div class="avatar">
-            <img :src="currentUserAvatar || defaultAvatar" referrerpolicy="no-referrer" @error="setDefaultAvatar" alt="User profile" />
-          </div>
+        <div class="avatar" style="cursor: pointer;" @click="goToProfile">
+          <img :src="currentUserAvatar || defaultAvatar" referrerpolicy="no-referrer" @error="setDefaultAvatar" alt="User profile" />
         </div>
       </div>
     </header>
 
     <!-- Profile Hero Section -->
     <section class="profile-hero">
-      <!-- Glassmorphic Back Button -->
       <button class="back-btn" @click="goBack" aria-label="Go back">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+          <path d="M15 18l-6-6 6-6"/>
         </svg>
-        <span>Back</span>
       </button>
 
       <div class="banner-wrapper">
@@ -280,6 +276,11 @@ import { properties } from '../../store'
 
 const route = useRoute()
 const router = useRouter()
+
+const goToProfile = () => {
+  sessionStorage.setItem('homeActiveTab', 'settings')
+  router.push('/home')
+}
 const activeTab = ref('info')
 
 const defaultAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23dfa37b'/><stop offset='100%' stop-color='%23c0784a'/></linearGradient></defs><circle cx='50' cy='50' r='50' fill='url(%23g)'/><circle cx='50' cy='37' r='17' fill='%23fff'/><path d='M50 58c-18 0-32 9-32 20v4h64v-4c0-11-14-20-32-20z' fill='%23fff'/></svg>"
@@ -434,7 +435,7 @@ function shareProfile() {
 
 .landlord-profile-page {
   font-family: 'DM Sans', sans-serif;
-  background: #e0e0e0;
+  background: #f7f9fa;
   color: #5C4E4E;
   height: 100vh;
   overflow-y: auto;
@@ -449,7 +450,7 @@ function shareProfile() {
   justify-content: space-between;
   padding: 0 40px;
   border-bottom: 1px solid #ebebeb;
-  background: #e0e0e0;
+  background: #ffffff;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -458,25 +459,25 @@ function shareProfile() {
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   cursor: pointer;
+  color: #5C4E4A;
 }
 
 .logo-icon {
   width: 32px;
   height: 32px;
-  background: #5C4E4E;
-  border-radius: 8px;
-  color: #fff;
+  color: #5C4E4A;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .logo-text {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #5C4E4E;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #5C4E4A;
+  letter-spacing: -0.5px;
 }
 
 .profile-menu .avatar {
@@ -497,34 +498,20 @@ function shareProfile() {
 .profile-hero {
   position: relative;
   width: 100%;
-  background: #e0e0e0;
+  background: #f7f9fa;
   border-bottom: 1px solid #eaeaea;
 }
 
 .back-btn {
-  position: absolute;
-  top: 24px;
-  left: 40px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  color: #5C4E4E;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  z-index: 20;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  position: absolute; top: 32px; left: 32px; z-index: 10;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: #5C4E4E; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s ease;
 }
 
 .back-btn:hover {
-  background: #e0e0e0;
-  transform: translateX(-3px);
+  transform: scale(1.05);
 }
 
 .banner-wrapper {
@@ -572,7 +559,7 @@ function shareProfile() {
   border: 5px solid #ffffff;
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  background: #e0e0e0;
+  background: #f7f9fa;
   flex-shrink: 0;
 }
 
