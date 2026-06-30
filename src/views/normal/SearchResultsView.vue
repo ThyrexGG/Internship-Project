@@ -352,6 +352,19 @@ let userLocationMarker = null
 let placesService = null
 let amenityMarkers = []
 
+const mapStyles = [
+  { featureType: "water", stylers: [{ color: "#b9e2f5" }] },
+  { featureType: "landscape", stylers: [{ color: "#f3fbf1" }] },
+  { featureType: "poi", stylers: [{ visibility: "off" }] },
+  { featureType: "transit", stylers: [{ visibility: "off" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#e5ede5" }, { weight: 1 }] },
+  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#a5b5a5" }] },
+  { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative", elementType: "labels.text.fill", stylers: [{ color: "#8a9a8a" }] },
+  { featureType: "landscape.natural", stylers: [{ color: "#dcf0d9" }] }
+];
+
 // User Profile Data
 const userProfile = ref({
   avatar: '',
@@ -507,18 +520,7 @@ function initMap() {
     streetViewControl: true, // Let users see the street
     fullscreenControl: true,
     zoomControl: true,
-    styles: [
-      { featureType: "water", stylers: [{ color: "#b9e2f5" }] },
-      { featureType: "landscape", stylers: [{ color: "#f3fbf1" }] },
-      { featureType: "poi", stylers: [{ visibility: "off" }] },
-      { featureType: "transit", stylers: [{ visibility: "off" }] },
-      { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
-      { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#e5ede5" }, { weight: 1 }] },
-      { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#a5b5a5" }] },
-      { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-      { featureType: "administrative", elementType: "labels.text.fill", stylers: [{ color: "#8a9a8a" }] },
-      { featureType: "landscape.natural", stylers: [{ color: "#dcf0d9" }] }
-    ]
+    styles: mapStyles
   });
 
   if (mapSearchInput.value && window.google.maps.places) {
@@ -780,8 +782,10 @@ function toggleTraffic() {
   isTrafficEnabled.value = !isTrafficEnabled.value;
   if (isTrafficEnabled.value) {
     trafficLayer.setMap(map);
+    map.setOptions({ styles: [] });
   } else {
     trafficLayer.setMap(null);
+    map.setOptions({ styles: mapStyles });
   }
 }
 
