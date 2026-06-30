@@ -654,10 +654,13 @@ function updateMapMarkers() {
   });
 }
 
-window.calculateRouteForMode = function(lat, lng, mode, infoId, btnId) {
+window.calculateRouteForMode = function(lat, lng, mode, infoId, btnId, useMockOrigin = false) {
   if (!userLocation) return;
+  
+  const originToUse = useMockOrigin ? { lat: 11.5564, lng: 104.9282 } : userLocation;
+
   const request = {
-    origin: userLocation,
+    origin: originToUse,
     destination: { lat, lng },
     travelMode: mode
   };
@@ -673,10 +676,15 @@ window.calculateRouteForMode = function(lat, lng, mode, infoId, btnId) {
   directionsService.route(request, (result, status) => {
     if (status === 'OK') {
       directionsRenderer.setDirections(result);
-      renderRouteDashboard(result, lat, lng, mode, infoId, btnId);
+      renderRouteDashboard(result, lat, lng, mode, infoId, btnId, useMockOrigin);
     } else if (status === 'ZERO_RESULTS') {
+      if (!useMockOrigin) {
+        window.calculateRouteForMode(lat, lng, mode, infoId, btnId, true);
+        return;
+      }
       let msg = "No route found.";
       if (mode === 'TRANSIT') msg = "Transit not available for this route.";
+      if (mode === 'TWO_WHEELER') msg = "Motorcycle routes are not supported in this region by Google Maps.";
       renderRouteDashboardError(msg, lat, lng, mode, infoId, btnId);
     } else if (status === 'REQUEST_DENIED') {
       alert("Directions API failed: REQUEST_DENIED. Please enable it in Google Cloud Console.");
@@ -686,23 +694,27 @@ window.calculateRouteForMode = function(lat, lng, mode, infoId, btnId) {
   });
 };
 
-function renderRouteDashboard(result, lat, lng, activeMode, infoId, btnId) {
+function renderRouteDashboard(result, lat, lng, activeMode, infoId, btnId, isFallback = false) {
   const infoDiv = document.getElementById(infoId);
   if (!infoDiv) return;
   const leg = result.routes[0].legs[0];
   
   const isDrive = activeMode === 'DRIVING';
   const isTransit = activeMode === 'TRANSIT';
-  const isWalk = activeMode === 'WALKING';
+  const isMoto = activeMode === 'TWO_WHEELER';
+
+  let fallbackWarning = isFallback ? `<span style="color:#664d03; font-size: 11px; font-weight: 600; margin-bottom: 2px; line-height: 1.2;">No route from your location. Estimating from city center:</span>` : '';
+  let bgStyle = isFallback ? 'background: #fff3cd; border: 1px solid #ffe69c;' : 'border: 1px solid #eee;';
 
   infoDiv.innerHTML = `
     <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
       <div style="display: flex; justify-content: space-between; gap: 4px; background: #f5f5f5; padding: 4px; border-radius: 6px;">
         <button onclick="window.calculateRouteForMode(${lat}, ${lng}, 'DRIVING', '${infoId}', '${btnId}')" style="flex:1; border:none; padding: 4px 8px; border-radius: 4px; cursor: pointer; background: ${isDrive ? '#fff' : 'transparent'}; box-shadow: ${isDrive ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'}; font-weight: ${isDrive ? '600' : '400'}; font-size: 11px;">🚗 Drive</button>
         <button onclick="window.calculateRouteForMode(${lat}, ${lng}, 'TRANSIT', '${infoId}', '${btnId}')" style="flex:1; border:none; padding: 4px 8px; border-radius: 4px; cursor: pointer; background: ${isTransit ? '#fff' : 'transparent'}; box-shadow: ${isTransit ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'}; font-weight: ${isTransit ? '600' : '400'}; font-size: 11px;">🚌 Transit</button>
-        <button onclick="window.calculateRouteForMode(${lat}, ${lng}, 'WALKING', '${infoId}', '${btnId}')" style="flex:1; border:none; padding: 4px 8px; border-radius: 4px; cursor: pointer; background: ${isWalk ? '#fff' : 'transparent'}; box-shadow: ${isWalk ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'}; font-weight: ${isWalk ? '600' : '400'}; font-size: 11px;">🚶 Walk</button>
+        <button onclick="window.calculateRouteForMode(${lat}, ${lng}, 'TWO_WHEELER', '${infoId}', '${btnId}')" style="flex:1; border:none; padding: 4px 8px; border-radius: 4px; cursor: pointer; background: ${isMoto ? '#fff' : 'transparent'}; box-shadow: ${isMoto ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'}; font-weight: ${isMoto ? '600' : '400'}; font-size: 11px;">🏍️ Moto</button>
       </div>
-      <div style="padding: 6px 8px; border: 1px solid #eee; border-radius: 6px; display: flex; flex-direction: column; gap: 2px;">
+      <div style="padding: 6px 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 2px; ${bgStyle}">
+        ${fallbackWarning}
         <span style="color:#111; font-weight:700; font-size: 14px;">${leg.duration.text}</span>
         <span style="color:#666; font-size: 12px;">${leg.distance.text} ${activeMode.toLowerCase()} via ${result.routes[0].summary || 'route'}</span>
       </div>
@@ -715,14 +727,14 @@ function renderRouteDashboardError(errorMsg, lat, lng, activeMode, infoId, btnId
   if (!infoDiv) return;
   const isDrive = activeMode === 'DRIVING';
   const isTransit = activeMode === 'TRANSIT';
-  const isWalk = activeMode === 'WALKING';
+  const isMoto = activeMode === 'TWO_WHEELER';
 
   infoDiv.innerHTML = `
     <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
       <div style="display: flex; justify-content: space-between; gap: 4px; background: #f5f5f5; padding: 4px; border-radius: 6px;">
         <button onclick="window.calculateRouteForMode(${lat}, ${lng}, 'DRIVING', '${infoId}', '${btnId}')" style="flex:1; border:none; padding: 4px 8px; border-radius: 4px; cursor: pointer; background: ${isDrive ? '#fff' : 'transparent'}; box-shadow: ${isDrive ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'}; font-weight: ${isDrive ? '600' : '400'}; font-size: 11px;">🚗 Drive</button>
         <button onclick="window.calculateRouteForMode(${lat}, ${lng}, 'TRANSIT', '${infoId}', '${btnId}')" style="flex:1; border:none; padding: 4px 8px; border-radius: 4px; cursor: pointer; background: ${isTransit ? '#fff' : 'transparent'}; box-shadow: ${isTransit ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'}; font-weight: ${isTransit ? '600' : '400'}; font-size: 11px;">🚌 Transit</button>
-        <button onclick="window.calculateRouteForMode(${lat}, ${lng}, 'WALKING', '${infoId}', '${btnId}')" style="flex:1; border:none; padding: 4px 8px; border-radius: 4px; cursor: pointer; background: ${isWalk ? '#fff' : 'transparent'}; box-shadow: ${isWalk ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'}; font-weight: ${isWalk ? '600' : '400'}; font-size: 11px;">🚶 Walk</button>
+        <button onclick="window.calculateRouteForMode(${lat}, ${lng}, 'TWO_WHEELER', '${infoId}', '${btnId}')" style="flex:1; border:none; padding: 4px 8px; border-radius: 4px; cursor: pointer; background: ${isMoto ? '#fff' : 'transparent'}; box-shadow: ${isMoto ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'}; font-weight: ${isMoto ? '600' : '400'}; font-size: 11px;">🏍️ Moto</button>
       </div>
       <div style="padding: 6px 8px; border: 1px solid #fee2e2; background: #fef2f2; border-radius: 6px; display: flex; flex-direction: column; gap: 2px;">
         <span style="color:#991b1b; font-weight:600; font-size: 11px;">${errorMsg}</span>
