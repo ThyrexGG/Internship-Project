@@ -108,15 +108,15 @@
             </div>
             <div class="card-meta">
               <div class="meta-tags">
-                <span class="tag">
+                <span class="tag" data-tooltip="Bed">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
                   {{ property.beds }}
                 </span>
-                <span class="tag">
+                <span class="tag" data-tooltip="Bath">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                   {{ property.baths }}
                 </span>
-                <span class="tag">
+                <span class="tag" data-tooltip="Size of the room">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
                   {{ property.sqft }}
                 </span>
@@ -206,15 +206,15 @@
               </div>
               <div class="card-meta">
                 <div class="meta-tags">
-                  <span class="tag">
+                  <span class="tag" data-tooltip="Bed">
                     <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
                     {{ property.beds }}
                   </span>
-                  <span class="tag">
+                  <span class="tag" data-tooltip="Bath">
                     <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                     {{ property.baths }}
                   </span>
-                  <span class="tag">
+                  <span class="tag" data-tooltip="Size of the room">
                     <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
                     {{ property.sqft }}
                   </span>
@@ -5296,7 +5296,7 @@ const filteredProperties = computed(() => {
   border: 1px solid #e0e0e0 !important; 
   border-radius: 16px !important;
 }
-.property-card { background: #fafafa !important; border: none !important; box-shadow: none !important; border-radius: 16px !important; overflow: hidden; }
+.property-card { background: #fafafa !important; border: none !important; box-shadow: none !important; border-radius: 16px !important; }
 .notification-item { background: #f0f0f0 !important; color: #000000 !important; border: 1px solid #e0e0e0 !important; }
 
 /* Text within cards */
@@ -5306,7 +5306,52 @@ const filteredProperties = computed(() => {
 .host-text { color: #ffffff !important; font-weight: 600 !important; font-size: 0.95rem !important; cursor: pointer; }
 
 /* Tags & Badges */
-.tag { background: #ffffff !important; color: #888888 !important; border: 1px solid #e0e0e0 !important; border-radius: 8px !important; }
+.tag { background: #ffffff !important; color: #888888 !important; border: 1px solid #e0e0e0 !important; border-radius: 8px !important; position: relative; }
+.tag::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-2px);
+  background: #333 !important;
+  color: #fff !important;
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+  font-size: 0.75rem !important;
+  white-space: nowrap !important;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+  z-index: 20;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+  border: none !important;
+}
+.tag:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-6px);
+}
+.tag::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(2px);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+  z-index: 20;
+}
+.tag:hover::before {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-2px);
+}
 .notification-badge { background: #000000 !important; color: #ffffff !important; }
 .heart-btn { background: #ffffff !important; border-radius: 50% !important; border: none !important; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 
