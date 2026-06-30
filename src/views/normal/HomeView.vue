@@ -5616,12 +5616,11 @@ const filteredProperties = computed(() => {
 .thin-bar-trigger {
   position: fixed;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 200px;
-  height: 24px;
+  left: 0;
+  width: 100%;
+  height: 40px;
   z-index: 110;
-  cursor: pointer;
+  cursor: default;
   display: flex;
   align-items: flex-end;
   justify-content: center;
