@@ -108,15 +108,15 @@
             </div>
             <div class="card-meta">
               <div class="meta-tags">
-                <span class="tag">
+                <span class="tag" data-tooltip="Bed">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
                   {{ property.beds }}
                 </span>
-                <span class="tag">
+                <span class="tag" data-tooltip="Bath">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                   {{ property.baths }}
                 </span>
-                <span class="tag">
+                <span class="tag" data-tooltip="Size of the room">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
                   {{ property.sqft }}
                 </span>
@@ -206,15 +206,15 @@
               </div>
               <div class="card-meta">
                 <div class="meta-tags">
-                  <span class="tag">
+                  <span class="tag" data-tooltip="Bed">
                     <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
                     {{ property.beds }}
                   </span>
-                  <span class="tag">
+                  <span class="tag" data-tooltip="Bath">
                     <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                     {{ property.baths }}
                   </span>
-                  <span class="tag">
+                  <span class="tag" data-tooltip="Size of the room">
                     <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
                     {{ property.sqft }}
                   </span>
@@ -231,7 +231,16 @@
       <template v-else-if="activeTab === 'feeds'">
         <section class="feeds-section">
           <div class="feeds-main">
-            <h1 class="feeds-title">Feeds</h1>
+            <div class="feeds-header-wrapper">
+              <h1 class="feeds-title">Feeds</h1>
+              <div class="mobile-discover-search" @click="showMobileDiscover = true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <span>Discover People...</span>
+              </div>
+            </div>
 
             <article class="post-composer">
               <h2>Post something</h2>
@@ -352,8 +361,13 @@
           </div>
 
           <!-- Discover People Sidebar -->
-          <aside class="discover-sidebar">
-            <h2 class="discover-title" @click="resetDiscoverSearch" style="cursor: pointer;" title="Reset Search">Discover People</h2>
+          <aside class="discover-sidebar" :class="{ 'show-on-mobile': showMobileDiscover }">
+            <div class="discover-title-wrapper">
+              <h2 class="discover-title" @click="resetDiscoverSearch" style="cursor: pointer;" title="Reset Search">Discover People</h2>
+              <button class="mobile-discover-close" @click="showMobileDiscover = false" type="button" aria-label="Close">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </div>
             
             <div class="discover-search-wrapper">
               <button class="search-icon-btn" @click="discoverSearchActive = discoverSearchInput" type="button" aria-label="Search">
@@ -525,6 +539,12 @@
             <template v-if="selectedChatRecipient">
               <header class="chat-main-header">
                 <div class="chat-header-user">
+                  <button class="mobile-chat-back" @click="selectedChatRecipient = null" type="button" aria-label="Back">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="19" y1="12" x2="5" y2="12"></line>
+                      <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                  </button>
                   <img :src="findAvatarByName(selectedChatRecipient)" :alt="selectedChatRecipient" class="chat-header-avatar" />
                   <div class="chat-header-info">
                     <h3>{{ selectedChatRecipient }}</h3>
@@ -2069,6 +2089,7 @@ const demoFeedPosts = [
 const feedPosts = ref([...demoFeedPosts])
 
 // --- Discover People State ---
+const showMobileDiscover = ref(false)
 const discoverSearchInput = ref('')
 const discoverSearchActive = ref('')
 const discoverTab = ref('All')
@@ -2933,6 +2954,21 @@ const filteredProperties = computed(() => {
   gap: 20px;
 }
 
+.discover-title-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mobile-discover-close {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #111;
+  cursor: pointer;
+  padding: 4px;
+}
+
 .discover-title {
   font-family: 'DM Sans', sans-serif;
   font-size: 1.75rem;
@@ -3108,13 +3144,24 @@ const filteredProperties = computed(() => {
   min-width: 0;
 }
 
+.feeds-header-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 14px;
+}
+
+.mobile-discover-search {
+  display: none;
+}
+
 .feeds-title {
   font-family: 'DM Sans', sans-serif;
   font-size: 1.75rem;
   line-height: 1.15;
   font-weight: 800;
   color: #050505;
-  margin: 0 0 14px;
+  margin: 0;
 }
 
 .post-composer,
@@ -3402,6 +3449,16 @@ const filteredProperties = computed(() => {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+}
+
+.mobile-chat-back {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #111;
+  padding: 4px;
+  margin-right: 8px;
 }
 
 .chat-main-header {
@@ -4791,6 +4848,32 @@ const filteredProperties = computed(() => {
 
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
+  .full-screen-messenger {
+    padding: 0;
+  }
+  .messenger-boxes-container,
+  .messenger-boxes-container.has-chat {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .messenger-sidebar, .messenger-main, .messenger-details {
+    border-radius: 0;
+    border: none;
+  }
+  .messenger-boxes-container.has-chat .messenger-sidebar {
+    display: none;
+  }
+  .messenger-boxes-container:not(.has-chat) .messenger-main {
+    display: none;
+  }
+  .messenger-boxes-container.has-chat .messenger-details {
+    display: none;
+  }
+  .mobile-chat-back {
+    display: flex;
+    align-items: center;
+  }
+  
   .listings { gap: 10px 8px; }
   .content { padding: 16px 32px; }
   .top-nav { padding: 10px 32px; }
@@ -4799,7 +4882,29 @@ const filteredProperties = computed(() => {
     gap: 32px;
   }
   .discover-sidebar {
-    grid-row: 1; /* Move discover sidebar to top or bottom? Keep bottom for now by removing grid-row */
+    display: none;
+  }
+  .discover-sidebar.show-on-mobile {
+    display: flex;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #fff;
+    z-index: 99999;
+    padding: 24px 20px;
+    overflow-y: auto;
+  }
+  .mobile-discover-close { display: block; }
+  .mobile-discover-search {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f0f0f0;
+    padding: 8px 14px;
+    border-radius: 20px;
+    color: #666;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-right: 16px;
   }
   .mates-panel {
     display: grid;
@@ -4812,6 +4917,7 @@ const filteredProperties = computed(() => {
 
 @media (max-width: 640px) {
   .home-page { height: 100dvh; }
+  .full-screen-messenger { top: 58px; }
   .listings { gap: 18px; }
   .content { padding: 14px 16px 112px; }
   .top-nav { padding: 10px 16px; gap: 12px; }
@@ -4836,14 +4942,20 @@ const filteredProperties = computed(() => {
   .card-location { font-size: 0.74rem; }
   .tag,
   .match { font-size: 0.7rem; }
-  .feeds-section { margin: 16px auto 0; }
-  .feeds-title { font-size: 1.45rem; }
+  .feeds-section { margin: 16px auto 0; gap: 24px; }
+  .feeds-header-wrapper { padding: 0; }
+  .feeds-title { font-size: 1.45rem; padding: 0; }
+  .discover-sidebar { padding: 24px 20px; }
+  .post-composer, .feed-card {
+    border-radius: 8px;
+    border: 1px solid #dedede;
+  }
   .post-composer h2,
   .mates-card { padding-left: 16px; padding-right: 16px; }
   .composer-row { padding-left: 16px; padding-right: 16px; }
-  .feed-card { margin-bottom: 16px; }
-  .feed-image { height: 190px; }
-  .feed-text { font-size: 1rem; min-height: 58px; }
+  .feed-card { margin-bottom: 16px; padding: 12px 12px 14px; }
+  .feed-image { height: 190px; margin: 0; width: 100%; border-radius: 4px; }
+  .feed-text { font-size: 1rem; min-height: 58px; margin-top: 4px; }
   .mates-panel { grid-template-columns: 1fr; }
   .notification-section { margin: 16px auto 0; }
   .notification-title { font-size: 1.45rem; margin-bottom: 16px; }
@@ -5357,7 +5469,7 @@ const filteredProperties = computed(() => {
   border: 1px solid #e0e0e0 !important; 
   border-radius: 16px !important;
 }
-.property-card { background: #fafafa !important; border: none !important; box-shadow: none !important; border-radius: 16px !important; overflow: hidden; }
+.property-card { background: #fafafa !important; border: none !important; box-shadow: none !important; border-radius: 16px !important; }
 .notification-item { background: #f0f0f0 !important; color: #000000 !important; border: 1px solid #e0e0e0 !important; }
 
 /* Text within cards */
@@ -5367,7 +5479,52 @@ const filteredProperties = computed(() => {
 .host-text { color: #ffffff !important; font-weight: 600 !important; font-size: 0.95rem !important; cursor: pointer; }
 
 /* Tags & Badges */
-.tag { background: #ffffff !important; color: #888888 !important; border: 1px solid #e0e0e0 !important; border-radius: 8px !important; }
+.tag { background: #ffffff !important; color: #888888 !important; border: 1px solid #e0e0e0 !important; border-radius: 8px !important; position: relative; }
+.tag::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-2px);
+  background: #333 !important;
+  color: #fff !important;
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+  font-size: 0.75rem !important;
+  white-space: nowrap !important;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+  z-index: 20;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+  border: none !important;
+}
+.tag:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-6px);
+}
+.tag::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(2px);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+  z-index: 20;
+}
+.tag:hover::before {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-2px);
+}
 .notification-badge { background: #000000 !important; color: #ffffff !important; }
 .heart-btn { background: #ffffff !important; border-radius: 50% !important; border: none !important; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 
@@ -5459,12 +5616,11 @@ const filteredProperties = computed(() => {
 .thin-bar-trigger {
   position: fixed;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 200px;
-  height: 24px;
+  left: 0;
+  width: 100%;
+  height: 40px;
   z-index: 110;
-  cursor: pointer;
+  cursor: default;
   display: flex;
   align-items: flex-end;
   justify-content: center;
