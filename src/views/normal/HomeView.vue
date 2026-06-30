@@ -390,18 +390,23 @@
                 <button class="view-all-btn" @click="discoverTab = 'People'" type="button">View all</button>
               </div>
               <div class="discover-list">
-                <div v-for="person in filteredDiscoverPeople" :key="'p-'+person.id" class="discover-item">
+                <div v-for="person in filteredDiscoverPeople" :key="'p-'+person.id" class="discover-item" @click="$router.push('/user-profile/' + person.id)">
                   <img :src="person.avatar" :alt="person.name" class="discover-avatar" />
                   <div class="discover-info">
                     <h4>{{ person.name }}</h4>
                     <p v-if="person.subtitle">{{ person.subtitle }}</p>
                   </div>
-                  <button class="discover-action-btn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2">
+                  <button class="discover-action-btn" @click.stop="toggleFriend(person)">
+                    <svg v-if="!person.isFriend" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2">
                       <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                       <circle cx="8.5" cy="7" r="4"></circle>
                       <line x1="20" y1="8" x2="20" y2="14"></line>
                       <line x1="23" y1="11" x2="17" y2="11"></line>
+                    </svg>
+                    <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="8.5" cy="7" r="4"></circle>
+                      <polyline points="17 11 19 13 23 9"></polyline>
                     </svg>
                   </button>
                 </div>
@@ -432,7 +437,7 @@
                 <button class="view-all-btn" @click="discoverTab = 'Roommates'" type="button">View all</button>
               </div>
               <div class="discover-list">
-                <div v-for="roommate in filteredDiscoverRoommates" :key="'r-'+roommate.id" class="discover-item">
+                <div v-for="roommate in filteredDiscoverRoommates" :key="'r-'+roommate.id" class="discover-item" @click="$router.push('/user-profile/' + roommate.id)">
                   <img :src="roommate.avatar" :alt="roommate.name" class="discover-avatar" />
                   <div class="discover-info">
                     <h4>{{ roommate.name }}</h4>
@@ -2063,21 +2068,21 @@ const discoverTab = ref('All')
 const discoverTabs = ['All', 'People', 'Posts', 'Roommates', 'Friends']
 
 const discoverPeople = ref([
-  { id: 1, name: 'Yim Vatey', subtitle: '', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&q=80' },
-  { id: 2, name: 'James Son', subtitle: '', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&q=80' },
-  { id: 3, name: 'Muy Leng', subtitle: '', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&q=80' },
-  { id: 4, name: 'Neav Sveita', subtitle: '', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80' },
-  { id: 5, name: 'Dave Rim', subtitle: '', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&q=80' }
+  { id: 1, name: 'Yim Vatey', subtitle: '', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&q=80', isFriend: false },
+  { id: 2, name: 'James Son', subtitle: '', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&q=80', isFriend: false },
+  { id: 3, name: 'Muy Leng', subtitle: '', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&q=80', isFriend: false },
+  { id: 4, name: 'Neav Sveita', subtitle: '', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80', isFriend: false },
+  { id: 5, name: 'Dave Rim', subtitle: '', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&q=80', isFriend: false }
 ])
 
 const discoverPosts = ref([
   { id: 1, title: 'Take some time to give yourself a rest', author: 'Erich Summer', image: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=150&q=80' },
-  { id: 2, title: 'Sunset after a long day', author: 'Dave Rim', image: 'https://images.unsplash.com/photo-1605806616949-1e87b487cb2a?w=150&q=80' },
+  { id: 2, title: 'Sunset after a long day', author: 'Dave Rim', image: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=150&q=80' },
   { id: 3, title: 'Coffee and good talk', author: 'Erich Summer', image: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=150&q=80' }
 ])
 
 const discoverRoommates = ref([
-  { id: 1, name: 'Yim Vatey', subtitle: 'Roommate', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&q=80' }
+  { id: 1, name: 'Yim Vatey', subtitle: 'Roommate', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&q=80', isFriend: false }
 ])
 
 const resetDiscoverSearch = () => {
@@ -2110,6 +2115,10 @@ const filteredDiscoverPeople = computed(() => {
   if (!q.trim()) return discoverPeople.value
   return discoverPeople.value.filter(p => fuzzyMatch(p.name, q) || fuzzyMatch(p.subtitle, q))
 })
+
+const toggleFriend = (person) => {
+  person.isFriend = !person.isFriend
+}
 
 const filteredDiscoverPosts = computed(() => {
   const q = discoverSearchActive.value
@@ -3036,6 +3045,7 @@ const filteredProperties = computed(() => {
   display: flex;
   align-items: center;
   gap: 12px;
+  cursor: pointer;
 }
 
 .discover-avatar {
@@ -3115,7 +3125,7 @@ const filteredProperties = computed(() => {
 
 .post-composer h2,
 .mates-card h2 {
-  font-size: 1rem;
+  font-size: 1.15rem;
   line-height: 1.2;
   font-weight: 800;
   color: #050505;
@@ -5332,7 +5342,7 @@ const filteredProperties = computed(() => {
 
 /* SVG Icon Coloring */
 .nav-tab svg { stroke: #c0c0c0 !important; fill: none !important; }
-.nav-tab.active svg { stroke: #ffffff !important; }
+.nav-tab.active svg { stroke: #ffffff !important; fill: #ffffff !important; }
 
 /* Specifically fill complex icons */
 :deep(.nav-tab.active .home-icon .home-body),

@@ -215,11 +215,7 @@ const scrollGallery = (dir) => {
 }
 
 const goBack = () => {
-  if (window.history.length > 1) {
-    router.back()
-  } else {
-    router.push('/')
-  }
+  router.push('/home')
 }
 
 // Mock data based on design

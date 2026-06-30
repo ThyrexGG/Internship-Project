@@ -10,6 +10,7 @@ import LandlordProfileView from './views/landlord/LandlordProfileView.vue'
 import FindRoommateView from './views/normal/FindRoommateView.vue'
 import RoommateMatchView from './views/normal/RoommateMatchView.vue'
 import SearchResultsView from './views/normal/SearchResultsView.vue'
+import UserProfileView from './views/normal/UserProfileView.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -22,6 +23,7 @@ const routes = [
   { path: '/property/:id/roommate', name: 'FindRoommate', component: FindRoommateView },
   { path: '/roommate-match', name: 'RoommateMatch', component: RoommateMatchView },
   { path: '/landlord-profile/:id', name: 'LandlordProfile', component: LandlordProfileView },
+  { path: '/user-profile/:id', name: 'UserProfile', component: UserProfileView },
   { path: '/search', name: 'SearchResults', component: SearchResultsView },
 ]
 
