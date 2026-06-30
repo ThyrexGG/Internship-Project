@@ -449,17 +449,9 @@
 
       <template v-else-if="activeTab === 'messages'">
         <section class="messages-tab-section full-screen-messenger">
-          <div class="messenger-global-header">
-            <button class="back-btn" @click="activeTab = 'home'">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12"></line>
-                <polyline points="12 19 5 12 12 5"></polyline>
-              </svg>
-            </button>
-            <h1>Messages</h1>
-          </div>
+
           
-          <div class="messenger-boxes-container">
+          <div class="messenger-boxes-container" :class="{ 'has-chat': !!selectedChatRecipient }">
             <!-- Left Column: Chats List -->
             <div class="messenger-sidebar">
               <div class="messenger-header">
@@ -1144,12 +1136,15 @@
     </main>
 
     <!-- Bottom Nav -->
-    <nav class="bottom-nav">
-      <button v-for="tab in tabs" :key="tab.id" class="nav-tab" :class="{ active: activeTab === tab.id }" @click="activeTab = tab.id">
-        <component :is="tab.icon" />
-        <span>{{ tab.label }}</span>
-      </button>
-    </nav>
+    <div class="bottom-nav-interaction-group">
+      <div class="thin-bar-trigger"></div>
+      <nav class="bottom-nav auto-hide">
+        <button v-for="tab in tabs" :key="tab.id" class="nav-tab" :class="{ active: activeTab === tab.id }" @click="activeTab = tab.id">
+          <component :is="tab.icon" />
+          <span>{{ tab.label }}</span>
+        </button>
+      </nav>
+    </div>
 
     <!-- Filter Modal -->
     <div v-if="filterOpen" class="filter-overlay" @click.self="filterOpen = false">
@@ -3346,36 +3341,19 @@ const filteredProperties = computed(() => {
   box-sizing: border-box;
 }
 
-.messenger-global-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-.messenger-global-header .back-btn {
-  background: #000;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-.messenger-global-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0;
-}
+
 
 .messenger-boxes-container {
   display: grid;
-  grid-template-columns: 320px 1fr 300px;
+  grid-template-columns: 320px 1fr;
   gap: 24px;
   flex: 1;
   min-height: 0;
+  transition: all 0.3s ease;
+}
+
+.messenger-boxes-container.has-chat {
+  grid-template-columns: 320px 1fr 300px;
 }
 
 /* LEFT SIDEBAR */
@@ -3466,6 +3444,7 @@ const filteredProperties = computed(() => {
 
 .chat-main-footer {
   padding: 16px 24px;
+  background: #ffffff;
 }
 
 .chat-input-wrapper {
@@ -3473,7 +3452,7 @@ const filteredProperties = computed(() => {
   align-items: center;
   background: #f0f2f5;
   border-radius: 24px;
-  padding: 8px 16px;
+  padding: 8px 12px 8px 20px;
   gap: 12px;
 }
 
@@ -3483,16 +3462,36 @@ const filteredProperties = computed(() => {
   background: transparent;
   outline: none;
   font-size: 0.95rem;
+  color: #050505;
 }
 
 .chat-send-btn {
-  background: none;
+  background: #111;
+  color: #fff;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.chat-send-btn svg {
+  stroke: #fff !important;
+  width: 16px;
+  height: 16px;
+}
+
+.chat-send-btn:disabled {
+  background: #e4e6e9;
+  cursor: not-allowed;
+}
+
+.chat-send-btn:disabled svg {
+  stroke: #a0a0a0 !important;
 }
 
 /* DETAILS SIDEBAR */
@@ -3505,6 +3504,9 @@ const filteredProperties = computed(() => {
   padding: 24px 16px;
   overflow-y: auto;
 }
+
+.messenger-details::-webkit-scrollbar { width: 4px; }
+.messenger-details::-webkit-scrollbar-thumb { background: #e4e6e9; border-radius: 4px; }
 
 .details-profile-header {
   display: flex;
@@ -3547,14 +3549,19 @@ const filteredProperties = computed(() => {
 }
 
 .icon-circle {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: #f0f2f5;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #050505;
+  color: #111;
+  transition: background 0.2s;
+}
+
+.chat-action-btn:hover .icon-circle {
+  background: #e4e6e9;
 }
 
 .chat-action-btn span {
@@ -3571,16 +3578,17 @@ const filteredProperties = computed(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 8px;
-  border-radius: 8px;
+  padding: 14px 12px;
+  border-radius: 10px;
   cursor: pointer;
   transition: background 0.2s;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.95rem;
+  color: #111;
 }
 
 .accordion-item:hover {
-  background: #f2f2f2;
+  background: #f0f2f5;
 }
 
 /* NO CHAT SELECTED STATE */
@@ -5227,12 +5235,11 @@ const filteredProperties = computed(() => {
 
 .chat-bubble {
   max-width: 75%;
-  padding: 10px 14px;
-  border-radius: 18px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  padding: 12px 16px;
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .chat-bubble-wrapper.me .chat-bubble {
@@ -5242,10 +5249,10 @@ const filteredProperties = computed(() => {
 }
 
 .chat-bubble-wrapper.them .chat-bubble {
-  background: #fff;
-  color: #222;
+  background: #f0f2f5;
+  color: #050505;
   border-bottom-left-radius: 4px;
-  border: 1px solid #ebebeb;
+  border: none;
 }
 
 .chat-bubble p {
@@ -5432,6 +5439,49 @@ const filteredProperties = computed(() => {
 
 @media (max-width: 360px) {
   .bottom-nav { width: calc(100% - 16px) !important; }
+}
+
+/* --- Bottom Nav Thin Bar Hover Interaction --- */
+.bottom-nav-interaction-group {
+  display: contents;
+}
+
+.thin-bar-trigger {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 24px;
+  z-index: 110;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 6px;
+}
+
+.thin-bar-trigger::after {
+  content: '';
+  width: 100px;
+  height: 5px;
+  background: rgba(92, 78, 78, 0.6);
+  border-radius: 5px;
+  transition: opacity 0.3s;
+}
+
+.bottom-nav.auto-hide {
+  transform: translate(-50%, calc(100% + 20px)) !important;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  z-index: 105 !important;
+}
+
+.bottom-nav-interaction-group:hover .bottom-nav.auto-hide {
+  transform: translate(-50%, 0) !important;
+}
+
+.bottom-nav-interaction-group:hover .thin-bar-trigger::after {
+  opacity: 0;
 }
 
 </style>
