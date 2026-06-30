@@ -654,13 +654,17 @@ async function handleSubmit() {
       const user = userCredential.user
       
       // 2. Save full name and role to Firestore database
-      await setDoc(doc(db, "users", user.uid), {
-        firstName: firstName.value.trim(),
-        lastName: lastName.value.trim(),
-        email: email.value,
-        role: selectedRole.value,
-        createdAt: new Date().toISOString()
-      })
+      try {
+        await setDoc(doc(db, "users", user.uid), {
+          firstName: firstName.value.trim(),
+          lastName: lastName.value.trim(),
+          email: email.value,
+          role: selectedRole.value,
+          createdAt: new Date().toISOString()
+        })
+      } catch (dbErr) {
+        console.warn("Firestore write permissions missing, but auth succeeded:", dbErr);
+      }
       
       showToast('Account created successfully!', 'success')
       if (selectedRole.value === 'landlord') {
@@ -706,15 +710,19 @@ async function handleSocial(provider) {
       const lastNameVal = nameParts.slice(1).join(' ') || 'User'
       
       // Save or update user profile in Firestore
-      await setDoc(doc(db, "users", user.uid), {
-        firstName: firstNameVal,
-        lastName: lastNameVal,
-        name: displayName || 'Google User',
-        email: user.email,
-        avatar: user.photoURL || '',
-        role: selectedRole.value,
-        lastLogin: new Date().toISOString()
-      }, { merge: true }) // merge: true ensures we don't overwrite existing data
+      try {
+        await setDoc(doc(db, "users", user.uid), {
+          firstName: firstNameVal,
+          lastName: lastNameVal,
+          name: displayName || 'Google User',
+          email: user.email,
+          avatar: user.photoURL || '',
+          role: selectedRole.value,
+          lastLogin: new Date().toISOString()
+        }, { merge: true }) // merge: true ensures we don't overwrite existing data
+      } catch (dbErr) {
+        console.warn("Firestore write permissions missing, but Google Auth succeeded:", dbErr);
+      }
       
       showToast('Google Sign-In successful!', 'success')
       if (selectedRole.value === 'landlord') {

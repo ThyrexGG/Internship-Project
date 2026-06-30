@@ -263,9 +263,24 @@
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2">
                 <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
               </svg>
-              <input v-model="searchQuery" type="text" placeholder="Search" />
+              <input ref="mapSearchInput" v-model="searchQuery" type="text" placeholder="Search neighborhood or city..." />
+            </div>
+            
+            <!-- Nearby Amenities Toolbar -->
+            <div class="map-amenities-toolbar" v-if="isMapLoaded">
+              <button class="amenity-btn" @click="toggleTraffic" :class="{ 'active-btn': isTrafficEnabled }">🚦 Traffic</button>
+              <button class="amenity-btn" @click="searchNearby('transit_station', 'Transit')">🚇 Transit</button>
+              <button class="amenity-btn" @click="searchNearby('supermarket', 'Groceries')">🛒 Groceries</button>
+              <button class="amenity-btn" @click="searchNearby('school', 'Schools')">🎓 Schools</button>
+              <button class="amenity-btn clear-btn" @click="clearAmenities" v-show="amenityMarkers.length > 0">Clear</button>
             </div>
           </div>
+
+          <button class="locate-me-btn" @click="panToUserLocation" title="Locate Me" v-if="isMapLoaded">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
 
           <div ref="mapContainer" class="map-element"></div>
           <div v-if="!isMapLoaded" class="map-loading-overlay">
@@ -322,10 +337,20 @@ const isDesktop = ref(window.innerWidth > 992)
 const mapContainer = ref(null)
 const isMapLoaded = ref(false)
 const mapMessage = ref('Loading Map...')
+const isTrafficEnabled = ref(false)
+
+const mapSearchInput = ref(null)
 
 let map = null
+let trafficLayer = null
 let markers = []
 let infoWindow = null
+let directionsService = null
+let directionsRenderer = null
+let userLocation = null
+let userLocationMarker = null
+let placesService = null
+let amenityMarkers = []
 
 // User Profile Data
 const userProfile = ref({
@@ -477,7 +502,10 @@ function initMap() {
   map = new window.google.maps.Map(mapContainer.value, {
     center: { lat: 11.588, lng: 104.925 }, // Center on Phnom Penh / Chroy Chongva
     zoom: 13,
-    disableDefaultUI: true,
+    disableDefaultUI: false, // Turn off fully disabling UI
+    mapTypeControl: false,
+    streetViewControl: true, // Let users see the street
+    fullscreenControl: true,
     zoomControl: true,
     styles: [
       { featureType: "water", stylers: [{ color: "#b9e2f5" }] },
@@ -492,6 +520,46 @@ function initMap() {
       { featureType: "landscape.natural", stylers: [{ color: "#dcf0d9" }] }
     ]
   });
+
+  if (mapSearchInput.value && window.google.maps.places) {
+    const autocomplete = new window.google.maps.places.Autocomplete(mapSearchInput.value);
+    autocomplete.bindTo('bounds', map);
+    autocomplete.addListener('place_changed', () => {
+      const place = autocomplete.getPlace();
+      if (!place.geometry || !place.geometry.location) {
+        return;
+      }
+      if (place.geometry.viewport) {
+        map.fitBounds(place.geometry.viewport);
+      } else {
+        map.setCenter(place.geometry.location);
+        map.setZoom(15);
+      }
+      searchQuery.value = place.name; // This will trigger our local list filter too!
+    });
+  }
+
+  directionsService = new window.google.maps.DirectionsService();
+  directionsRenderer = new window.google.maps.DirectionsRenderer({
+    map,
+    suppressMarkers: true,
+    polylineOptions: { strokeColor: '#4285F4', strokeWeight: 6, strokeOpacity: 0.8 } // Beautiful Google Blue
+  });
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        userLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        renderUserLocationMarker();
+      },
+      (err) => {
+        console.warn("Geolocation error:", err);
+      }
+    );
+  }
 
   infoWindow = new window.google.maps.InfoWindow();
 
@@ -541,19 +609,230 @@ function updateMapMarkers() {
     });
 
     marker.addListener('click', () => {
+      if (directionsRenderer) {
+        directionsRenderer.setDirections({ routes: [] });
+      }
+
+      const btnId = `btn-dir-${property.id}`;
+      const infoId = `routing-info-${property.id}`;
       const content = `
         <div style="padding: 4px; font-family: 'DM Sans', sans-serif; max-width: 160px;">
           <img src="${property.images[0]}" style="width: 100%; height: 90px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" />
           <h3 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: #111;">${property.name}</h3>
           <p style="margin: 0; font-size: 13px; color: #555; font-weight: 500;">$${property.price} / mo</p>
+          <div id="${infoId}" style="margin-top: 8px;"></div>
+          <button id="${btnId}" style="margin-top: 8px; width: 100%; padding: 8px; background: #222; color: #fff; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
+            Route Estimate
+          </button>
         </div>
       `;
       infoWindow.setContent(content);
       infoWindow.open({ anchor: marker, map });
+
+      window.google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+          btn.addEventListener('click', () => {
+            if (!userLocation) {
+              alert("Location access is required. Please enable it or drag the blue location marker.");
+              return;
+            }
+            btn.innerHTML = 'Calculating...';
+            btn.style.opacity = '0.7';
+            btn.style.pointerEvents = 'none';
+
+            window.calculateRouteForMode(property.lat, property.lng, 'DRIVING', infoId, btnId);
+          });
+        }
+      });
     });
 
     markers.push(marker);
   });
+}
+
+window.calculateRouteForMode = function(lat, lng, mode, infoId, btnId) {
+  if (!userLocation) return;
+  const request = {
+    origin: userLocation,
+    destination: { lat, lng },
+    travelMode: mode
+  };
+
+  const infoDiv = document.getElementById(infoId);
+  if (infoDiv) {
+    infoDiv.innerHTML = `<span style="font-size: 12px; color: #666; margin-top: 8px; display: block;">Calculating ${mode.toLowerCase()} route...</span>`;
+  }
+  
+  const btn = document.getElementById(btnId);
+  if (btn) btn.style.display = 'none';
+
+  directionsService.route(request, (result, status) => {
+    if (status === 'OK') {
+      directionsRenderer.setDirections(result);
+      renderRouteDashboard(result, lat, lng, mode, infoId, btnId);
+    } else if (status === 'ZERO_RESULTS') {
+      let msg = "No route found.";
+      if (mode === 'TRANSIT') msg = "Transit not available for this route.";
+      renderRouteDashboardError(msg, lat, lng, mode, infoId, btnId);
+    } else if (status === 'REQUEST_DENIED') {
+      alert("Directions API failed: REQUEST_DENIED. Please enable it in Google Cloud Console.");
+    } else {
+      renderRouteDashboardError("API Error: " + status, lat, lng, mode, infoId, btnId);
+    }
+  });
+};
+
+function renderRouteDashboard(result, lat, lng, activeMode, infoId, btnId) {
+  const infoDiv = document.getElementById(infoId);
+  if (!infoDiv) return;
+  const leg = result.routes[0].legs[0];
+  
+  const isDrive = activeMode === 'DRIVING';
+  const isTransit = activeMode === 'TRANSIT';
+  const isWalk = activeMode === 'WALKING';
+
+  infoDiv.innerHTML = `
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+      <div style="display: flex; justify-content: space-between; gap: 4px; background: #f5f5f5; padding: 4px; border-radius: 6px;">
+        <button onclick="window.calculateRouteForMode(${lat}, ${lng}, 'DRIVING', '${infoId}', '${btnId}')" style="flex:1; border:none; padding: 4px 8px; border-radius: 4px; cursor: pointer; background: ${isDrive ? '#fff' : 'transparent'}; box-shadow: ${isDrive ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'}; font-weight: ${isDrive ? '600' : '400'}; font-size: 11px;">🚗 Drive</button>
+        <button onclick="window.calculateRouteForMode(${lat}, ${lng}, 'TRANSIT', '${infoId}', '${btnId}')" style="flex:1; border:none; padding: 4px 8px; border-radius: 4px; cursor: pointer; background: ${isTransit ? '#fff' : 'transparent'}; box-shadow: ${isTransit ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'}; font-weight: ${isTransit ? '600' : '400'}; font-size: 11px;">🚌 Transit</button>
+        <button onclick="window.calculateRouteForMode(${lat}, ${lng}, 'WALKING', '${infoId}', '${btnId}')" style="flex:1; border:none; padding: 4px 8px; border-radius: 4px; cursor: pointer; background: ${isWalk ? '#fff' : 'transparent'}; box-shadow: ${isWalk ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'}; font-weight: ${isWalk ? '600' : '400'}; font-size: 11px;">🚶 Walk</button>
+      </div>
+      <div style="padding: 6px 8px; border: 1px solid #eee; border-radius: 6px; display: flex; flex-direction: column; gap: 2px;">
+        <span style="color:#111; font-weight:700; font-size: 14px;">${leg.duration.text}</span>
+        <span style="color:#666; font-size: 12px;">${leg.distance.text} ${activeMode.toLowerCase()} via ${result.routes[0].summary || 'route'}</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderRouteDashboardError(errorMsg, lat, lng, activeMode, infoId, btnId) {
+  const infoDiv = document.getElementById(infoId);
+  if (!infoDiv) return;
+  const isDrive = activeMode === 'DRIVING';
+  const isTransit = activeMode === 'TRANSIT';
+  const isWalk = activeMode === 'WALKING';
+
+  infoDiv.innerHTML = `
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+      <div style="display: flex; justify-content: space-between; gap: 4px; background: #f5f5f5; padding: 4px; border-radius: 6px;">
+        <button onclick="window.calculateRouteForMode(${lat}, ${lng}, 'DRIVING', '${infoId}', '${btnId}')" style="flex:1; border:none; padding: 4px 8px; border-radius: 4px; cursor: pointer; background: ${isDrive ? '#fff' : 'transparent'}; box-shadow: ${isDrive ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'}; font-weight: ${isDrive ? '600' : '400'}; font-size: 11px;">🚗 Drive</button>
+        <button onclick="window.calculateRouteForMode(${lat}, ${lng}, 'TRANSIT', '${infoId}', '${btnId}')" style="flex:1; border:none; padding: 4px 8px; border-radius: 4px; cursor: pointer; background: ${isTransit ? '#fff' : 'transparent'}; box-shadow: ${isTransit ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'}; font-weight: ${isTransit ? '600' : '400'}; font-size: 11px;">🚌 Transit</button>
+        <button onclick="window.calculateRouteForMode(${lat}, ${lng}, 'WALKING', '${infoId}', '${btnId}')" style="flex:1; border:none; padding: 4px 8px; border-radius: 4px; cursor: pointer; background: ${isWalk ? '#fff' : 'transparent'}; box-shadow: ${isWalk ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'}; font-weight: ${isWalk ? '600' : '400'}; font-size: 11px;">🚶 Walk</button>
+      </div>
+      <div style="padding: 6px 8px; border: 1px solid #fee2e2; background: #fef2f2; border-radius: 6px; display: flex; flex-direction: column; gap: 2px;">
+        <span style="color:#991b1b; font-weight:600; font-size: 11px;">${errorMsg}</span>
+      </div>
+    </div>
+  `;
+}
+
+function searchNearby(type, keyword) {
+  if (!map || !window.google.maps.places) {
+    alert("Places API not loaded yet.");
+    return;
+  }
+  if (!placesService) {
+    placesService = new window.google.maps.places.PlacesService(map);
+  }
+  clearAmenities();
+  
+  const request = {
+    location: map.getCenter(),
+    radius: '1500', // 1.5km
+    type: [type]
+  };
+
+  placesService.nearbySearch(request, (results, status) => {
+    if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
+      for (let i = 0; i < results.length; i++) {
+        createAmenityMarker(results[i]);
+      }
+    } else {
+      console.warn('Places API nearby search failed or found 0 results.', status);
+      alert(`No ${keyword} found nearby or Places API not enabled. Status: ` + status);
+    }
+  });
+}
+
+function createAmenityMarker(place) {
+  if (!place.geometry || !place.geometry.location) return;
+  
+  const marker = new window.google.maps.Marker({
+    map,
+    position: place.geometry.location,
+    title: place.name,
+    icon: {
+      url: place.icon,
+      scaledSize: new window.google.maps.Size(20, 20)
+    }
+  });
+  amenityMarkers.push(marker);
+}
+
+function toggleTraffic() {
+  if (!map) return;
+  if (!trafficLayer) {
+    trafficLayer = new window.google.maps.TrafficLayer();
+  }
+  isTrafficEnabled.value = !isTrafficEnabled.value;
+  if (isTrafficEnabled.value) {
+    trafficLayer.setMap(map);
+  } else {
+    trafficLayer.setMap(null);
+  }
+}
+
+function clearAmenities() {
+  for (let i = 0; i < amenityMarkers.length; i++) {
+    amenityMarkers[i].setMap(null);
+  }
+  amenityMarkers = [];
+}
+
+function renderUserLocationMarker() {
+  if (!map || !userLocation) return;
+  if (userLocationMarker) {
+    userLocationMarker.setPosition(userLocation);
+  } else {
+    userLocationMarker = new window.google.maps.Marker({
+      map,
+      position: userLocation,
+      draggable: true,
+      title: "Your Location (Drag to adjust)",
+      icon: {
+        path: window.google.maps.SymbolPath.CIRCLE,
+        scale: 9,
+        fillColor: '#4285F4',
+        fillOpacity: 1,
+        strokeColor: '#ffffff',
+        strokeWeight: 2,
+      },
+      zIndex: 999
+    });
+    userLocationMarker.addListener('dragend', () => {
+      const pos = userLocationMarker.getPosition();
+      userLocation = { lat: pos.lat(), lng: pos.lng() };
+    });
+  }
+}
+
+function panToUserLocation() {
+  if (userLocation && map) {
+    map.panTo(userLocation);
+    map.setZoom(15);
+  } else if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((position) => {
+      userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+      renderUserLocationMarker();
+      map.panTo(userLocation);
+      map.setZoom(15);
+    });
+  } else {
+    alert("Location not available. Please allow browser location access.");
+  }
 }
 
 // Lifecycle Events & Handlers
@@ -610,7 +889,7 @@ onMounted(() => {
 
   window.initGoogleMap = initMap;
   const script = document.createElement('script');
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initGoogleMap`;
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMap`;
   script.async = true;
   script.defer = true;
   document.head.appendChild(script);
@@ -1275,5 +1554,69 @@ watch(filteredProperties, () => {
     padding: 6px 12px;
     font-size: 0.8rem;
   }
+}
+
+/* Amenities Toolbar */
+.map-amenities-toolbar {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  overflow-x: auto;
+}
+
+.amenity-btn {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 50px;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.amenity-btn:hover {
+  background: #f7f7f7;
+  border-color: #bbb;
+}
+
+.active-btn {
+  background: #e6f2ff;
+  border-color: #4285F4;
+  color: #4285F4;
+}
+
+.clear-btn {
+  color: #d9534f;
+  border-color: #d9534f;
+}
+.clear-btn:hover {
+  background: #fdf2f2;
+}
+
+/* Locate Me Button */
+.locate-me-btn {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  color: #333;
+  z-index: 10;
+  transition: all 0.2s;
+}
+
+.locate-me-btn:hover {
+  background: #f0f0f0;
 }
 </style>
