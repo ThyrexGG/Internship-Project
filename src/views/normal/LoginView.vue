@@ -112,7 +112,7 @@
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
               </svg>
-              Resident (Guest)
+              User
             </button>
             <button 
               type="button" 
@@ -545,7 +545,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { auth, db } from '../../firebase'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
-import { doc, setDoc } from 'firebase/firestore'
+import { doc, setDoc, getDoc } from 'firebase/firestore'
 import heroImage from '@/assets/hero_sunset_deck.png'
 
 const router = useRouter()
@@ -711,24 +711,46 @@ async function handleSocial(provider) {
       
       // Save or update user profile in Firestore
       try {
-        await setDoc(doc(db, "users", user.uid), {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        let userRole = selectedRole.value;
+        let isNewUser = false;
+
+        if (!userSnap.exists()) {
+          isNewUser = true;
+        } else if (userSnap.data().role) {
+          userRole = userSnap.data().role;
+        }
+
+        await setDoc(userRef, {
           firstName: firstNameVal,
           lastName: lastNameVal,
           name: displayName || 'Google User',
           email: user.email,
           avatar: user.photoURL || '',
-          role: selectedRole.value,
+          role: userRole,
           lastLogin: new Date().toISOString()
         }, { merge: true }) // merge: true ensures we don't overwrite existing data
+        
+        showToast('Google Sign-In successful!', 'success')
+        if (userRole === 'landlord') {
+          router.push('/landlord')
+        } else {
+          if (isNewUser) {
+            router.push('/setup-account')
+          } else {
+            router.push('/home')
+          }
+        }
       } catch (dbErr) {
         console.warn("Firestore write permissions missing, but Google Auth succeeded:", dbErr);
-      }
-      
-      showToast('Google Sign-In successful!', 'success')
-      if (selectedRole.value === 'landlord') {
-        router.push('/landlord')
-      } else {
-        router.push('/home')
+        // Fallback to selected role if DB fails
+        showToast('Google Sign-In successful!', 'success')
+        if (selectedRole.value === 'landlord') {
+          router.push('/landlord')
+        } else {
+          router.push('/home')
+        }
       }
     } catch (error) {
       console.error("Google Auth Error:", error)

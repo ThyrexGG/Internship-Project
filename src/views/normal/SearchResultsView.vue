@@ -266,13 +266,12 @@
               <input ref="mapSearchInput" v-model="searchQuery" type="text" placeholder="Search neighborhood or city..." />
             </div>
             
-            <!-- Nearby Amenities Toolbar -->
             <div class="map-amenities-toolbar" v-if="isMapLoaded">
               <button class="amenity-btn" @click="toggleTraffic" :class="{ 'active-btn': isTrafficEnabled }">🚦 Traffic</button>
-              <button class="amenity-btn" @click="searchNearby('transit_station', 'Transit')">🚇 Transit</button>
-              <button class="amenity-btn" @click="searchNearby('supermarket', 'Groceries')">🛒 Groceries</button>
-              <button class="amenity-btn" @click="searchNearby('school', 'Schools')">🎓 Schools</button>
-              <button class="amenity-btn clear-btn" @click="clearAmenities" v-show="amenityMarkers.length > 0">Clear</button>
+              <button class="amenity-btn" @click="searchNearby('transit_station', 'Transit')" :class="{ 'active-btn': activeAmenities['transit_station'] }">🚇 Transit</button>
+              <button class="amenity-btn" @click="searchNearby('supermarket', 'Groceries')" :class="{ 'active-btn': activeAmenities['supermarket'] }">🛒 Groceries</button>
+              <button class="amenity-btn" @click="searchNearby('school', 'Schools')" :class="{ 'active-btn': activeAmenities['school'] }">🎓 Schools</button>
+              <button class="amenity-btn clear-btn" @click="clearAmenities()" v-show="activeAmenities['transit_station'] || activeAmenities['supermarket'] || activeAmenities['school']">Clear</button>
             </div>
           </div>
 
@@ -347,10 +346,21 @@ let markers = []
 let infoWindow = null
 let directionsService = null
 let directionsRenderer = null
+let trafficPolylines = []
 let userLocation = null
 let userLocationMarker = null
+let currentRouteState = null
 let placesService = null
-let amenityMarkers = []
+let amenityMarkers = {
+  transit_station: [],
+  supermarket: [],
+  school: []
+}
+const activeAmenities = ref({
+  transit_station: false,
+  supermarket: false,
+  school: false
+})
 
 const mapStyles = [
   { featureType: "water", stylers: [{ color: "#b9e2f5" }] },
@@ -520,6 +530,7 @@ function initMap() {
     streetViewControl: true, // Let users see the street
     fullscreenControl: true,
     zoomControl: true,
+    padding: { top: 70, right: 16, bottom: 24, left: 0 }, // Push controls away from edges so they don't get clipped
     styles: mapStyles
   });
 
@@ -545,6 +556,7 @@ function initMap() {
   directionsRenderer = new window.google.maps.DirectionsRenderer({
     map,
     suppressMarkers: true,
+    suppressPolylines: false, // We'll toggle this based on mode
     polylineOptions: { strokeColor: '#4285F4', strokeWeight: 6, strokeOpacity: 0.8 } // Beautiful Google Blue
   });
 
@@ -619,9 +631,11 @@ function updateMapMarkers() {
       const infoId = `routing-info-${property.id}`;
       const content = `
         <div style="padding: 4px; font-family: 'DM Sans', sans-serif; max-width: 160px;">
-          <img src="${property.images[0]}" style="width: 100%; height: 90px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" />
-          <h3 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: #111;">${property.name}</h3>
-          <p style="margin: 0; font-size: 13px; color: #555; font-weight: 500;">$${property.price} / mo</p>
+          <div id="header-${property.id}">
+            <img src="${property.images[0]}" style="width: 100%; height: 90px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" />
+            <h3 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: #111;">${property.name}</h3>
+            <p style="margin: 0; font-size: 13px; color: #555; font-weight: 500;">$${property.price} / mo</p>
+          </div>
           <div id="${infoId}" style="margin-top: 8px;"></div>
           <button id="${btnId}" style="margin-top: 8px; width: 100%; padding: 8px; background: #222; color: #fff; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -631,6 +645,12 @@ function updateMapMarkers() {
       `;
       infoWindow.setContent(content);
       infoWindow.open({ anchor: marker, map });
+
+      window.google.maps.event.addListenerOnce(infoWindow, 'closeclick', () => {
+        if (window.clearActiveRoute) {
+          window.clearActiveRoute(infoId, btnId, true);
+        }
+      });
 
       window.google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
         const btn = document.getElementById(btnId);
@@ -654,16 +674,51 @@ function updateMapMarkers() {
   });
 }
 
-window.calculateRouteForMode = function(lat, lng, mode, infoId, btnId, useMockOrigin = false) {
+window.clearActiveRoute = function(infoId, btnId, isCloseClick = false) {
+  if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
+  for (let i = 0; i < trafficPolylines.length; i++) {
+    trafficPolylines[i].setMap(null);
+  }
+  trafficPolylines = [];
+  currentRouteState = null;
+  
+  if (!isCloseClick) {
+    try {
+      const rawId = infoId.replace('routing-info-', '');
+      const headerDiv = document.getElementById(`header-${rawId}`);
+      if (headerDiv) headerDiv.style.display = 'block';
+    } catch(e) {
+      // Ignore error
+    }
+
+    const infoDiv = document.getElementById(infoId);
+    if (infoDiv) infoDiv.innerHTML = '';
+    
+    const btn = document.getElementById(btnId);
+    if (btn) {
+      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg> Route Estimate`;
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'auto';
+      btn.style.display = 'flex';
+    }
+  }
+};
+
+window.calculateRouteForMode = async function(lat, lng, mode, infoId, btnId, useMockOrigin = false) {
   if (!userLocation) return;
   
+  currentRouteState = { lat, lng, mode, infoId, btnId };
+
   const originToUse = useMockOrigin ? { lat: 11.5564, lng: 104.9282 } : userLocation;
 
-  const request = {
-    origin: originToUse,
-    destination: { lat, lng },
-    travelMode: mode
-  };
+  // Hide the property image/title to save space while routing
+  try {
+    const rawId = infoId.replace('routing-info-', '');
+    const headerDiv = document.getElementById(`header-${rawId}`);
+    if (headerDiv) headerDiv.style.display = 'none';
+  } catch (e) {
+    // Ignore error
+  }
 
   const infoDiv = document.getElementById(infoId);
   if (infoDiv) {
@@ -673,25 +728,131 @@ window.calculateRouteForMode = function(lat, lng, mode, infoId, btnId, useMockOr
   const btn = document.getElementById(btnId);
   if (btn) btn.style.display = 'none';
 
-  directionsService.route(request, (result, status) => {
-    if (status === 'OK') {
-      directionsRenderer.setDirections(result);
-      renderRouteDashboard(result, lat, lng, mode, infoId, btnId, useMockOrigin);
-    } else if (status === 'ZERO_RESULTS') {
-      if (!useMockOrigin) {
-        window.calculateRouteForMode(lat, lng, mode, infoId, btnId, true);
+  if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
+  trafficPolylines.forEach(p => p.setMap(null));
+  trafficPolylines = [];
+
+  if (mode === 'DRIVING' || mode === 'TWO_WHEELER') {
+    directionsRenderer.setOptions({ suppressPolylines: true });
+    try {
+      const apiKey = process.env.VUE_APP_GOOGLE_MAPS_API_KEY;
+      if (!apiKey) {
+        throw new Error("Missing Google Maps API Key in .env");
+      }
+
+      const response = await fetch('https://routes.googleapis.com/directions/v2:computeRoutes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': apiKey,
+          'X-Goog-FieldMask': 'routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.travelAdvisory.speedReadingIntervals'
+        },
+        body: JSON.stringify({
+          origin: { location: { latLng: { latitude: originToUse.lat, longitude: originToUse.lng } } },
+          destination: { location: { latLng: { latitude: lat, longitude: lng } } },
+          travelMode: mode === 'DRIVING' ? 'DRIVE' : 'TWO_WHEELER',
+          routingPreference: 'TRAFFIC_AWARE',
+          extraComputations: ['TRAFFIC_ON_POLYLINE']
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.routes || data.routes.length === 0) {
+        if (!useMockOrigin) {
+          window.calculateRouteForMode(lat, lng, mode, infoId, btnId, true);
+          return;
+        }
+        renderRouteDashboardError("No valid route found or API error.", lat, lng, mode, infoId, btnId);
         return;
       }
-      let msg = "No route found.";
-      if (mode === 'TRANSIT') msg = "Transit not available for this route.";
-      if (mode === 'TWO_WHEELER') msg = "Motorcycle routes are not supported in this region by Google Maps.";
-      renderRouteDashboardError(msg, lat, lng, mode, infoId, btnId);
-    } else if (status === 'REQUEST_DENIED') {
-      alert("Directions API failed: REQUEST_DENIED. Please enable it in Google Cloud Console.");
-    } else {
-      renderRouteDashboardError("API Error: " + status, lat, lng, mode, infoId, btnId);
+
+      const route = data.routes[0];
+      const path = window.google.maps.geometry.encoding.decodePath(route.polyline.encodedPolyline);
+      
+      if (route.travelAdvisory && route.travelAdvisory.speedReadingIntervals) {
+        route.travelAdvisory.speedReadingIntervals.forEach(interval => {
+          const start = interval.startPolylinePointIndex || 0;
+          const end = interval.endPolylinePointIndex || 0;
+          if (start === end) return;
+          
+          const segmentPath = path.slice(start, end + 1);
+          let color = '#4285F4'; // NORMAL
+          if (interval.speed === 'SLOW') color = '#fbbf24'; 
+          if (interval.speed === 'TRAFFIC_JAM') color = '#ef4444'; 
+          
+          const poly = new window.google.maps.Polyline({
+            path: segmentPath,
+            strokeColor: color,
+            strokeWeight: 6,
+            strokeOpacity: 1.0,
+            map: map
+          });
+          trafficPolylines.push(poly);
+        });
+      } else {
+        const poly = new window.google.maps.Polyline({
+          path: path,
+          strokeColor: '#4285F4',
+          strokeWeight: 6,
+          strokeOpacity: 0.8,
+          map: map
+        });
+        trafficPolylines.push(poly);
+      }
+      
+      const bounds = new window.google.maps.LatLngBounds();
+      path.forEach(p => bounds.extend(p));
+      map.fitBounds(bounds);
+
+      // Create Mock Result for existing Dashboard UI
+      const distanceText = (route.distanceMeters / 1000).toFixed(1) + ' km';
+      const durationMins = Math.ceil(parseInt(route.duration) / 60);
+      const durationText = durationMins > 60 ? Math.floor(durationMins / 60) + ' hours ' + (durationMins % 60) + ' mins' : durationMins + ' mins';
+      
+      const mockResult = {
+        routes: [{
+          summary: 'Fastest route',
+          legs: [{
+            duration: { text: durationText },
+            duration_in_traffic: { text: durationText },
+            distance: { text: distanceText }
+          }]
+        }]
+      };
+      
+      renderRouteDashboard(mockResult, lat, lng, mode, infoId, btnId, useMockOrigin);
+
+    } catch (err) {
+      console.error(err);
+      renderRouteDashboardError("Error fetching traffic route.", lat, lng, mode, infoId, btnId);
     }
-  });
+  } else {
+    // TRANSIT mode uses classic DirectionsService
+    directionsRenderer.setOptions({ suppressPolylines: false });
+    const request = {
+      origin: originToUse,
+      destination: { lat, lng },
+      travelMode: mode
+    };
+
+    directionsService.route(request, (result, status) => {
+      if (status === 'OK') {
+        directionsRenderer.setDirections(result);
+        renderRouteDashboard(result, lat, lng, mode, infoId, btnId, useMockOrigin);
+      } else if (status === 'ZERO_RESULTS') {
+        if (!useMockOrigin) {
+          window.calculateRouteForMode(lat, lng, mode, infoId, btnId, true);
+          return;
+        }
+        renderRouteDashboardError("Transit not available for this route.", lat, lng, mode, infoId, btnId);
+      } else if (status === 'REQUEST_DENIED') {
+        alert("Directions API failed: REQUEST_DENIED. Please enable it in Google Cloud Console.");
+      } else {
+        renderRouteDashboardError("API Error: " + status, lat, lng, mode, infoId, btnId);
+      }
+    });
+  }
 };
 
 function renderRouteDashboard(result, lat, lng, activeMode, infoId, btnId, isFallback = false) {
@@ -715,11 +876,17 @@ function renderRouteDashboard(result, lat, lng, activeMode, infoId, btnId, isFal
       </div>
       <div style="padding: 6px 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 2px; ${bgStyle}">
         ${fallbackWarning}
-        <span style="color:#111; font-weight:700; font-size: 14px;">${leg.duration.text}</span>
+        <span style="color:#111; font-weight:700; font-size: 14px;">
+          ${leg.duration_in_traffic ? `${leg.duration_in_traffic.text} <span style="font-size:12px; font-weight:500; color:#b91c1c;">(with traffic)</span>` : leg.duration.text}
+        </span>
         <span style="color:#666; font-size: 12px;">${leg.distance.text} ${activeMode.toLowerCase()} via ${result.routes[0].summary || 'route'}</span>
       </div>
+      <button onclick="window.clearActiveRoute('${infoId}', '${btnId}')" style="width:100%; padding: 6px; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s;">Cancel Route</button>
     </div>
   `;
+  
+  const btn = document.getElementById(btnId);
+  if (btn) btn.style.display = 'none';
 }
 
 function renderRouteDashboardError(errorMsg, lat, lng, activeMode, infoId, btnId) {
@@ -739,8 +906,26 @@ function renderRouteDashboardError(errorMsg, lat, lng, activeMode, infoId, btnId
       <div style="padding: 6px 8px; border: 1px solid #fee2e2; background: #fef2f2; border-radius: 6px; display: flex; flex-direction: column; gap: 2px;">
         <span style="color:#991b1b; font-weight:600; font-size: 11px;">${errorMsg}</span>
       </div>
+      <button onclick="window.clearActiveRoute('${infoId}', '${btnId}')" style="width:100%; padding: 6px; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s;">Cancel Route</button>
     </div>
   `;
+
+  const btn = document.getElementById(btnId);
+  if (btn) btn.style.display = 'none';
+}
+
+function getAmenityMarkerIcon(type) {
+  let emoji = '📍';
+  if (type === 'transit_station') emoji = '🚇';
+  else if (type === 'supermarket') emoji = '🛒';
+  else if (type === 'school') emoji = '🎓';
+
+  const svg = `<svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="22" cy="22" r="18" fill="white" stroke="%234285F4" stroke-width="2"/>
+  <text x="22" y="29" font-family="sans-serif" font-size="20" text-anchor="middle">${emoji}</text>
+</svg>`;
+  
+  return 'data:image/svg+xml;charset=UTF-8,' + svg;
 }
 
 function searchNearby(type, keyword) {
@@ -748,30 +933,41 @@ function searchNearby(type, keyword) {
     alert("Places API not loaded yet.");
     return;
   }
+  
+  if (activeAmenities.value[type]) {
+    clearAmenities(type);
+    return;
+  }
+
   if (!placesService) {
     placesService = new window.google.maps.places.PlacesService(map);
   }
-  clearAmenities();
+  
+  activeAmenities.value[type] = true;
   
   const request = {
     location: map.getCenter(),
-    radius: '1500', // 1.5km
-    type: [type]
+    radius: 1500, // 1.5km
+    type: type
   };
 
   placesService.nearbySearch(request, (results, status) => {
+    // If the user quickly toggled it off while searching, abort marker creation
+    if (!activeAmenities.value[type]) return;
+
     if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
       for (let i = 0; i < results.length; i++) {
-        createAmenityMarker(results[i]);
+        createAmenityMarker(results[i], type);
       }
     } else {
       console.warn('Places API nearby search failed or found 0 results.', status);
       alert(`No ${keyword} found nearby or Places API not enabled. Status: ` + status);
+      activeAmenities.value[type] = false;
     }
   });
 }
 
-function createAmenityMarker(place) {
+function createAmenityMarker(place, type) {
   if (!place.geometry || !place.geometry.location) return;
   
   const marker = new window.google.maps.Marker({
@@ -779,11 +975,12 @@ function createAmenityMarker(place) {
     position: place.geometry.location,
     title: place.name,
     icon: {
-      url: place.icon,
-      scaledSize: new window.google.maps.Size(20, 20)
+      url: getAmenityMarkerIcon(type),
+      scaledSize: new window.google.maps.Size(44, 44),
+      anchor: new window.google.maps.Point(22, 22)
     }
   });
-  amenityMarkers.push(marker);
+  amenityMarkers[type].push(marker);
 }
 
 function toggleTraffic() {
@@ -801,11 +998,26 @@ function toggleTraffic() {
   }
 }
 
-function clearAmenities() {
-  for (let i = 0; i < amenityMarkers.length; i++) {
-    amenityMarkers[i].setMap(null);
+function clearAmenities(type = null) {
+  if (type) {
+    activeAmenities.value[type] = false;
+    for (let i = 0; i < amenityMarkers[type].length; i++) {
+      if (amenityMarkers[type][i]) {
+        amenityMarkers[type][i].setMap(null);
+      }
+    }
+    amenityMarkers[type] = [];
+  } else {
+    for (const key of Object.keys(activeAmenities.value)) {
+      activeAmenities.value[key] = false;
+      for (let i = 0; i < amenityMarkers[key].length; i++) {
+        if (amenityMarkers[key][i]) {
+          amenityMarkers[key][i].setMap(null);
+        }
+      }
+      amenityMarkers[key] = [];
+    }
   }
-  amenityMarkers = [];
 }
 
 function renderUserLocationMarker() {
@@ -819,18 +1031,29 @@ function renderUserLocationMarker() {
       draggable: true,
       title: "Your Location (Drag to adjust)",
       icon: {
-        path: window.google.maps.SymbolPath.CIRCLE,
-        scale: 9,
+        path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
         fillColor: '#4285F4',
         fillOpacity: 1,
         strokeColor: '#ffffff',
         strokeWeight: 2,
+        scale: 1.5,
+        anchor: new window.google.maps.Point(12, 24)
       },
       zIndex: 999
     });
     userLocationMarker.addListener('dragend', () => {
       const pos = userLocationMarker.getPosition();
       userLocation = { lat: pos.lat(), lng: pos.lng() };
+      
+      if (currentRouteState) {
+        window.calculateRouteForMode(
+          currentRouteState.lat, 
+          currentRouteState.lng, 
+          currentRouteState.mode, 
+          currentRouteState.infoId, 
+          currentRouteState.btnId
+        );
+      }
     });
   }
 }
@@ -1428,21 +1651,24 @@ watch(filteredProperties, () => {
 /* --- OPTION 2: Floating Card Map (With spacing & rounded corners) - ACTIVE --- */
 .map-column {
   width: 45%;
+  max-width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
   background: #f7f9fb;
   padding: 24px 24px 24px 20px;
   position: relative;
+  box-sizing: border-box;
 }
 
 /* Search Box Overlay on Map */
 .map-search-container {
   position: absolute;
   top: 16px;
-  right: 16px;
+  left: 16px;
   z-index: 10;
-  width: 320px;
+  max-width: 320px;
+  width: calc(100% - 32px);
 }
 
 .map-search-box {
@@ -1487,11 +1713,13 @@ watch(filteredProperties, () => {
   flex: 1;
   height: 100%;
   width: 100%;
+  max-width: 100%;
   position: relative;
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   border: 1px solid #e2e5e8;
+  box-sizing: border-box;
 }
 
 .map-element {
@@ -1578,6 +1806,12 @@ watch(filteredProperties, () => {
   gap: 6px;
   margin-top: 8px;
   overflow-x: auto;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.map-amenities-toolbar::-webkit-scrollbar {
+  display: none;
 }
 
 .amenity-btn {
@@ -1598,7 +1832,7 @@ watch(filteredProperties, () => {
   border-color: #bbb;
 }
 
-.active-btn {
+.amenity-btn.active-btn {
   background: #e6f2ff;
   border-color: #4285F4;
   color: #4285F4;
