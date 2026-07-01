@@ -108,15 +108,15 @@
             </div>
             <div class="card-meta">
               <div class="meta-tags">
-                <span class="tag" data-tooltip="Bed">
+                <span class="tag" tabindex="0" data-tooltip="Bed">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
                   {{ property.beds }}
                 </span>
-                <span class="tag" data-tooltip="Bath">
+                <span class="tag" tabindex="0" data-tooltip="Bath">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                   {{ property.baths }}
                 </span>
-                <span class="tag" data-tooltip="Size of the room">
+                <span class="tag" tabindex="0" data-tooltip="Size of the room">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
                   {{ property.sqft }}
                 </span>
@@ -206,15 +206,15 @@
               </div>
               <div class="card-meta">
                 <div class="meta-tags">
-                  <span class="tag" data-tooltip="Bed">
+                  <span class="tag" tabindex="0" data-tooltip="Bed">
                     <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
                     {{ property.beds }}
                   </span>
-                  <span class="tag" data-tooltip="Bath">
+                  <span class="tag" tabindex="0" data-tooltip="Bath">
                     <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                     {{ property.baths }}
                   </span>
-                  <span class="tag" data-tooltip="Size of the room">
+                  <span class="tag" tabindex="0" data-tooltip="Size of the room">
                     <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
                     {{ property.sqft }}
                   </span>
@@ -1161,9 +1161,9 @@
     </main>
 
     <!-- Bottom Nav -->
-    <div class="bottom-nav-interaction-group">
-      <div class="thin-bar-trigger"></div>
-      <nav class="bottom-nav auto-hide">
+    <div class="bottom-nav-interaction-group" :class="{ 'mobile-visible': mobileHotbarVisible }">
+      <div class="thin-bar-trigger" @click="mobileHotbarVisible = !mobileHotbarVisible"></div>
+      <nav class="bottom-nav auto-hide" :class="{ 'mobile-visible': mobileHotbarVisible }">
         <button v-for="tab in tabs" :key="tab.id" class="nav-tab" :class="{ active: activeTab === tab.id }" @click="activeTab = tab.id">
           <component :is="tab.icon" />
           <span>{{ tab.label }}</span>
@@ -2089,6 +2089,7 @@ const demoFeedPosts = [
 const feedPosts = ref([...demoFeedPosts])
 
 // --- Discover People State ---
+const mobileHotbarVisible = ref(false)
 const showMobileDiscover = ref(false)
 const discoverSearchInput = ref('')
 const discoverSearchActive = ref('')
@@ -5500,7 +5501,7 @@ const filteredProperties = computed(() => {
   box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
   border: none !important;
 }
-.tag:hover::after {
+.tag:hover::after, .tag:focus::after {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(-6px);
@@ -5520,10 +5521,10 @@ const filteredProperties = computed(() => {
   pointer-events: none;
   z-index: 20;
 }
-.tag:hover::before {
+.tag:hover::before, .tag:focus::before {
   opacity: 1;
   visibility: visible;
-  transform: translateX(-50%) translateY(-2px);
+  transform: translateX(-50%) translateY(6px);
 }
 .notification-badge { background: #000000 !important; color: #ffffff !important; }
 .heart-btn { background: #ffffff !important; border-radius: 50% !important; border: none !important; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
@@ -5650,4 +5651,33 @@ const filteredProperties = computed(() => {
   opacity: 0;
 }
 
+@media (hover: none) and (pointer: coarse) {
+  /* Disable desktop hover on touch devices */
+  .tag:hover::after, .tag:hover::before {
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+  /* Rely entirely on click (focus) for tooltips on touch */
+  .tag:focus::after {
+    opacity: 1 !important; visibility: visible !important; transform: translateX(-50%) translateY(-6px) !important;
+  }
+  .tag:focus::before {
+    opacity: 1 !important; visibility: visible !important; transform: translateX(-50%) translateY(6px) !important;
+  }
+
+  /* Hotbar touch interaction */
+  .bottom-nav-interaction-group:hover .bottom-nav.auto-hide {
+    transform: translate(-50%, calc(100% + 20px)) !important;
+  }
+  .bottom-nav-interaction-group:hover .thin-bar-trigger::after {
+    opacity: 1;
+  }
+  
+  .bottom-nav.auto-hide.mobile-visible {
+    transform: translate(-50%, 0) !important;
+  }
+  .bottom-nav-interaction-group.mobile-visible .thin-bar-trigger::after {
+    opacity: 0;
+  }
+}
 </style>
