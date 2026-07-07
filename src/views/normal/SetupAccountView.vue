@@ -753,7 +753,7 @@ watch(showCropModal, (val) => {
 }
 
 .field-input:focus {
-  border-color: #111;
+  border-color: #5C4E4E;
   background: #fff;
 }
 
@@ -787,7 +787,7 @@ watch(showCropModal, (val) => {
   padding: 12px 32px;
   border: none;
   border-radius: 10px;
-  background: #111;
+  background: #5C4E4E;
   color: #fff;
   font-weight: 600;
   font-size: 0.9rem;
@@ -796,7 +796,7 @@ watch(showCropModal, (val) => {
 }
 
 .btn-primary:hover {
-  background: #333;
+  background: #473B3B;
 }
 
 .btn-primary:disabled {

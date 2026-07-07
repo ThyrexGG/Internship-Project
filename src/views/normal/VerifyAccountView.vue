@@ -1282,10 +1282,10 @@ onBeforeUnmount(() => {
 
 .top-nav {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 20px; border-bottom: 1px solid #e2e8f0; background: #fff;
+  padding: 16px 20px; border-bottom: none; background: #5C4E4E;
 }
-.back-btn { background: none; border: none; cursor: pointer; color: #111; display: flex; align-items: center; justify-content: center; }
-.page-title { font-size: 1.1rem; font-weight: 600; color: #111; }
+.back-btn { background: none; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; }
+.page-title { font-size: 1.1rem; font-weight: 600; color: #fff; }
 .placeholder-spacer { width: 24px; }
 
 /* Progress Bar */
@@ -1488,7 +1488,7 @@ onBeforeUnmount(() => {
 }
 
 .btn-primary {
-  width: 100%; padding: 14px; background: #0f172a; color: #fff;
+  width: 100%; padding: 14px; background: #5C4E4E; color: #fff;
   border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.2s;
 }
 .btn-primary:disabled { background: #cbd5e1; color: #94a3b8; cursor: not-allowed; }

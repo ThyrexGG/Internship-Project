@@ -270,7 +270,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import GlobalFooter from '../../components/GlobalFooter.vue'
 import { auth, db } from '../../firebase'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, collection, addDoc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { onAuthStateChanged } from 'firebase/auth'
 import { properties } from '../../store'
 
@@ -291,10 +291,13 @@ function setDefaultAvatar(event) {
 
 const currentUserAvatar = ref('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&q=80')
 
+const currentAuthUser = ref(null)
+
 // Load current user avatar if logged in
 onMounted(() => {
   onAuthStateChanged(auth, async (user) => {
     if (user) {
+      currentAuthUser.value = user
       try {
         const userDoc = await getDoc(doc(db, 'users', user.uid))
         if (userDoc.exists() && userDoc.data().avatar) {
@@ -305,6 +308,10 @@ onMounted(() => {
       }
     }
   })
+
+  if (route.query.message === 'true') {
+    messageLandlord()
+  }
 })
 
 // Landlord general info mocked as per the screen mockup design
@@ -407,21 +414,55 @@ const isSendingMessage = ref(false)
 const showSuccessToast = ref(false)
 
 function messageLandlord() {
-  chatMessage.value = `Hi ${landlordInfo.value.firstName} ${landlordInfo.value.lastName}, I am interested in your property Green Village Condo. Is it still available for rent?`
+  chatMessage.value = `Hi ${landlordInfo.value.firstName} ${landlordInfo.value.lastName}, I am interested in your property ${properties.value.find(p => p.id === parseInt(route.params.id))?.name || 'Green Village Condo'}. Is it still available for rent?`
   showChatModal.value = true
 }
 
-function sendDirectMessage() {
+function getChatId(uid, recipientName) {
+  return [uid, recipientName].sort().join('_');
+}
+
+async function sendDirectMessage() {
   if (!chatMessage.value.trim()) return
   isSendingMessage.value = true
+  
+  const text = chatMessage.value.trim()
+  const landlordName = landlordInfo.value.firstName + ' ' + landlordInfo.value.lastName
+  
+  if (currentAuthUser.value) {
+    const chatId = getChatId(currentAuthUser.value.uid, landlordName);
+    const msg = {
+      senderId: currentAuthUser.value.uid,
+      text,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: serverTimestamp()
+    };
+    
+    try {
+      await addDoc(collection(db, 'chats', chatId, 'messages'), msg);
+      await setDoc(doc(db, 'chats', chatId), {
+        participants: [currentAuthUser.value.uid, landlordName],
+        lastMessage: text,
+        lastMessageTime: serverTimestamp()
+      }, { merge: true });
+    } catch(e) {
+      console.error("Error sending message to landlord:", e);
+    }
+  }
+  
+  // Set active tab in sessionStorage and redirect to home messages page
+  sessionStorage.setItem('homeActiveTab', 'messages')
+  sessionStorage.setItem('activeChatRecipient', landlordName)
+  
   setTimeout(() => {
     isSendingMessage.value = false
     showChatModal.value = false
     showSuccessToast.value = true
     setTimeout(() => {
       showSuccessToast.value = false
-    }, 3000)
-  }, 1200)
+      router.push('/home')
+    }, 1500)
+  }, 1000)
 }
 
 function shareProfile() {
@@ -449,8 +490,8 @@ function shareProfile() {
   align-items: center;
   justify-content: space-between;
   padding: 0 40px;
-  border-bottom: 1px solid #ebebeb;
-  background: #ffffff;
+  border-bottom: none;
+  background: #5C4E4E;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -461,22 +502,19 @@ function shareProfile() {
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  color: #5C4E4A;
+  color: #ffffff;
 }
 
 .logo-icon {
   width: 32px;
   height: 32px;
-  color: #5C4E4A;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  color: #ffffff;
 }
 
 .logo-text {
   font-size: 1.3rem;
   font-weight: 600;
-  color: #5C4E4A;
+  color: #ffffff;
   letter-spacing: -0.5px;
 }
 

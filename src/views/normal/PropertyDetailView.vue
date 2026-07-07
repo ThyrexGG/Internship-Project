@@ -42,7 +42,7 @@
 
         <!-- Floating Buttons Panel -->
         <div class="floating-actions">
-          <button class="action-btn black">
+          <button class="action-btn black" @click="contactLandlordForRent">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
             </svg>
@@ -218,6 +218,10 @@ const goBack = () => {
   router.push('/home')
 }
 
+const contactLandlordForRent = () => {
+  router.push(`/landlord-profile/${property.value.id}?from=propertyDetail&message=true`)
+}
+
 // Mock data based on design
 const renters = [
   { name: 'Yim Vatey', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&q=80' },
@@ -345,10 +349,10 @@ const reviews = [
   font-family: inherit;
 }
 .action-btn.black {
-  background: #111; color: #fff; border: 1px solid #111;
+  background: #5C4E4E; color: #fff; border: 1px solid #5C4E4E;
 }
 .action-btn.outline {
-  background: #fff; color: #111; border: 1px solid #e0e0e0;
+  background: #fff; color: #5C4E4E; border: 1px solid #5C4E4E;
 }
 
 /* ── MAIN CONTENT ── */
@@ -392,7 +396,7 @@ const reviews = [
 .price-period { font-size: 0.85rem; font-weight: 600; color: #555; }
 
 .landlord-btn {
-  background: #222; color: #fff;
+  background: #5C4E4E; color: #fff;
   border: none; border-radius: 8px;
   padding: 10px 18px; font-size: 0.9rem; font-weight: 600;
   cursor: pointer;
@@ -515,9 +519,9 @@ const reviews = [
   width: 32px; height: 32px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
 }
-.c-icon.fb { background: #111; }
-.c-icon.tg { background: #111; }
-.c-icon.ph { background: #111; }
+.c-icon.fb { background: #5C4E4E; }
+.c-icon.tg { background: #5C4E4E; }
+.c-icon.ph { background: #5C4E4E; }
 
 .spacer { height: 60px; }
 

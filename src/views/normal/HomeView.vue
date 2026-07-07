@@ -1955,8 +1955,19 @@ onMounted(async () => {
           });
         }
       );
+
+      // Re-trigger openChat now that currentAuthUser is loaded
+      if (selectedChatRecipient.value) {
+        openChat(selectedChatRecipient.value);
+      }
     }
   });
+
+  const initialRecipient = sessionStorage.getItem('activeChatRecipient');
+  if (initialRecipient) {
+    sessionStorage.removeItem('activeChatRecipient');
+    openChat(initialRecipient);
+  }
 })
 
 onUnmounted(() => {
@@ -2298,7 +2309,7 @@ const submitComment = async (post) => {
   }
 }
 
-const selectedChatRecipient = ref(null)
+const selectedChatRecipient = ref(sessionStorage.getItem('activeChatRecipient') || null)
 const chatInputText = ref('')
 const chatMessagesContainer = ref(null)
 

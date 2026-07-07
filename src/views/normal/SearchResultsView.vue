@@ -1166,8 +1166,8 @@ watch(filteredProperties, () => {
 .top-nav {
   display: flex; justify-content: space-between; align-items: center;
   padding: 16px 40px;
-  background: #fff;
-  border-bottom: 1px solid #ebebeb;
+  background: #5C4E4E;
+  border-bottom: none;
   height: 70px;
   flex-shrink: 0;
 }
@@ -1175,21 +1175,21 @@ watch(filteredProperties, () => {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #5C4E4A;
+  color: #ffffff;
   cursor: pointer;
   border: 0;
   background: transparent;
   font-family: inherit;
 }
 .logo-icon {
-  width: 32px; height: 32px; color: #5C4E4A;
+  width: 32px; height: 32px; color: #ffffff;
   display: flex; align-items: center; justify-content: center;
 }
-.logo-text { font-size: 1.3rem; font-weight: 600; color: #5C4E4A; letter-spacing: -0.5px; }
+.logo-text { font-size: 1.3rem; font-weight: 600; color: #ffffff; letter-spacing: -0.5px; }
 
 .nav-right { display: flex; align-items: center; gap: 12px; }
-.host-text { font-size: 0.9rem; font-weight: 600; color: #222; cursor: pointer; padding: 12px; border-radius: 20px; transition: background 0.2s; }
-.host-text:hover { background: #f7f7f7; }
+.host-text { font-size: 0.9rem; font-weight: 600; color: #ffffff; cursor: pointer; padding: 12px; border-radius: 20px; transition: background 0.2s; }
+.host-text:hover { background: rgba(255, 255, 255, 0.1); }
 .profile-menu {
   display: flex; align-items: center; justify-content: center; margin-left: 8px;
   border-radius: 50%; padding: 4px; cursor: pointer; transition: background 0.2s;
@@ -1253,9 +1253,9 @@ watch(filteredProperties, () => {
 }
 
 .filter-pill-btn.active {
-  border-color: #111;
-  background: #f7f7f7;
-  color: #111;
+  border-color: #5C4E4E;
+  background: rgba(92, 78, 78, 0.08);
+  color: #5C4E4E;
   font-weight: 600;
 }
 
@@ -1356,7 +1356,7 @@ watch(filteredProperties, () => {
 
 .option-label input {
   cursor: pointer;
-  accent-color: #111;
+  accent-color: #5C4E4E;
 }
 
 .popover-checkbox-grid {
@@ -1377,7 +1377,7 @@ watch(filteredProperties, () => {
 
 .popover-checkbox input {
   cursor: pointer;
-  accent-color: #111;
+  accent-color: #5C4E4E;
 }
 
 /* Counters for bedrooms/beds (More filter) */
@@ -1417,7 +1417,7 @@ watch(filteredProperties, () => {
 }
 
 .counter-btn:hover:not(:disabled) {
-  border-color: #111;
+  border-color: #5C4E4E;
   background: #f7f7f7;
 }
 
@@ -1454,11 +1454,11 @@ watch(filteredProperties, () => {
 }
 
 .popover-clear:hover {
-  color: #111;
+  color: #5C4E4E;
 }
 
 .popover-apply {
-  background: #111;
+  background: #5C4E4E;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -1470,7 +1470,7 @@ watch(filteredProperties, () => {
 }
 
 .popover-apply:hover {
-  background: #333;
+  background: #473B3B;
 }
 
 /* Stats Header block */

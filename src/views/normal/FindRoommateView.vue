@@ -412,7 +412,7 @@ const goBack = () => {
 }
 .cta-text { font-size: 1.1rem; font-weight: 600; color: #111; }
 .btn-black {
-  background: #111; color: #fff; border: none; border-radius: 8px;
+  background: #5C4E4E; color: #fff; border: none; border-radius: 8px;
   padding: 12px 20px; font-size: 0.9rem; font-weight: 500; cursor: pointer;
   display: flex; align-items: center; gap: 8px;
 }
@@ -429,7 +429,7 @@ const goBack = () => {
   font-size: 0.9rem; color: #111; font-family: inherit; font-weight: 500;
   outline: none; transition: border-color 0.2s;
 }
-.form-group input:focus { border-color: #111; }
+.form-group input:focus { border-color: #5C4E4E; }
 
 .input-with-icon {
   position: relative; display: flex; align-items: center;
@@ -490,11 +490,11 @@ const goBack = () => {
 
 .btn-submit {
   width: 100%; padding: 18px; border-radius: 8px;
-  background: #111; color: #fff; border: none;
+  background: #5C4E4E; color: #fff; border: none;
   font-size: 1.1rem; font-weight: 500; cursor: pointer;
   transition: background 0.2s, opacity 0.2s;
 }
-.btn-submit:hover:not(:disabled) { background: #222; }
+.btn-submit:hover:not(:disabled) { background: #473B3B; }
 .btn-submit:disabled {
   background: #666;
   cursor: not-allowed;

@@ -162,7 +162,7 @@ const requestRoommate = () => {
 }
 .back-btn {
   width: 48px; height: 48px; border-radius: 50%;
-  background: #111; border: none; cursor: pointer;
+  background: #5C4E4E; border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
 }
 

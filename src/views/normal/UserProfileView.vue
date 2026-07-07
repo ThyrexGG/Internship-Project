@@ -213,15 +213,15 @@ const toggleFriend = () => {
 /* Top Nav */
 .top-nav {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 16px 40px; background: #fff;
-  border-bottom: 1px solid rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100;
+  padding: 16px 40px; background: #5C4E4E;
+  border-bottom: none; position: sticky; top: 0; z-index: 100;
 }
-.logo { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #5C4E4A; }
+.logo { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #ffffff; }
 .logo-icon {
-  width: 32px; height: 32px; color: #5C4E4A;
+  width: 32px; height: 32px; color: #ffffff;
   display: flex; align-items: center; justify-content: center;
 }
-.logo-text { font-size: 1.3rem; font-weight: 600; color: #5C4E4A; letter-spacing: -0.5px; }
+.logo-text { font-size: 1.3rem; font-weight: 600; color: #ffffff; letter-spacing: -0.5px; }
 .nav-right { display: flex; align-items: center; gap: 20px; }
 .avatar img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
 
