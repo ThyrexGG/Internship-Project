@@ -590,7 +590,7 @@
                 <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#c0c0c0" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
                 <h2>Your Messages</h2>
                 <p>Send private photos and messages to a friend.</p>
-                <button class="btn-dark" @click="selectedChatRecipient = 'James Son'">Send Message</button>
+                <button class="btn-dark" @click="openChat('James Son')">Send Message</button>
               </div>
             </template>
           </div>
@@ -1906,21 +1906,27 @@ async function fetchUserProfile(user) {
 
 onMounted(async () => {
   const postsQuery = query(collection(db, 'feed_posts'), orderBy('timestamp', 'desc'));
-  postsUnsubscribe = onSnapshot(postsQuery, (snapshot) => {
-    const newPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    const mappedNewPosts = newPosts.map(p => {
-      const existing = feedPosts.value.find(e => e.id === p.id)
-      if (existing) {
-        return { ...p, showComments: existing.showComments, newCommentText: existing.newCommentText }
-      }
-      return { ...p, showComments: false, newCommentText: '' }
-    });
-    
-    const currentDemoPosts = feedPosts.value.filter(p => typeof p.id === 'string' && p.id.startsWith('demo-'));
-    const demoPostsToKeep = currentDemoPosts.length > 0 ? currentDemoPosts : demoFeedPosts;
-    
-    feedPosts.value = [...mappedNewPosts, ...demoPostsToKeep];
-  });
+  postsUnsubscribe = onSnapshot(postsQuery, 
+    (snapshot) => {
+      const newPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const mappedNewPosts = newPosts.map(p => {
+        const existing = feedPosts.value.find(e => e.id === p.id)
+        if (existing) {
+          return { ...p, showComments: existing.showComments, newCommentText: existing.newCommentText }
+        }
+        return { ...p, showComments: false, newCommentText: '' }
+      });
+      
+      const currentDemoPosts = feedPosts.value.filter(p => typeof p.id === 'string' && p.id.startsWith('demo-'));
+      const demoPostsToKeep = currentDemoPosts.length > 0 ? currentDemoPosts : demoFeedPosts;
+      
+      feedPosts.value = [...mappedNewPosts, ...demoPostsToKeep];
+    },
+    (error) => {
+      console.warn("Firestore posts listener failed, using demo posts:", error);
+      feedPosts.value = [...demoFeedPosts];
+    }
+  );
 
   try {
     // Reset pagination state on mount
@@ -1953,6 +1959,9 @@ onMounted(async () => {
               chats.value[otherParticipant] = [];
             }
           });
+        },
+        (error) => {
+          console.warn("Firestore chats listener failed (using local fallback):", error);
         }
       );
 
@@ -2441,6 +2450,10 @@ const openChat = (name) => {
         });
         chats.value[name] = msgs;
         nextTick(() => scrollToBottom());
+      },
+      (error) => {
+        console.warn(`Firestore message listener failed for ${name} (using local fallback):`, error);
+        nextTick(() => scrollToBottom());
       }
     );
   } else {
@@ -2474,9 +2487,21 @@ const sendChatMessage = async () => {
         lastMessageTime: serverTimestamp()
       }, { merge: true });
     } catch(e) {
-      console.error("Error sending message:", e);
+      console.warn("Error sending message to Firestore, using local fallback:", e);
+      if (!chats.value[recipient]) {
+        chats.value[recipient] = [];
+      }
+      chats.value[recipient].push({
+        sender: 'me',
+        text,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+      triggerMockReply(recipient);
     }
   } else {
+    if (!chats.value[recipient]) {
+      chats.value[recipient] = [];
+    }
     chats.value[recipient].push({
       sender: 'me',
       text,
