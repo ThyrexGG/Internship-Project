@@ -42,7 +42,7 @@
 
         <!-- Floating Buttons Panel -->
         <div class="floating-actions">
-          <button class="action-btn black" @click="contactLandlordForRent">
+          <button class="action-btn black" @click="router.push(`/property/${propertyId}/apply`)">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
             </svg>
@@ -218,9 +218,7 @@ const goBack = () => {
   router.push('/home')
 }
 
-const contactLandlordForRent = () => {
-  router.push(`/landlord-profile/${property.value.id}?from=propertyDetail&message=true`)
-}
+
 
 // Mock data based on design
 const renters = [
