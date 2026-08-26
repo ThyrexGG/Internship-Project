@@ -17,10 +17,11 @@
       <!-- Right Actions -->
       <div class="nav-right">
         <span class="host-text" @click="activeTab = 'settings'; activeSettingsTab = 'upgrade'">Become a host</span>
-        <div class="profile-menu" @click="activeTab = 'settings'; activeSettingsTab = 'profile'" aria-label="Go to Profile">
+        <div class="profile-menu" @click="activeTab = 'settings'; activeSettingsTab = 'profile'" aria-label="Go to Profile" style="position: relative;">
           <div class="avatar">
             <img :src="userProfile.avatar || defaultAvatar" referrerpolicy="no-referrer" @error="setDefaultAvatar" alt="User" />
           </div>
+          <span v-if="userProfile.verificationStatus !== 'verified'" class="profile-red-dot"></span>
         </div>
       </div>
     </header>
@@ -28,21 +29,6 @@
     <!-- Scrollable Content -->
     <main class="content">
       <template v-if="activeTab === 'home'">
-        <!-- URGENT VERIFICATION BANNER -->
-        <div v-if="userProfile.verificationStatus !== 'verified'" class="urgent-verification-banner" @click="$router.push('/verify-account')">
-          <div class="banner-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-              <line x1="12" y1="9" x2="12" y2="13"/>
-              <line x1="12" y1="17" x2="12.01" y2="17"/>
-            </svg>
-          </div>
-          <div class="banner-text">
-            <strong>Action Required: Verify Identity</strong>
-            <p>You must complete your identity verification to ensure community safety.</p>
-          </div>
-          <button class="banner-btn">Verify Now</button>
-        </div>
 
         <!-- Hero + Search -->
         <section class="hero-section">
@@ -706,9 +692,10 @@
             <div class="sidebar-section">
               <h3>How you use Homesweet</h3>
               <ul class="sidebar-menu">
-                <li class="sidebar-item" :class="{active: activeSettingsTab === 'profile'}" @click="activeSettingsTab = 'profile'">
+                <li class="sidebar-item" :class="{active: activeSettingsTab === 'profile', 'unverified-profile': userProfile.verificationStatus !== 'verified'}" @click="activeSettingsTab = 'profile'">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                   My Profile
+                  <span v-if="userProfile.verificationStatus !== 'verified'" class="menu-alert-dot"></span>
                 </li>
                 <li class="sidebar-item" :class="{active: activeSettingsTab === 'notification'}" @click="activeSettingsTab = 'notification'">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
@@ -750,9 +737,10 @@
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                   Upgrade to Landlord
                 </li>
-                <li class="sidebar-item" :class="{active: activeSettingsTab === 'status'}" @click="activeSettingsTab = 'status'">
+                <li class="sidebar-item" :class="{active: activeSettingsTab === 'status', 'unverified-profile': userProfile.verificationStatus !== 'verified'}" @click="activeSettingsTab = 'status'">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg>
                   Account status
+                  <span v-if="userProfile.verificationStatus !== 'verified'" class="menu-alert-dot"></span>
                 </li>
               </ul>
             </div>
@@ -761,6 +749,22 @@
           <!-- Main Content -->
           <div class="settings-main">
             <template v-if="activeSettingsTab === 'profile'">
+              <!-- Verification Notice inside Settings Content -->
+              <div v-if="userProfile.verificationStatus !== 'verified'" class="profile-verification-banner" @click="$router.push('/verify-account')">
+                <div class="verification-banner-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
+                </div>
+                <div class="verification-banner-text">
+                  <strong>Verification Required</strong>
+                  <p>Verify your identity to unlock all premium features and secure your account.</p>
+                </div>
+                <button class="verification-banner-btn">Verify Now</button>
+              </div>
+
               <h1 class="main-title">Edit Profile</h1>
               <div class="profile-header">
                 <div style="position: relative; display: inline-block;">
@@ -1093,7 +1097,7 @@
             </template>
 
             <template v-else-if="activeSettingsTab === 'upgrade'">
-              <div style="background: linear-gradient(145deg, #111, #333); color: white; border-radius: 20px; padding: 40px 32px; text-align: center; max-width: 500px; margin: 20px 0;">
+              <div style="background: linear-gradient(145deg, #5C4E4E, #473B3B); color: white; border-radius: 20px; padding: 40px 32px; text-align: center; max-width: 500px; margin: 20px 0;">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" style="margin-bottom: 16px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                 <h1 style="font-size: 1.8rem; margin-bottom: 12px; font-weight: 700;">Become a Landlord</h1>
                 <p style="font-size: 1rem; color: #ddd; margin-bottom: 32px; line-height: 1.5;">List your properties, find reliable roommates, and earn money with zero upfront listing fees.</p>
@@ -2771,17 +2775,42 @@ const filteredProperties = computed(() => {
 .profile-menu {
   display: flex; align-items: center; justify-content: center; margin-left: 8px;
   border-radius: 50%; padding: 4px; cursor: pointer; transition: background 0.2s;
+  position: relative;
+  background: transparent;
 }
-.profile-menu:hover { background: #f0f0f0; }
+.profile-menu:hover { background: #ffffff; }
+.profile-red-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 10px;
+  height: 10px;
+  background-color: #ff3b30;
+  border-radius: 50%;
+  border: 1.5px solid #5C4E4E;
+  z-index: 10;
+  transition: border-color 0.2s;
+}
+.profile-menu:hover .profile-red-dot {
+  border-color: #ffffff;
+}
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+}
 .avatar img {
   width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid #ebebeb;
+  display: block;
 }
 /* ── CONTENT ── */
 .content {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 20px 52px 12px;
+  padding: 40px 52px 120px;
 }
 
 /* ── VERIFICATION BANNER ── */
@@ -2860,7 +2889,7 @@ const filteredProperties = computed(() => {
 .listings {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 20px 14px;
+  gap: 40px 32px;
 }
 
 /* ── CARD ── */
@@ -4027,13 +4056,15 @@ const filteredProperties = computed(() => {
 .settings-layout {
   display: flex;
   align-items: flex-start;
-  min-height: 100%;
+  min-height: calc(100vh - 120px);
+  background: #faf8f6;
+  margin: -40px -52px -120px -52px;
+  padding: 40px 52px 120px 52px;
 }
 
 .settings-sidebar {
   width: 260px;
   flex-shrink: 0;
-  border-right: 1px solid #ebebeb;
   padding-right: 24px;
   position: sticky;
   top: 0;
@@ -4068,31 +4099,107 @@ const filteredProperties = computed(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 14px;
-  border-radius: 10px;
+  padding: 12px 16px;
+  border-radius: 12px;
   font-size: 0.95rem;
   font-weight: 500;
-  color: #333;
+  color: #5C4E4E;
   cursor: pointer;
   transition: all 0.2s;
   border: 1px solid transparent;
+  position: relative;
 }
 
 .sidebar-item:hover {
-  background: #f7f7f7;
+  background: rgba(92, 78, 78, 0.04);
 }
 
 .sidebar-item.active {
-  border-color: #e0e0e0;
-  background: #fff;
+  border-color: transparent !important;
+  background: rgba(92, 78, 78, 0.08) !important;
+  color: #5C4E4E !important;
   font-weight: 600;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  box-shadow: none !important;
+}
+
+.menu-alert-dot {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background-color: #ff3b30;
+  border-radius: 50%;
+}
+
+.sidebar-item.unverified-profile:not(.active) {
+  color: #ff3b30 !important;
+}
+
+.sidebar-item.unverified-profile:not(.active) svg {
+  stroke: #ff3b30 !important;
+}
+
+/* Verification notice inside Profile Settings */
+.profile-verification-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 28px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.profile-verification-banner:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+.verification-banner-icon {
+  color: #d97706;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+.verification-banner-text {
+  flex: 1;
+  color: #92400e;
+}
+.verification-banner-text strong {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 3px;
+}
+.verification-banner-text p {
+  font-size: 0.82rem;
+  margin: 0;
+  line-height: 1.35;
+  opacity: 0.95;
+}
+.verification-banner-btn {
+  background: #d97706;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .settings-main {
   flex: 1;
-  padding-left: 40px;
-  max-width: 800px;
+  padding: 32px 40px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(92, 78, 78, 0.08);
+  box-shadow: 0 4px 24px rgba(92, 78, 78, 0.03);
+  margin-left: 40px;
+  max-width: 840px;
 }
 
 .main-title {
@@ -4211,17 +4318,17 @@ const filteredProperties = computed(() => {
 .input-wrapper {
   display: flex;
   align-items: center;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border: 1px solid rgba(92, 78, 78, 0.12);
+  border-radius: 10px;
   padding: 12px 16px;
-  background: #fff;
-  transition: all 0.2s ease;
+  background: #faf9f8;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .input-wrapper.editing-mode {
-  border-color: #111;
-  background: #fafafa;
-  box-shadow: 0 0 0 1px #111;
+  border-color: #5C4E4E;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(92, 78, 78, 0.15);
 }
 
 .input-wrapper.with-icon {
@@ -4584,7 +4691,7 @@ const filteredProperties = computed(() => {
 
 @media (min-width: 1200px) {
   .listings {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
@@ -5592,17 +5699,37 @@ const filteredProperties = computed(() => {
   border: none !important; 
   min-width: 60px !important;
   padding: 8px 12px !important;
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.2s ease !important;
 }
 .nav-tab.active { color: #ffffff !important; }
+.nav-tab:hover {
+  color: #ffffff !important;
+  transform: scale(1.1) translateY(-3px) !important;
+}
 
 /* SVG Icon Coloring */
-.nav-tab svg { stroke: #c0c0c0 !important; fill: none !important; }
-.nav-tab.active svg { stroke: #ffffff !important; fill: #ffffff !important; }
+.nav-tab svg { 
+  stroke: #c0c0c0 !important; 
+  fill: none !important; 
+  transition: stroke 0.2s ease, fill 0.2s ease, filter 0.2s ease !important;
+}
+.nav-tab.active svg { 
+  stroke: #ffffff !important; 
+  fill: #ffffff !important; 
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5)) !important;
+}
+.nav-tab:hover svg {
+  stroke: #ffffff !important;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7)) !important;
+}
 
 /* Specifically fill complex icons */
 :deep(.nav-tab.active .home-icon .home-body),
 :deep(.nav-tab.active .feeds-icon .feeds-frame),
-:deep(.nav-tab.active .settings-icon .settings-gear) {
+:deep(.nav-tab.active .settings-icon .settings-gear),
+:deep(.nav-tab:hover .home-icon .home-body),
+:deep(.nav-tab:hover .feeds-icon .feeds-frame),
+:deep(.nav-tab:hover .settings-icon .settings-gear) {
   fill: #ffffff !important;
   stroke: #ffffff !important;
 }
@@ -5610,7 +5737,10 @@ const filteredProperties = computed(() => {
 /* Cutout paths for complex icons (make them match pill background) */
 :deep(.nav-tab.active .home-icon .home-door),
 :deep(.nav-tab.active .feeds-icon .feeds-line),
-:deep(.nav-tab.active .settings-icon .settings-center) {
+:deep(.nav-tab.active .settings-icon .settings-center),
+:deep(.nav-tab:hover .home-icon .home-door),
+:deep(.nav-tab:hover .feeds-icon .feeds-line),
+:deep(.nav-tab:hover .settings-icon .settings-center) {
   stroke: #5C4E4E !important;
   fill: none !important;
 }

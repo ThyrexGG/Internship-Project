@@ -16,10 +16,11 @@
 
       <div class="nav-right">
         <span class="host-text" @click="$router.push('/home')">Become a host</span>
-        <div class="profile-menu" @click="$router.push('/home')" aria-label="Go to Profile">
+        <div class="profile-menu" @click="$router.push('/home')" aria-label="Go to Profile" style="position: relative;">
           <div class="avatar">
             <img :src="userProfile.avatar || defaultAvatar" referrerpolicy="no-referrer" @error="setDefaultAvatar" alt="User" />
           </div>
+          <span v-if="userProfile.verificationStatus !== 'verified'" class="profile-red-dot"></span>
         </div>
       </div>
     </header>
@@ -379,7 +380,8 @@ const mapStyles = [
 const userProfile = ref({
   avatar: '',
   firstName: 'Soth',
-  lastName: 'Sokhomal'
+  lastName: 'Sokhomal',
+  verificationStatus: 'verified'
 })
 
 // Hobbies/conveniences list
@@ -1096,6 +1098,7 @@ async function fetchUserProfile(user) {
       if (data.firstName) userProfile.value.firstName = data.firstName;
       if (data.lastName) userProfile.value.lastName = data.lastName;
       if (data.avatar) userProfile.value.avatar = data.avatar;
+      if (data.verificationStatus) userProfile.value.verificationStatus = data.verificationStatus;
     }
   } catch (err) {
     console.error("Error fetching profile on search page:", err);
@@ -1193,10 +1196,35 @@ watch(filteredProperties, () => {
 .profile-menu {
   display: flex; align-items: center; justify-content: center; margin-left: 8px;
   border-radius: 50%; padding: 4px; cursor: pointer; transition: background 0.2s;
+  position: relative;
+  background: transparent;
 }
-.profile-menu:hover { background: #f0f0f0; }
+.profile-menu:hover { background: #ffffff; }
+.profile-red-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 10px;
+  height: 10px;
+  background-color: #ff3b30;
+  border-radius: 50%;
+  border: 1.5px solid #5C4E4E;
+  z-index: 10;
+  transition: border-color 0.2s;
+}
+.profile-menu:hover .profile-red-dot {
+  border-color: #ffffff;
+}
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+}
 .avatar img {
   width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid #ebebeb;
+  display: block;
 }
 
 /* Workspace Panels */
