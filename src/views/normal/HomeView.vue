@@ -5639,6 +5639,12 @@ const filteredProperties = computed(() => {
     min-width: 0 !important;
     padding: 6px 2px !important;
   }
+  .bottom-nav.auto-hide {
+    transform: translate(-50%, 0) !important;
+  }
+  .thin-bar-trigger {
+    display: none !important;
+  }
 }
 
 @media (max-width: 360px) {
@@ -5701,19 +5707,12 @@ const filteredProperties = computed(() => {
     opacity: 1 !important; visibility: visible !important; transform: translateX(-50%) translateY(6px) !important;
   }
 
-  /* Hotbar touch interaction */
-  .bottom-nav-interaction-group:hover .bottom-nav.auto-hide {
-    transform: translate(-50%, calc(100% + 20px)) !important;
-  }
-  .bottom-nav-interaction-group:hover .thin-bar-trigger::after {
-    opacity: 1;
-  }
-  
-  .bottom-nav.auto-hide.mobile-visible {
+  /* Make bottom-nav permanently visible on touch/mobile devices */
+  .bottom-nav.auto-hide {
     transform: translate(-50%, 0) !important;
   }
-  .bottom-nav-interaction-group.mobile-visible .thin-bar-trigger::after {
-    opacity: 0;
+  .thin-bar-trigger {
+    display: none !important;
   }
 }
 </style>

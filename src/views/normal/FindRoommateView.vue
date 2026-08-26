@@ -173,7 +173,7 @@
       <!-- Agreement -->
       <section class="agreement-info">
         <h3 class="section-heading">Agreement & Legal Information</h3>
-        <div class="doc-row">
+        <div class="doc-row" @click="handleDownload" style="cursor: pointer;">
           <span>Download All the Application Form</span>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </div>
@@ -252,6 +252,16 @@ const handleSubmit = async () => {
 
 const goBack = () => {
   router.push(`/property/${property.value.id}`)
+}
+
+const handleDownload = () => {
+  const element = document.createElement('a');
+  const file = new Blob(['Rental Application Form Placeholder Data...'], {type: 'text/plain'});
+  element.href = URL.createObjectURL(file);
+  element.download = 'rental_application_form.txt';
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
 }
 </script>
 
