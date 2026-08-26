@@ -187,16 +187,16 @@
       <GlobalFooter />
     </main>
 
-    <!-- Footer Sticky -->
+    <!-- Footer Action Bar -->
     <footer class="bottom-action-bar">
       <div class="payment-info">
-        <span class="payment-label">Total payment monthly after sharing:</span>
+        <span class="payment-label">Monthly rent after sharing:</span>
         <div class="payment-val">
-           <span class="p-amount"></span><span class="p-period">/monthly</span>
+           <span class="p-amount">${{ Math.round(property.price / 2) }}</span><span class="p-period">/mo</span>
         </div>
       </div>
       <button class="btn-submit" @click="handleSubmit" :disabled="isSubmitting">
-        {{ isSubmitting ? 'Submitting...' : 'Submit' }}
+        {{ isSubmitting ? 'Submitting...' : 'Submit Application' }}
       </button>
     </footer>
   </div>
@@ -487,28 +487,54 @@ const handleDownload = () => {
 
 /* ── FOOTER ── */
 .bottom-action-bar {
-  max-width: 1200px; margin: 0 auto; width: 100%;
-  padding: 24px 40px 40px;
-  display: flex; flex-direction: column; gap: 20px;
-  background: #fff;
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: #ffffff;
+  border-top: 1px solid rgba(92, 78, 78, 0.1);
+  box-shadow: 0 -8px 24px rgba(92, 78, 78, 0.05);
+  padding: 20px 8%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
 }
-.payment-info { display: flex; justify-content: space-between; align-items: flex-end; }
-.payment-label { font-size: 1.4rem; font-weight: 600; }
-.payment-val { display: flex; align-items: flex-end; }
-.p-amount { font-size: 2rem; font-weight: 600; line-height: 1; }
-.p-period { font-size: 1rem; font-weight: 600; line-height: 1; margin-bottom: 2px; margin-left: 2px; }
+.payment-info { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.payment-label { font-size: 0.95rem; font-weight: 500; color: #666; }
+.payment-val { display: flex; align-items: baseline; }
+.p-amount { font-size: 1.8rem; font-weight: 700; color: #5C4E4E; line-height: 1; }
+.p-period { font-size: 0.95rem; font-weight: 600; color: #888; line-height: 1; margin-left: 2px; }
 
 .btn-submit {
-  width: 100%; padding: 18px; border-radius: 8px;
-  background: #5C4E4E; color: #fff; border: none;
-  font-size: 1.1rem; font-weight: 500; cursor: pointer;
-  transition: background 0.2s, opacity 0.2s;
+  width: auto;
+  min-width: 200px;
+  padding: 14px 32px;
+  border-radius: 10px;
+  background: #5C4E4E;
+  color: #fff;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(92, 78, 78, 0.15);
 }
-.btn-submit:hover:not(:disabled) { background: #473B3B; }
+.btn-submit:hover:not(:disabled) {
+  background: #473B3B;
+  box-shadow: 0 6px 16px rgba(92, 78, 78, 0.25);
+  transform: translateY(-1px);
+}
+.btn-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
 .btn-submit:disabled {
-  background: #666;
+  background: #ccc;
+  color: #888;
   cursor: not-allowed;
-  opacity: 0.7;
+  box-shadow: none;
 }
 
 /* RESPONSIVE */
@@ -626,14 +652,28 @@ const handleDownload = () => {
     line-height: 1.35;
   }
   .bottom-action-bar {
-    width: 100%;
-    max-width: none;
-    margin: 0;
-    padding: 18px 20px 24px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px 20px;
+    background: #ffffff;
+    border-top: 1px solid rgba(92, 78, 78, 0.1);
+    box-shadow: 0 -8px 24px rgba(92, 78, 78, 0.08);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
   }
-  .payment-info { flex-direction: column; align-items: flex-start; gap: 8px; }
-  .payment-label { font-size: 1.05rem; line-height: 1.3; }
-  .btn-submit { padding: 15px; font-size: 1rem; }
+  .payment-info { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .payment-label { font-size: 0.85rem; }
+  .btn-submit {
+    width: auto;
+    min-width: 140px;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+  }
 }
 
 @media (max-width: 390px) {

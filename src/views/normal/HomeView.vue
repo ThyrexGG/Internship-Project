@@ -27,7 +27,7 @@
     </header>
 
     <!-- Scrollable Content -->
-    <main class="content">
+    <main class="content" :class="{ 'settings-bg': activeTab === 'settings' }">
       <template v-if="activeTab === 'home'">
 
         <!-- Hero + Search -->
@@ -2810,7 +2810,7 @@ const filteredProperties = computed(() => {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 40px 52px 120px;
+  padding: 40px 8% 120px;
 }
 
 /* ── VERIFICATION BANNER ── */
@@ -4053,13 +4053,15 @@ const filteredProperties = computed(() => {
 }
 
 /* ── SETTINGS REDESIGN ── */
+.content.settings-bg {
+  background: #faf8f6 !important;
+  padding-bottom: 40px !important;
+}
+
 .settings-layout {
   display: flex;
   align-items: flex-start;
-  min-height: calc(100vh - 120px);
-  background: #faf8f6;
-  margin: -40px -52px -120px -52px;
-  padding: 40px 52px 120px 52px;
+  width: 100%;
 }
 
 .settings-sidebar {
@@ -4067,7 +4069,7 @@ const filteredProperties = computed(() => {
   flex-shrink: 0;
   padding-right: 24px;
   position: sticky;
-  top: 0;
+  top: 40px;
 }
 
 .settings-title {
@@ -4592,8 +4594,8 @@ const filteredProperties = computed(() => {
 /* Segmented Control */
 .segmented-control {
   display: flex;
-  background: #f4f4f4;
-  border-radius: 10px;
+  background: rgba(92, 78, 78, 0.05);
+  border-radius: 12px;
   padding: 4px;
 }
 .segmented-control button {
@@ -4602,12 +4604,12 @@ const filteredProperties = computed(() => {
   border: none;
   background: transparent;
   font-family: inherit; font-size: 0.95rem; font-weight: 500;
-  color: #444; border-radius: 8px; cursor: pointer;
-  transition: all 0.2s;
+  color: #5C4E4E; border-radius: 8px; cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .segmented-control button.active {
-  background: #fff; color: #111; font-weight: 600;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  background: #5C4E4E; color: #fff; font-weight: 600;
+  box-shadow: 0 4px 12px rgba(92, 78, 78, 0.15);
 }
 
 /* Price Range Custom */
@@ -4619,13 +4621,18 @@ const filteredProperties = computed(() => {
 .price-field label { display: block; font-size: 0.75rem; font-weight: 600; color: #777; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
 .price-input-wrapper {
   display: flex; align-items: center;
-  border: 1px solid #ccc; border-radius: 12px; padding: 12px 16px;
-  background: #fff; transition: border-color 0.2s;
+  border: 1px solid rgba(92, 78, 78, 0.15); border-radius: 12px; padding: 12px 16px;
+  background: #faf9f8; transition: all 0.2s ease;
 }
-.price-input-wrapper:focus-within { border-color: #111; box-shadow: 0 0 0 1px #111; }
-.currency { color: #111; font-size: 1.1rem; font-weight: 500; margin-right: 4px; }
+.price-input-wrapper:focus-within {
+  border-color: #5C4E4E;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(92, 78, 78, 0.15);
+}
+.currency { color: #5C4E4E; font-size: 1.1rem; font-weight: 500; margin-right: 4px; }
 .price-input-wrapper input {
-  border: none; outline: none; font-family: inherit; font-size: 1.1rem; font-weight: 500; color: #111; width: 100%;
+  border: none; outline: none; font-family: inherit; font-size: 1.1rem; font-weight: 500; color: #5C4E4E; width: 100%;
+  background: transparent;
 }
 .price-dash { width: 16px; height: 1px; background: #ccc; margin-top: 24px; }
 
@@ -4638,13 +4645,17 @@ const filteredProperties = computed(() => {
 .counter { display: flex; align-items: center; gap: 16px; }
 .counter button {
   width: 32px; height: 32px; border-radius: 50%;
-  border: 1px solid #ccc; background: #fff; color: #555;
+  border: 1px solid rgba(92, 78, 78, 0.25); background: #fff; color: #5C4E4E;
   font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: all 0.2s;
+  cursor: pointer; transition: all 0.2s ease;
 }
-.counter button:hover:not(:disabled) { border-color: #111; color: #111; }
-.counter button:disabled { opacity: 0.3; cursor: not-allowed; }
-.count-value { font-size: 1.05rem; font-weight: 500; min-width: 24px; text-align: center; }
+.counter button:hover:not(:disabled) {
+  border-color: #5C4E4E;
+  color: #5C4E4E;
+  background: rgba(92, 78, 78, 0.08);
+}
+.counter button:disabled { opacity: 0.25; cursor: not-allowed; border-color: #e0e0e0; color: #ccc; }
+.count-value { font-size: 1.05rem; font-weight: 600; color: #5C4E4E; min-width: 24px; text-align: center; }
 
 /* Amenities Grid */
 .amenities-grid {
@@ -4652,13 +4663,17 @@ const filteredProperties = computed(() => {
 }
 .amenity-chip {
   display: flex; align-items: center; gap: 12px;
-  padding: 12px 16px; border: 1px solid #ccc; border-radius: 12px;
-  background: #fff; color: #333; font-family: inherit; font-size: 0.95rem; font-weight: 500;
-  cursor: pointer; transition: all 0.2s; text-align: left;
+  padding: 12px 16px; border: 1px solid rgba(92, 78, 78, 0.15); border-radius: 12px;
+  background: #fff; color: #5C4E4E; font-family: inherit; font-size: 0.95rem; font-weight: 500;
+  cursor: pointer; transition: all 0.2s ease; text-align: left;
 }
-.amenity-chip:hover { border-color: #111; }
+.amenity-chip:hover {
+  border-color: #5C4E4E;
+  background: rgba(92, 78, 78, 0.04);
+}
 .amenity-chip.active {
-  border-color: #111; background: #111; color: #fff;
+  border-color: #5C4E4E; background: #5C4E4E; color: #fff;
+  box-shadow: 0 4px 12px rgba(92, 78, 78, 0.15);
 }
 .amenity-icon { opacity: 0.8; }
 .amenity-chip.active .amenity-icon { opacity: 1; }
@@ -4668,11 +4683,20 @@ const filteredProperties = computed(() => {
   padding: 16px 24px; border-top: 1px solid #ebebeb; background: #fff;
 }
 .clear-btn {
-  background: none; border: none; font-family: inherit; font-size: 0.95rem; font-weight: 600; text-decoration: underline; cursor: pointer; color: #111;
+  background: none; border: none; font-family: inherit; font-size: 0.95rem; font-weight: 600; text-decoration: underline; cursor: pointer; color: #5C4E4E;
+  transition: opacity 0.2s;
+}
+.clear-btn:hover {
+  opacity: 0.8;
 }
 .show-btn {
-  background: #111; color: #fff; border: none; font-family: inherit; font-size: 0.95rem; font-weight: 600;
-  padding: 12px 24px; border-radius: 8px; cursor: pointer; transition: transform 0.1s;
+  background: #5C4E4E; color: #fff; border: none; font-family: inherit; font-size: 0.95rem; font-weight: 600;
+  padding: 12px 28px; border-radius: 10px; cursor: pointer; transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  box-shadow: 0 4px 12px rgba(92, 78, 78, 0.15);
+}
+.show-btn:hover {
+  background: #473B3B;
+  box-shadow: 0 6px 16px rgba(92, 78, 78, 0.25);
 }
 .show-btn:active { transform: scale(0.97); }
 
