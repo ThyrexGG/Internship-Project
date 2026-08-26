@@ -11,6 +11,7 @@ import FindRoommateView from './views/normal/FindRoommateView.vue'
 import RoommateMatchView from './views/normal/RoommateMatchView.vue'
 import SearchResultsView from './views/normal/SearchResultsView.vue'
 import UserProfileView from './views/normal/UserProfileView.vue'
+import RentalApplicationView from './views/normal/RentalApplicationView.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -25,6 +26,7 @@ const routes = [
   { path: '/landlord-profile/:id', name: 'LandlordProfile', component: LandlordProfileView },
   { path: '/user-profile/:id', name: 'UserProfile', component: UserProfileView },
   { path: '/search', name: 'SearchResults', component: SearchResultsView },
+  { path: '/property/:id/apply', name: 'RentalApplication', component: RentalApplicationView },
 ]
 
 export default createRouter({
