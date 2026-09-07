@@ -639,42 +639,6 @@
         </section>
       </template>
 
-      <template v-else-if="activeTab === 'noti'">
-        <section class="notification-section">
-          <h1 class="notification-title">Notification</h1>
-
-          <div class="notification-list">
-            <article
-              v-for="notification in notifications"
-              :key="notification.id"
-              class="notification-item"
-              :class="{ seen: notification.seen }"
-            >
-              <img class="notification-avatar" :src="notification.avatar" :alt="notification.name" />
-              <div class="notification-copy">
-                <h2>{{ notification.name }}</h2>
-                <p>{{ notification.message }}</p>
-              </div>
-
-              <div class="notification-status" :class="notification.type">
-                <svg v-if="notification.type === 'roommate'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                  <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                </svg>
-                <span v-else-if="notification.type === 'unread'" class="unread-dot"></span>
-                <svg v-else-if="notification.type === 'heart'" width="16" height="16" viewBox="0 0 24 24" fill="#f40f0f" stroke="#f40f0f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" />
-                </svg>
-                <svg v-else-if="notification.type === 'comment'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
-                </svg>
-              </div>
-            </article>
-          </div>
-        </section>
-      </template>
 
       <template v-else-if="activeTab === 'settings'">
         <div class="settings-layout">
@@ -2032,7 +1996,8 @@ onUnmounted(() => {
   if (messagesUnsubscribe) messagesUnsubscribe();
 })
 const filterOpen  = ref(false)
-const activeTab   = ref(sessionStorage.getItem('homeActiveTab') || 'home')
+const savedHomeTab = sessionStorage.getItem('homeActiveTab')
+const activeTab   = ref(savedHomeTab && savedHomeTab !== 'noti' ? savedHomeTab : 'home')
 const activeSettingsTab = ref('profile')
 
 const filterState = globalFilterState
@@ -2647,94 +2612,14 @@ const friends = [
   },
 ]
 
-const notifications = [
-  {
-    id: 1,
-    name: 'Muy Leng',
-    message: 'New Roommate',
-    type: 'roommate',
-    avatar: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=80&q=80',
-  },
-  {
-    id: 2,
-    name: 'Dave Rim',
-    message: 'Just post a new picture',
-    type: 'unread',
-    avatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=80&q=80',
-  },
-  {
-    id: 3,
-    name: 'James Son',
-    message: 'Just post a text',
-    type: 'unread',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80',
-  },
-  {
-    id: 4,
-    name: 'James Son',
-    message: 'Just post a text',
-    type: 'unread',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80',
-  },
-  {
-    id: 5,
-    name: 'Dave Rim',
-    message: 'Just post a new video',
-    type: 'none',
-    seen: true,
-    avatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=80&q=80',
-  },
-  {
-    id: 6,
-    name: 'James Son',
-    message: 'Just post a text',
-    type: 'none',
-    seen: true,
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80',
-  },
-  {
-    id: 7,
-    name: 'Yim Vatey',
-    message: 'React to your post',
-    type: 'heart',
-    seen: true,
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&q=80',
-  },
-  {
-    id: 8,
-    name: 'Neav Sveita',
-    message: 'Comment on your post',
-    type: 'comment',
-    seen: true,
-    avatar: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=80&q=80',
-  },
-  {
-    id: 9,
-    name: 'Neav Sveita',
-    message: 'React to your post',
-    type: 'heart',
-    seen: true,
-    avatar: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=80&q=80',
-  },
-  {
-    id: 10,
-    name: 'James Son',
-    message: 'React to your post',
-    type: 'heart',
-    seen: false,
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=80',
-  },
-]
-
 watch(activeTab, (val) => {
   sessionStorage.setItem('homeActiveTab', val)
 })
 
 const IconHome     = { render: () => h('svg', { class: 'home-icon', width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 2 }, [h('path', { class: 'home-body', d: 'M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z' }), h('path', { class: 'home-door', d: 'M9 21V12h6v9' })]) }
-const IconHeart    = { render: () => h('svg', { width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 2 }, [h('path', { d: 'M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z' })]) }
+const IconHeart    = { render: () => h('svg', { width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 2 }, [h('path', { d: 'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z' })]) }
 const IconFeeds    = { render: () => h('svg', { class: 'feeds-icon', width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 2 }, [h('rect', { class: 'feeds-frame', x: 3, y: 3, width: 18, height: 18, rx: 2 }), h('line', { class: 'feeds-line', x1: 5, y1: 9, x2: 19, y2: 9 }), h('line', { class: 'feeds-line', x1: 5, y1: 15, x2: 19, y2: 15 })]) }
 const IconMessages = { render: () => h('svg', { class: 'messages-icon', width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 2 }, [h('path', { d: 'M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z' })]) }
-const IconBell     = { render: () => h('svg', { width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 2 }, [h('path', { d: 'M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9' }), h('path', { d: 'M13.73 21a2 2 0 01-3.46 0' })]) }
 const IconSettings = { render: () => h('svg', { class: 'settings-icon', width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 2 }, [h('path', { class: 'settings-gear', d: 'M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z' }), h('circle', { class: 'settings-center', cx: 12, cy: 12, r: 3 })]) }
 
 const tabs = [
@@ -2742,7 +2627,6 @@ const tabs = [
   { id: 'favorite', label: 'Favorite', icon: IconHeart },
   { id: 'feeds',    label: 'Feeds',    icon: IconFeeds },
   { id: 'messages', label: 'Messages', icon: IconMessages },
-  { id: 'noti',     label: 'Noti',     icon: IconBell },
   { id: 'settings', label: 'Settings', icon: IconSettings },
 ]
 
@@ -4034,91 +3918,6 @@ const filteredProperties = computed(() => {
   flex-shrink: 0;
 }
 
-/* ── NOTIFICATION ── */
-.notification-section {
-  width: min(548px, 100%);
-  margin: 26px auto 86px;
-}
-
-.notification-title {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 1.75rem;
-  line-height: 1.2;
-  font-weight: 700;
-  color: #050505;
-  margin-bottom: 24px;
-}
-
-.notification-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.notification-item {
-  min-height: 52px;
-  display: grid;
-  grid-template-columns: 36px 1fr 32px;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 20px 10px 24px;
-  background: #f5f8fb;
-  border-radius: 10px;
-}
-
-.notification-item.seen {
-  background: #e1e6ea;
-}
-
-.notification-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
-}
-
-.notification-copy {
-  min-width: 0;
-}
-
-.notification-copy h2 {
-  font-size: 0.78rem;
-  line-height: 1.15;
-  font-weight: 700;
-  color: #050505;
-  margin: 0;
-}
-
-.notification-copy p {
-  font-size: 0.63rem;
-  line-height: 1.2;
-  font-weight: 500;
-  color: #050505;
-  margin: 1px 0 0;
-}
-
-.notification-status {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  justify-self: end;
-  color: #050505;
-  width: 24px;
-  height: 24px;
-}
-
-.notification-status.none {
-  display: none;
-}
-
-.unread-dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: #4c7cff;
-  display: block;
-}
 
 /* ── SETTINGS REDESIGN ── */
 .content.settings-bg {
@@ -5193,13 +4992,6 @@ const filteredProperties = computed(() => {
   .feed-image { height: 190px; margin: 0; width: 100%; border-radius: 4px; }
   .feed-text { font-size: 1rem; min-height: 58px; margin-top: 4px; }
   .mates-panel { grid-template-columns: 1fr; }
-  .notification-section { margin: 16px auto 0; }
-  .notification-title { font-size: 1.45rem; margin-bottom: 16px; }
-  .notification-item {
-    grid-template-columns: 32px minmax(0, 1fr) 24px;
-    gap: 10px;
-    padding: 10px 12px;
-  }
   .settings-layout { flex-direction: column; }
   .settings-sidebar { 
     width: 100%; 
@@ -5699,17 +5491,16 @@ const filteredProperties = computed(() => {
 .search-box input { color: #000000 !important; }
 .search-box input::placeholder { color: #888888 !important; }
 
-/* Cards (Feeds, Mates, Notifications) */
-.post-composer, .feed-card, .mates-card, .notification-item.seen, .chat-modal, .chat-header { 
+/* Cards (Feeds, Mates) */
+.post-composer, .feed-card, .mates-card, .chat-modal, .chat-header { 
   background: #ffffff !important; 
   border: 1px solid #e0e0e0 !important; 
   border-radius: 16px !important;
 }
 .property-card { background: #fafafa !important; border: none !important; box-shadow: none !important; border-radius: 16px !important; }
-.notification-item { background: #f0f0f0 !important; color: #000000 !important; border: 1px solid #e0e0e0 !important; }
 
 /* Text within cards */
-.feed-text, .card-name, .card-price, .notification-copy h2, .chat-message.me .msg-bubble { color: #000000 !important; }
+.feed-text, .card-name, .card-price, .chat-message.me .msg-bubble { color: #000000 !important; }
 .feed-author span, .mate-copy span { color: #000000 !important; }
 .card-location, .match, .mate-copy p, .mate-row time, .feed-caption, .chat-message.them .msg-bubble, .composer-row input { color: #888888 !important; }
 .host-text { color: #ffffff !important; font-weight: 600 !important; font-size: 0.95rem !important; cursor: pointer; }
