@@ -259,7 +259,7 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="toast-check-icon">
           <polyline points="20 6 9 17 4 12"></polyline>
         </svg>
-        <span>Message sent successfully to {{ landlordInfo.firstName }}!</span>
+        <span>{{ toastMessage || `Message sent successfully to ${landlordInfo.firstName}!` }}</span>
       </div>
     </transition>
   </div>
@@ -412,6 +412,7 @@ const showChatModal = ref(false)
 const chatMessage = ref('')
 const isSendingMessage = ref(false)
 const showSuccessToast = ref(false)
+const toastMessage = ref('')
 
 function messageLandlord() {
   chatMessage.value = `Hi ${landlordInfo.value.firstName} ${landlordInfo.value.lastName}, I am interested in your property ${properties.value.find(p => p.id === parseInt(route.params.id))?.name || 'Green Village Condo'}. Is it still available for rent?`
@@ -467,7 +468,12 @@ async function sendDirectMessage() {
 
 function shareProfile() {
   navigator.clipboard.writeText(window.location.href)
-  alert('Profile link copied to clipboard!')
+  toastMessage.value = 'Profile link copied to clipboard!'
+  showSuccessToast.value = true
+  setTimeout(() => {
+    showSuccessToast.value = false
+    toastMessage.value = ''
+  }, 2500)
 }
 </script>
 

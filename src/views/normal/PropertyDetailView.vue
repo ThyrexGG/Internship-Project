@@ -48,6 +48,13 @@
             </svg>
             Rent House
           </button>
+          <button class="action-btn pay" @click="router.push(`/property/${property.id}/payment`)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+              <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
+            Pay Now
+          </button>
           <button class="action-btn outline" @click="$router.push(`/property/${property.id}/roommate`)">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" />
@@ -348,6 +355,12 @@ const reviews = [
 }
 .action-btn.black {
   background: #5C4E4E; color: #fff; border: 1px solid #5C4E4E;
+}
+.action-btn.pay {
+  background: #1d4ed8; color: #fff; border: 1px solid #1d4ed8;
+}
+.action-btn.pay:hover {
+  background: #1e40af;
 }
 .action-btn.outline {
   background: #fff; color: #5C4E4E; border: 1px solid #5C4E4E;

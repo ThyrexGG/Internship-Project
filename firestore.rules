@@ -1,0 +1,235 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ==========================================
+    // Helper Functions
+    // ==========================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.admin == true ||
+        request.auth.token.email in ['admin@homesweet.com', 'thyrexgg@gmail.com'] ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+      );
+    }
+
+    // ==========================================
+    // Users Collection
+    // ==========================================
+    // - Authenticated users can read profiles
+    // - Users can create and update their own profile
+    // - Protected fields: regular users cannot elevate their role to 'admin'
+    //   or arbitrarily set their verificationStatus to 'verified' without admin review
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId) && (
+        !request.resource.data.keys().hasAny(['role', 'verificationStatus']) ||
+        request.resource.data.verificationStatus != 'verified'
+      );
+      allow update: if (isOwner(userId) && (
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'verificationStatus']) ||
+        isAdmin()
+      )) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ==========================================
+    // Properties Collection
+    // ==========================================
+    // - Public read for listings
+    // - Authenticated users can create properties
+    // - Only the owner/landlord or admin can update or delete
+    match /properties/{propertyId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && (
+        request.resource.data.ownerId == request.auth.uid ||
+        request.resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+      allow update, delete: if isAuthenticated() && (
+        resource.data.ownerId == request.auth.uid ||
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+    }
+
+    // ==========================================
+    // Verification Requests Collection
+    // ==========================================
+    // - Normal users can create a pending verification request for themselves
+    // - Users can only view their own requests; admins can review all
+    // - Approvals/rejections/status transitions are restricted to admins
+    match /verification_requests/{requestId} {
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated() &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.status == 'pending';
+      allow update, delete: if isAdmin();
+    }
+
+    // ==========================================
+    // Messaging & Chats
+    // ==========================================
+    // Direct messages
+    match /messages/{messageId} {
+      allow read: if isAuthenticated() && (
+        resource.data.senderId == request.auth.uid ||
+        resource.data.receiverId == request.auth.uid ||
+        resource.data.recipientId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated() &&
+        request.resource.data.senderId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && (
+        resource.data.senderId == request.auth.uid ||
+        isAdmin()
+      );
+    }
+
+    // Threaded chats
+    match /chats/{chatId} {
+      allow read, update: if isAuthenticated() && (
+        request.auth.uid in resource.data.participants ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated() && (
+        request.auth.uid in request.resource.data.participants
+      );
+      
+      match /messages/{msgId} {
+        allow read: if isAuthenticated() && (
+          request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants ||
+          isAdmin()
+        );
+        allow create: if isAuthenticated() &&
+          (request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants) &&
+          request.resource.data.senderId == request.auth.uid;
+      }
+    }
+
+    // ==========================================
+    // Rental Agreements Collection
+    // ==========================================
+    // - Only landlord, tenant, or admin can access agreement details
+    // - Only authorized parties or admin can update agreement state
+    match /agreements/{agreementId} {
+      allow read: if isAuthenticated() && (
+        resource.data.landlordId == request.auth.uid ||
+        resource.data.tenantId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated() && (
+        request.resource.data.landlordId == request.auth.uid ||
+        isAdmin()
+      );
+      allow update: if isAuthenticated() && (
+        resource.data.landlordId == request.auth.uid ||
+        resource.data.tenantId == request.auth.uid ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // ==========================================
+    // Payments Collection
+    // ==========================================
+    // - Authenticated users can read their own payments
+    // - Landlord can read payments associated with their properties
+    // - Clients can create a payment transaction record for themselves
+    // - Admin can inspect and reconcile all payments
+    match /payments/{paymentId} {
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        resource.data.landlordId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated() &&
+        request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // ==========================================
+    // Notifications Collection
+    // ==========================================
+    // - Recipients can read and acknowledge (update/delete) their notifications
+    // - Admins can read notifications directed to admin role
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        (resource.data.targetRole == 'admin' && isAdmin())
+      );
+      allow update: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated();
+      allow delete: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+    }
+
+    // ==========================================
+    // Rental & Landlord Applications
+    // ==========================================
+    match /rental_applications/{appId} {
+      allow read: if isAuthenticated() && (
+        resource.data.applicantId == request.auth.uid ||
+        resource.data.landlordId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated() &&
+        request.resource.data.applicantId == request.auth.uid;
+      allow update: if isAuthenticated() && (
+        resource.data.applicantId == request.auth.uid ||
+        resource.data.landlordId == request.auth.uid ||
+        isAdmin()
+      );
+    }
+
+    match /landlord_applications/{appId} {
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated() &&
+        request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin();
+    }
+
+    // ==========================================
+    // Feed Posts & Roommate Requests
+    // ==========================================
+    match /feed_posts/{postId} {
+      allow read: if true;
+      allow create: if isAuthenticated() &&
+        request.resource.data.authorId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && (
+        resource.data.authorId == request.auth.uid ||
+        isAdmin()
+      );
+    }
+
+    match /roommate_requests/{requestId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() &&
+        request.resource.data.senderId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && (
+        resource.data.senderId == request.auth.uid ||
+        isAdmin()
+      );
+    }
+  }
+}

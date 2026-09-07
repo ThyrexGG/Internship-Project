@@ -3,7 +3,7 @@
 
     <!-- Top Nav -->
     <header class="top-nav">
-      <div class="logo">
+      <div class="logo" @click="$router.push('/home')" style="cursor: pointer;">
         <div class="logo-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 18 L16 18" />
@@ -15,6 +15,10 @@
         <span class="logo-text">HomeSweet</span>
       </div>
 
+      <div class="nav-right" style="display: flex; align-items: center; gap: 16px;">
+        <button type="button" class="btn-home-link" style="background: none; border: none; color: #5C4E4E; font-size: 0.85rem; font-weight: 600; cursor: pointer;" @click="$router.push('/home')">Back to Listings</button>
+        <NotificationDropdown />
+      </div>
     </header>
 
     <div class="body">
@@ -758,8 +762,25 @@
                   </div>
                 </div>
                 <div class="form-group full-width">
-                  <label>Full Address / Location</label>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label style="margin-bottom: 0;">Full Address / Location</label>
+                    <button 
+                      type="button" 
+                      class="btn-use-location" 
+                      :disabled="isLocatingAddress" 
+                      @click="handleUseCurrentLocation"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+                      </svg>
+                      {{ isLocatingAddress ? 'Detecting...' : 'Use my current location' }}
+                    </button>
+                  </div>
                   <input type="text" v-model="newListingLocation" class="form-input" placeholder="e.g. Sen Sok, Phnom Penh" />
+                  <span v-if="locationFeedbackMessage" class="location-hint-msg" :class="locationFeedbackType">
+                    {{ locationFeedbackMessage }}
+                  </span>
                 </div>
               </div>
 
@@ -1094,13 +1115,39 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { properties } from '../../store.js'
+import NotificationDropdown from '../../components/NotificationDropdown.vue'
+import { getCurrentCoordinates, reverseGeocodeCoordinates } from '../../services/locationService'
 import html2pdf from 'html2pdf.js'
 import { db, storage, auth } from '../../firebase.js'
-import { collection, addDoc, serverTimestamp, doc, deleteDoc, getDocs } from 'firebase/firestore'
+import { collection, addDoc, serverTimestamp, doc, deleteDoc, getDocs, updateDoc } from 'firebase/firestore'
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 
 const route = useRoute()
 const router = useRouter()
+
+// Location Service State
+const isLocatingAddress = ref(false)
+const locationFeedbackMessage = ref('')
+const locationFeedbackType = ref('info')
+
+async function handleUseCurrentLocation() {
+  isLocatingAddress.value = true
+  locationFeedbackMessage.value = 'Locating property via browser GPS...'
+  locationFeedbackType.value = 'info'
+
+  try {
+    const coords = await getCurrentCoordinates()
+    const geoResult = await reverseGeocodeCoordinates(coords.lat, coords.lng)
+    newListingLocation.value = geoResult.formattedAddress
+    locationFeedbackMessage.value = `✓ Address identified (${geoResult.formattedAddress}). You can adjust manually if needed.`
+    locationFeedbackType.value = 'success'
+  } catch (err) {
+    locationFeedbackMessage.value = err.message || 'Could not detect location. Please type manually.'
+    locationFeedbackType.value = 'warning'
+  } finally {
+    isLocatingAddress.value = false
+  }
+}
 const activePage = ref(route.query.tab || 'dashboard')
 
 onMounted(async () => {
@@ -1126,6 +1173,20 @@ onMounted(async () => {
       properties.value = [...fetchedProperties, ...demoProperties]
     } else {
       properties.value = [...demoProperties]
+    }
+
+    // Fetch live notifications submitted from applications or payments
+    try {
+      const notifSnap = await getDocs(collection(db, 'notifications'))
+      if (!notifSnap.empty) {
+        const liveItems = []
+        notifSnap.forEach(d => {
+          liveItems.push({ id: d.id, ...d.data() })
+        })
+        notifications.value = [...liveItems, ...notifications.value]
+      }
+    } catch (nErr) {
+      console.warn("Live notifications fetch notice:", nErr)
     }
   } catch (e) {
     console.error("Error fetching properties in Dashboard: ", e)
@@ -1248,18 +1309,44 @@ function sendTenantMessage() {
   triggerToast("Message sent to Chlorinde!")
 }
 
-function confirmBooking() {
+async function confirmBooking() {
   bookingStatus.value = 'confirmed'
   // Increment occupied and tenants counts
   Object.keys(monthlyData.value).forEach(m => {
     monthlyData.value[m].occupied++
     monthlyData.value[m].tenants++
   })
+
+  // Sync to Firestore if this is a live rental application
+  if (currentNotification.value?.applicationId) {
+    try {
+      await updateDoc(doc(db, 'rental_applications', currentNotification.value.applicationId), {
+        status: 'approved',
+        updatedAt: new Date().toISOString()
+      })
+    } catch (err) {
+      console.warn('Failed to update Firestore application:', err)
+    }
+  }
+
   triggerToast("Booking confirmed successfully!")
 }
 
-function rejectBooking() {
+async function rejectBooking() {
   bookingStatus.value = 'rejected'
+
+  // Sync to Firestore if this is a live rental application
+  if (currentNotification.value?.applicationId) {
+    try {
+      await updateDoc(doc(db, 'rental_applications', currentNotification.value.applicationId), {
+        status: 'rejected',
+        updatedAt: new Date().toISOString()
+      })
+    } catch (err) {
+      console.warn('Failed to update Firestore application:', err)
+    }
+  }
+
   triggerToast("Booking rejected.")
 }
 
@@ -1498,7 +1585,7 @@ async function handleRealUpload(event) {
       reader.readAsDataURL(optimizedFile)
       addedCount++
     } catch (err) {
-      alert(err.message)
+      triggerToast(err.message)
     }
   }
   
@@ -1604,7 +1691,7 @@ async function publishListing() {
     activePage.value = 'rental'
   } catch (error) {
     console.error("Error publishing listing:", error)
-    alert("Failed to publish listing: " + error.message)
+    triggerToast("Failed to publish listing: " + error.message)
   } finally {
     isPublishing.value = false
   }
@@ -1725,7 +1812,7 @@ function changePin() {
     currentPin.value = newPin
     triggerToast('Portal PIN changed successfully!')
   } else if (newPin) {
-    alert('PIN must be exactly 4 digits.')
+    triggerToast('PIN must be exactly 4 digits.')
   }
 }
 </script>
@@ -2963,6 +3050,35 @@ function changePin() {
 .form-input:focus {
   border-color: #5C4E4E;
 }
+.btn-use-location {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #5C4E4E;
+  background: #F4EDEA;
+  border: 1px solid #EDE8E3;
+  padding: 4px 10px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-use-location:hover:not(:disabled) {
+  background: #5C4E4E;
+  color: #ffffff;
+}
+.btn-use-location:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.location-hint-msg {
+  display: block;
+  font-size: 0.74rem;
+  margin-top: 4px;
+}
+.location-hint-msg.info { color: #5C4E4E; }
+.location-hint-msg.success { color: #10B981; font-weight: 600; }
+.location-hint-msg.warning { color: #D97706; }
 .amenities-pills {
   display: flex;
   flex-wrap: wrap;

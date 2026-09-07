@@ -12,6 +12,9 @@ import RoommateMatchView from './views/normal/RoommateMatchView.vue'
 import SearchResultsView from './views/normal/SearchResultsView.vue'
 import UserProfileView from './views/normal/UserProfileView.vue'
 import RentalApplicationView from './views/normal/RentalApplicationView.vue'
+import PaymentView from './views/normal/PaymentView.vue'
+import ChatView from './views/normal/ChatView.vue'
+import AdminPortalView from './views/admin/AdminPortalView.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -27,6 +30,14 @@ const routes = [
   { path: '/user-profile/:id', name: 'UserProfile', component: UserProfileView },
   { path: '/search', name: 'SearchResults', component: SearchResultsView },
   { path: '/property/:id/apply', name: 'RentalApplication', component: RentalApplicationView },
+  { path: '/payment', name: 'Payment', component: PaymentView },
+  { path: '/property/:id/payment', name: 'PropertyPayment', component: PaymentView },
+  { path: '/checkout', redirect: '/payment' },
+  { path: '/chat', name: 'Chat', component: ChatView },
+  { path: '/messages', redirect: '/chat' },
+  { path: '/admin', name: 'AdminPortal', component: AdminPortalView },
+  { path: '/admin/login', redirect: '/admin' },
+  { path: '/admin/verifications', name: 'AdminVerifications', component: AdminPortalView },
 ]
 
 export default createRouter({

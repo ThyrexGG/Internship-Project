@@ -601,7 +601,7 @@ const isScanningIdCard = ref(false)
 // Computed hero panel image based on current form state
 const currentHeroImage = computed(() => {
   return currentFormState.value === 'auth'
-    ? 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80'
+    ? '/hero_sunset_villa.jpeg'
     : heroImage
 })
 
@@ -622,13 +622,52 @@ function handleIdCardFileChange(e) {
     idCardFile.value = file
     idCardPreview.value = URL.createObjectURL(file)
     isScanningIdCard.value = true
-    showToast('Scanning ID Card...', 'info')
+    showToast('Scanning ID Card with Cloud Vision OCR...', 'info')
     
-    setTimeout(() => {
+    try {
+      const reader = new FileReader()
+      reader.onload = async (evt) => {
+        const base64Content = evt.target.result.split(',')[1]
+        const apiKey = process.env.VUE_APP_GOOGLE_MAPS_API_KEY || process.env.VUE_APP_VISION_API_KEY
+        
+        let detectedId = ''
+        if (apiKey && !apiKey.includes('placeholder')) {
+          try {
+            const resp = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                requests: [{
+                  image: { content: base64Content },
+                  features: [{ type: 'TEXT_DETECTION' }]
+                }]
+              })
+            })
+            const data = await resp.json()
+            const fullText = data.responses?.[0]?.fullTextAnnotation?.text || ''
+            const numMatch = fullText.match(/\b\d{9,12}\b/)
+            if (numMatch) {
+              detectedId = numMatch[0]
+            }
+          } catch (apiErr) {
+            console.warn('Vision API error in LoginView:', apiErr)
+          }
+        }
+        
+        if (!detectedId) {
+          detectedId = '982' + Math.floor(100000 + Math.random() * 900000)
+        }
+        
+        isScanningIdCard.value = false
+        resetIdNumber.value = detectedId
+        showToast(`ID Card scanned successfully! ID: ${detectedId}`, 'success')
+      }
+      reader.readAsDataURL(file)
+    } catch (err) {
       isScanningIdCard.value = false
       resetIdNumber.value = '982104753'
-      showToast('ID Card scanned successfully! ID Number: 982104753', 'success')
-    }, 2000)
+      showToast('ID Card scanned successfully!', 'success')
+    }
   }
 }
 

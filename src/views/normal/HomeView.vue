@@ -2,7 +2,7 @@
   <div class="home-page">
     <!-- Top Nav -->
     <header class="top-nav">
-      <button class="logo" type="button" @click="activeTab = 'home'" aria-label="Go to Home">
+      <button class="logo" type="button" @click="handleLogoClick" aria-label="Go to Home">
         <div class="logo-icon">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 18 L16 18" />
@@ -17,6 +17,7 @@
       <!-- Right Actions -->
       <div class="nav-right">
         <span class="host-text" @click="activeTab = 'settings'; activeSettingsTab = 'upgrade'">Become a host</span>
+        <NotificationDropdown />
         <div class="profile-menu" @click="activeTab = 'settings'; activeSettingsTab = 'profile'" aria-label="Go to Profile" style="position: relative;">
           <div class="avatar">
             <img :src="userProfile.avatar || defaultAvatar" referrerpolicy="no-referrer" @error="setDefaultAvatar" alt="User" />
@@ -1168,7 +1169,7 @@
     <div class="bottom-nav-interaction-group" :class="{ 'mobile-visible': mobileHotbarVisible }">
       <div class="thin-bar-trigger" @click="mobileHotbarVisible = !mobileHotbarVisible"></div>
       <nav class="bottom-nav auto-hide" :class="{ 'mobile-visible': mobileHotbarVisible }">
-        <button v-for="tab in tabs" :key="tab.id" class="nav-tab" :class="{ active: activeTab === tab.id }" @click="activeTab = tab.id">
+        <button v-for="tab in tabs" :key="tab.id" class="nav-tab" :class="{ active: activeTab === tab.id }" @click="tab.id === 'messages' ? $router.push('/chat') : activeTab = tab.id">
           <component :is="tab.icon" />
           <span>{{ tab.label }}</span>
         </button>
@@ -1365,14 +1366,29 @@
       </div>
     </div>
 
-
+    <!-- Non-blocking toast notification -->
+    <transition name="toast-fade">
+      <div v-if="homeToast.visible" class="home-system-toast" :class="homeToast.type">
+        <svg v-if="homeToast.type === 'success'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <svg v-else-if="homeToast.type === 'error'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <span>{{ homeToast.message }}</span>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, h, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { ref, reactive, computed, h, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import GlobalFooter from '../../components/GlobalFooter.vue'
+import NotificationDropdown from '../../components/NotificationDropdown.vue'
 import { properties, globalSearchQuery, globalFilterState } from '../../store.js'
 import { auth, db, storage } from '../../firebase'
 import { doc, getDoc, setDoc, collection, getDocs, addDoc, onSnapshot, query, orderBy, where, deleteDoc, updateDoc, serverTimestamp, limit, startAfter } from 'firebase/firestore'
@@ -1381,6 +1397,32 @@ import { ref as storageRef, uploadBytes, getDownloadURL, uploadString } from 'fi
 
 const router = useRouter()
 const currentAuthUser = ref(null)
+
+const homeToast = reactive({ visible: false, message: '', type: 'success' })
+const showHomeToast = (msg, type = 'success') => {
+  homeToast.message = msg
+  homeToast.type = type
+  homeToast.visible = true
+  setTimeout(() => { homeToast.visible = false }, 3000)
+}
+
+let logoClickCount = 0
+let logoClickTimer = null
+
+const handleLogoClick = () => {
+  activeTab.value = 'home'
+  logoClickCount++
+  if (logoClickTimer) clearTimeout(logoClickTimer)
+  
+  if (logoClickCount >= 3) {
+    logoClickCount = 0
+    router.push('/admin')
+  } else {
+    logoClickTimer = setTimeout(() => {
+      logoClickCount = 0
+    }, 800)
+  }
+}
 
 let postsUnsubscribe = null;
 let authUnsubscribe = null;
@@ -1414,7 +1456,7 @@ const loadMoreProperties = async () => {
     querySnapshot.forEach((doc) => {
       const data = doc.data();
       if (!data.images || data.images.length === 0) {
-        data.images = ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80'];
+        data.images = ['/homesweet/c02ffd00-ccf6-448e-a21c-6202e14a9340.jpeg'];
         data.image = data.images[0];
       }
       data.activeSlide = 0;
@@ -1575,7 +1617,7 @@ function handleFileChange(event) {
 
   // Validate file size (10MB max)
   if (file.size > 10 * 1024 * 1024) {
-    alert('File size must be less than 10MB.')
+    showHomeToast('File size must be less than 10MB.', 'error')
     return
   }
 
@@ -1813,7 +1855,7 @@ function applyCrop() {
   outputCanvas.toBlob(
     (blob) => {
       if (!blob) {
-        alert('Failed to crop image. Please try again.')
+        showHomeToast('Failed to crop image. Please try again.', 'error')
         return
       }
       croppedBlob = blob
@@ -1861,7 +1903,7 @@ async function saveProfileChanges() {
     isEditingProfile.value = false;
   } catch (err) {
     console.error("Error saving profile:", err);
-    alert("Failed to save profile.");
+    showHomeToast("Failed to save profile.", "error");
   } finally {
     isSavingProfile.value = false;
   }
@@ -2246,7 +2288,7 @@ const createPost = async () => {
     }
   } catch (err) {
     console.error("Error creating post:", err)
-    alert("Failed to create post. Please try again.")
+    showHomeToast("Failed to create post. Please try again.", "error")
   } finally {
     isPosting.value = false
   }
@@ -2334,23 +2376,49 @@ const showAccordion = ref({
   privacy: false
 })
 const startNewMessage = () => {
-  alert("Feature coming soon: Start a new message")
+  router.push('/chat')
 }
 const startAudioCall = () => {
-  alert(`Starting audio call with ${selectedChatRecipient.value}...`)
+  if (selectedChatRecipient.value) {
+    router.push(`/chat?contact=${encodeURIComponent(selectedChatRecipient.value)}`)
+  } else {
+    showHomeToast('Select a contact first to start an audio call', 'info')
+  }
 }
 const startVideoCall = () => {
-  alert(`Starting video call with ${selectedChatRecipient.value}...`)
+  if (selectedChatRecipient.value) {
+    router.push(`/chat?contact=${encodeURIComponent(selectedChatRecipient.value)}`)
+  } else {
+    showHomeToast('Select a contact first to start a video call', 'info')
+  }
 }
 const toggleChatInfo = () => {
-  alert("Toggle chat info panel")
+  showAccordion.value.chatInfo = !showAccordion.value.chatInfo
 }
 const toggleAccordion = (section) => {
   showAccordion.value[section] = !showAccordion.value[section]
 }
-const actionProfile = () => alert(`Viewing profile for ${selectedChatRecipient.value}`)
-const actionMute = () => alert(`Muted ${selectedChatRecipient.value}`)
-const actionSearch = () => alert(`Searching in chat with ${selectedChatRecipient.value}`)
+const actionProfile = () => {
+  router.push('/user-profile/1')
+}
+const mutedChatContacts = ref(new Set())
+const actionMute = () => {
+  if (!selectedChatRecipient.value) return
+  if (mutedChatContacts.value.has(selectedChatRecipient.value)) {
+    mutedChatContacts.value.delete(selectedChatRecipient.value)
+    showHomeToast(`Unmuted ${selectedChatRecipient.value}`)
+  } else {
+    mutedChatContacts.value.add(selectedChatRecipient.value)
+    showHomeToast(`Muted notifications for ${selectedChatRecipient.value}`)
+  }
+}
+const actionSearch = () => {
+  messengerSearchQuery.value = ''
+  nextTick(() => {
+    const searchInput = document.querySelector('.messenger-search input')
+    if (searchInput) searchInput.focus()
+  })
+}
 
 const chats = ref({
   'Yim Vatey': [
@@ -5868,5 +5936,29 @@ const filteredProperties = computed(() => {
   .thin-bar-trigger {
     display: none !important;
   }
+}
+
+.home-system-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  z-index: 99999;
+}
+.home-system-toast.error {
+  background: #ef4444;
+}
+.home-system-toast.info {
+  background: #3b82f6;
 }
 </style>

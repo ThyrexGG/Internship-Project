@@ -122,7 +122,8 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import GlobalFooter from '../../components/GlobalFooter.vue'
-import { auth } from '../../firebase'
+import { auth, db } from '../../firebase'
+import { doc, getDoc, setDoc } from 'firebase/firestore'
 
 const route = useRoute()
 const router = useRouter()
@@ -150,13 +151,29 @@ const userDetails = ref([
   { label: 'Bio', value: 'Looking for a quiet place to stay near the university.' }
 ])
 
-onMounted(() => {
+onMounted(async () => {
   if (auth.currentUser) {
     currentUserAvatar.value = auth.currentUser.photoURL || defaultAvatar
   }
 
-  // Mocking the data based on ID (for now)
   const id = route.params.id
+
+  // Attempt to fetch real user profile from Firestore if it's a UID
+  try {
+    const userDoc = await getDoc(doc(db, 'users', id))
+    if (userDoc.exists()) {
+      const data = userDoc.data()
+      userInfo.value.firstName = data.firstName || data.name?.split(' ')[0] || 'User'
+      userInfo.value.lastName = data.lastName || data.name?.split(' ')[1] || ''
+      userInfo.value.avatar = data.avatar || defaultAvatar
+      if (data.tagline) userInfo.value.tagline = data.tagline
+      if (data.location) userDetails.value[0].value = data.location
+      return
+    }
+  } catch (e) {
+    // Continue to known default profiles
+  }
+
   if (id === '1') {
     userInfo.value.firstName = 'Yim'
     userInfo.value.lastName = 'Vatey'
@@ -178,8 +195,9 @@ onMounted(() => {
     userInfo.value.lastName = 'Rim'
     userInfo.value.avatar = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&q=80'
   } else {
-    userInfo.value.firstName = 'User'
-    userInfo.value.lastName = id || 'Profile'
+    userInfo.value.firstName = 'Emily'
+    userInfo.value.lastName = 'Davis'
+    userInfo.value.avatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80'
   }
 })
 
@@ -192,11 +210,24 @@ const goBack = () => {
 }
 
 const messageUser = () => {
-  alert('Messaging feature coming soon!')
+  const fullName = `${userInfo.value.firstName} ${userInfo.value.lastName}`.trim()
+  router.push({ path: '/chat', query: { contact: fullName } })
 }
 
-const toggleFriend = () => {
+const toggleFriend = async () => {
   isFriend.value = !isFriend.value
+  if (auth.currentUser) {
+    try {
+      const userRef = doc(db, 'users', auth.currentUser.uid)
+      await setDoc(userRef, {
+        friends: {
+          [route.params.id]: isFriend.value
+        }
+      }, { merge: true })
+    } catch (e) {
+      console.warn('Friend connection Firestore notice:', e)
+    }
+  }
 }
 </script>
 

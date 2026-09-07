@@ -1,0 +1,58 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // ==========================================
+    // Helper Functions
+    // ==========================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.admin == true ||
+        request.auth.token.email in ['admin@homesweet.com', 'thyrexgg@gmail.com']
+      );
+    }
+    
+    // User profile pictures: public read, owner write (<= 5MB image)
+    match /users/{userId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAuthenticated() && (request.auth.uid == userId || isAdmin())
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+    
+    // Property images: public read, authenticated upload (<= 10MB image)
+    match /property_images/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAuthenticated()
+                   && request.resource.size < 10 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+    
+    // Feed images: public read, authenticated upload (<= 10MB image)
+    match /feed_images/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAuthenticated()
+                   && request.resource.size < 10 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+    
+    // Sensitive verification documents (National IDs, selfie verifications):
+    // Strictly NOT public! Only applicant or admin can read/write.
+    match /verification_docs/{userId}/{allPaths=**} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow write: if isAuthenticated() && (request.auth.uid == userId || isAdmin())
+                   && request.resource.size < 10 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*|application/pdf');
+    }
+    
+    // Agreements / contracts documents:
+    match /agreement_docs/{agreementId}/{allPaths=**} {
+      allow read, write: if isAuthenticated()
+                   && request.resource.size < 15 * 1024 * 1024;
+    }
+  }
+}

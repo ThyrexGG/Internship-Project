@@ -177,11 +177,19 @@
           <span>Download All the Application Form</span>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </div>
-        <div class="doc-row borderless">
-          <span>Upload Application Form</span>
+        <div class="doc-row borderless" @click="triggerUploadForm" style="cursor: pointer;">
+          <input type="file" ref="fileUploadRef" accept=".pdf,.doc,.docx,.png,.jpg" style="display: none;" @change="onFileAttached" />
+          <span v-if="!uploadedFormFileName">Upload Application Form</span>
+          <span v-else style="color: #15803d; font-weight: 600;">✓ Attached: {{ uploadedFormFileName }}</span>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </div>
       </section>
+
+      <!-- Feedback Toast -->
+      <div v-if="showToast" class="submit-toast">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+        <span>{{ toastMessage }}</span>
+      </div>
 
       <div class="spacer"></div>
       <GlobalFooter />
@@ -196,7 +204,7 @@
         </div>
       </div>
       <button class="btn-submit" @click="handleSubmit" :disabled="isSubmitting">
-        {{ isSubmitting ? 'Submitting...' : 'Submit Application' }}
+        {{ isSubmitting ? 'Submitting Application...' : 'Submit Application' }}
       </button>
     </footer>
   </div>
@@ -207,6 +215,8 @@ import { ref, computed, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import GlobalFooter from '../../components/GlobalFooter.vue'
 import { properties } from '../../store.js'
+import { db, auth } from '../../firebase.js'
+import { collection, addDoc } from 'firebase/firestore'
 
 const route = useRoute()
 const router = useRouter()
@@ -219,6 +229,10 @@ const property = computed(() => {
 
 const selectedRoom = ref('101A')
 const isSubmitting = ref(false)
+const showToast = ref(false)
+const toastMessage = ref('')
+const fileUploadRef = ref(null)
+const uploadedFormFileName = ref('')
 
 const form = reactive({
   firstName: '',
@@ -231,22 +245,86 @@ const form = reactive({
   altPhone: ''
 })
 
-const handleSubmit = async () => {
-  if (isSubmitting.value) return; // Extra layer of protection
+const triggerUploadForm = () => {
+  if (fileUploadRef.value) {
+    fileUploadRef.value.click()
+  }
+}
 
-  isSubmitting.value = true;
+const onFileAttached = (e) => {
+  const file = e.target.files[0]
+  if (file) {
+    uploadedFormFileName.value = file.name
+    toastMessage.value = `File attached: ${file.name}`
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 3000)
+  }
+}
+
+const handleSubmit = async () => {
+  if (isSubmitting.value) return
+
+  isSubmitting.value = true
   
   try {
-    // Simulating an API/Firebase network call delay (e.g., 1.5 seconds)
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    alert('Application submitted!');
-    router.push('/home');
+    const monthlySharePrice = Math.round(property.value.price / 2)
+    const applicantName = `${form.firstName || 'Resident'} ${form.lastName || 'Applicant'}`.trim()
+
+    // 1. Real persistence to Firestore 'rental_applications' collection
+    await addDoc(collection(db, 'rental_applications'), {
+      propertyId: property.value.id,
+      propertyName: property.value.name,
+      propertyLocation: property.value.location,
+      selectedRoom: selectedRoom.value,
+      price: monthlySharePrice,
+      isRoommateSharing: true,
+      tenantId: auth.currentUser?.uid || 'guest_' + Date.now(),
+      tenantName: applicantName,
+      tenantEmail: auth.currentUser?.email || '',
+      firstName: form.firstName,
+      lastName: form.lastName,
+      dob: form.dob,
+      gender: form.gender,
+      phone: form.phone,
+      relationship: form.relationship,
+      address: form.address,
+      altPhone: form.altPhone,
+      attachedFileName: uploadedFormFileName.value || null,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    })
+
+    // 2. Add real notification for landlord
+    try {
+      await addDoc(collection(db, 'notifications'), {
+        type: 'booking',
+        title: 'New Roommate Application',
+        desc: `${applicantName} applied for room ${selectedRoom.value} in ${property.value.name}.`,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        group: 'Today',
+        unread: true,
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        roomName: `${property.value.name}, Room ${selectedRoom.value}`,
+        amount: `$${monthlySharePrice}`,
+        createdAt: new Date().toISOString()
+      })
+    } catch (notifErr) {
+      console.warn("Notification sync notice:", notifErr)
+    }
+
+    toastMessage.value = 'Application submitted successfully!'
+    showToast.value = true
+
+    setTimeout(() => {
+      router.push('/home')
+    }, 1200)
   } catch (error) {
-    console.error("Submission error:", error);
-    alert('Failed to submit. Please try again.');
+    console.error("Submission error:", error)
+    toastMessage.value = 'Failed to submit application. Please try again.'
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 3500)
   } finally {
-    isSubmitting.value = false;
+    isSubmitting.value = false
   }
 }
 
@@ -255,28 +333,55 @@ const goBack = () => {
 }
 
 const handleDownload = () => {
-  const element = document.createElement('a');
-  const file = new Blob(['Rental Application Form Placeholder Data...'], {type: 'text/plain'});
-  element.href = URL.createObjectURL(file);
-  element.download = 'rental_application_form.txt';
-  document.body.appendChild(element);
-  element.click();
-  document.body.removeChild(element);
+  const applicantName = `${form.firstName || 'Applicant'} ${form.lastName || ''}`.trim()
+  const contractContent = `=====================================================
+HOMESWEET RESIDENTIAL ROOMMATE LEASE APPLICATION
+=====================================================
+Date: ${new Date().toLocaleDateString()}
+Property: ${property.value.name}
+Location: ${property.value.location}
+Selected Room: ${selectedRoom.value}
+Monthly Rent (Share): $${Math.round(property.value.price / 2)}.00 / month
+
+APPLICANT INFORMATION:
+Name: ${applicantName}
+Date of Birth: ${form.dob || 'N/A'}
+Gender: ${form.gender || 'N/A'}
+Contact Phone: ${form.phone || 'N/A'}
+Current Address: ${form.address || 'N/A'}
+Alternate Contact: ${form.altPhone || 'N/A'}
+
+TERMS & CONDITIONS:
+1. The applicant agrees to abide by building regulations, noise guidelines, and common area cleanliness rules.
+2. Roommate disputes shall be mediated through the HomeSweet residential community portal.
+3. Subletting without landlord consent is strictly prohibited.
+
+Applicant Signature: _______________________
+Date: _______________________
+=====================================================`
+
+  const element = document.createElement('a')
+  const file = new Blob([contractContent], { type: 'text/plain;charset=utf-8' })
+  element.href = URL.createObjectURL(file)
+  element.download = `${property.value.name.replace(/\s+/g, '_')}_Roommate_Application.txt`
+  document.body.appendChild(element)
+  element.click()
+  document.body.removeChild(element)
 }
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; }
 
 .find-roommate-page {
-  font-family: 'Inter', sans-serif;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: #fff;
   height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
-  color: #111;
+  color: #2A2421;
   display: flex;
   flex-direction: column;
 }
@@ -290,7 +395,8 @@ const handleDownload = () => {
   margin: 24px auto 0;
   border-radius: 16px;
   overflow: hidden;
-  background: #f5f5f5;
+  background: #FAF8F5;
+  border: 1px solid #EDE8E3;
 }
 .hero-image {
   width: 100%; height: 100%; object-fit: cover;
@@ -299,19 +405,24 @@ const handleDownload = () => {
   position: absolute; inset: 0;
   padding: 24px;
   display: flex; flex-direction: column; justify-content: space-between;
-  background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.15) 100%);
+  background: linear-gradient(180deg, rgba(42,36,33,0.25) 0%, rgba(42,36,33,0) 40%, rgba(42,36,33,0.3) 100%);
 }
 .back-btn {
   width: 40px; height: 40px; border-radius: 50%;
-  background: #111; border: none; cursor: pointer;
+  background: #5C4E4E; border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s ease;
+}
+.back-btn:hover {
+  background: #473B3B;
 }
 .roommate-badge {
-  background: #111; color: #fff;
+  background: #5C4E4E; color: #fff;
   align-self: flex-start;
   padding: 8px 16px; border-radius: 8px;
   display: flex; align-items: center; gap: 8px;
   font-size: 0.9rem; font-weight: 500;
+  box-shadow: 0 2px 8px rgba(92, 78, 78, 0.2);
 }
 
 /* ── MAIN CONTENT ── */
@@ -323,11 +434,11 @@ const handleDownload = () => {
 }
 
 .section-heading {
-  font-size: 1.4rem; font-weight: 600; color: #111;
+  font-size: 1.4rem; font-weight: 700; color: #2A2421;
   margin-bottom: 20px;
 }
 .sub-heading {
-  font-size: 1.1rem; font-weight: 600; color: #111;
+  font-size: 1.1rem; font-weight: 600; color: #2A2421;
   margin-bottom: 12px; margin-top: 24px;
 }
 .sub-heading:first-of-type { margin-top: 0; }
@@ -346,30 +457,32 @@ const handleDownload = () => {
 .form-back-btn {
   width: 40px;
   height: 40px;
-  border: 1px solid #e5e5e5;
+  border: 1px solid #EDE8E3;
   border-radius: 50%;
-  background: #fff;
-  color: #111;
+  background: #FAF8F5;
+  color: #5C4E4E;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
+  transition: all 0.15s ease;
 }
 .form-back-btn:hover {
-  background: #f6f6f6;
+  background: #F4EDEA;
+  border-color: #5C4E4E;
 }
 .page-title {
-  font-size: 2rem; font-weight: 700; margin-bottom: 8px; line-height: 1.2;
+  font-size: 2rem; font-weight: 700; color: #2A2421; margin-bottom: 8px; line-height: 1.2;
 }
 .property-subtitle {
-  font-size: 1.4rem; font-weight: 500; color: #111;
+  font-size: 1.4rem; font-weight: 500; color: #5C4E4E;
 }
 .header-right {
   display: flex; align-items: baseline; gap: 4px;
 }
-.price-amount { font-size: 1.8rem; font-weight: 600; }
-.price-period { font-size: 0.9rem; font-weight: 600; color: #111; }
+.price-amount { font-size: 1.8rem; font-weight: 700; color: #5C4E4E; }
+.price-period { font-size: 0.9rem; font-weight: 600; color: #8C7E7E; }
 
 /* House Info */
 .house-info { margin-bottom: 48px; }
@@ -378,22 +491,26 @@ const handleDownload = () => {
 }
 .d-icon {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-  width: 56px; height: 56px;
-  border: 1px solid #ccc; border-radius: 8px;
-  font-size: 0.65rem; font-weight: 600; color: #444;
+  width: 60px; height: 60px;
+  border: 1px solid #EDE8E3; border-radius: 10px;
+  background: #FAF8F5;
+  font-size: 0.65rem; font-weight: 600; color: #5C4E4E;
 }
 
 .rooms-grid {
   display: flex; flex-wrap: wrap; gap: 12px; max-width: 400px;
 }
 .room-pill {
-  background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;
-  padding: 8px 14px; font-size: 0.65rem; font-weight: 600; color: #999;
+  background: #fff; border: 1.5px solid #EDE8E3; border-radius: 8px;
+  padding: 8px 14px; font-size: 0.72rem; font-weight: 600; color: #8C7E7E;
   cursor: pointer; transition: all 0.2s;
   font-family: inherit;
 }
-.room-pill:hover, .room-pill.selected {
-  border-color: #111; color: #111; background: #fafafa;
+.room-pill:hover {
+  border-color: #5C4E4E; color: #5C4E4E; background: #FAF8F5;
+}
+.room-pill.selected {
+  border-color: #5C4E4E; color: #ffffff; background: #5C4E4E;
 }
 
 /* Photos */
@@ -405,13 +522,15 @@ const handleDownload = () => {
 .photo-item {
   position: relative;
   width: 280px; height: 380px; border-radius: 16px; overflow: hidden; flex-shrink: 0;
+  border: 1px solid #EDE8E3;
 }
 .photo-item img { width: 100%; height: 100%; object-fit: cover; }
 .more-photos-btn {
   position: absolute; top: 50%; right: 16px; transform: translateY(-50%);
   width: 40px; height: 40px; border-radius: 50%;
-  background: rgba(255,255,255,0.8); border: none; cursor: pointer;
+  background: rgba(255,255,255,0.9); border: 1px solid #EDE8E3; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
+  color: #5C4E4E;
 }
 
 /* Roommate CTA */
@@ -419,12 +538,21 @@ const handleDownload = () => {
 .cta-row {
   display: flex; justify-content: space-between; align-items: center;
   flex-wrap: wrap; gap: 16px;
+  background: #FAF8F5;
+  border: 1px solid #EDE8E3;
+  padding: 20px 24px;
+  border-radius: 14px;
 }
-.cta-text { font-size: 1.1rem; font-weight: 600; color: #111; }
+.cta-text { font-size: 1.05rem; font-weight: 600; color: #2A2421; }
 .btn-black {
-  background: #5C4E4E; color: #fff; border: none; border-radius: 8px;
-  padding: 12px 20px; font-size: 0.9rem; font-weight: 500; cursor: pointer;
+  background: #5C4E4E; color: #fff; border: none; border-radius: 10px;
+  padding: 12px 20px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
   display: flex; align-items: center; gap: 8px;
+  transition: background 0.15s ease;
+  box-shadow: 0 2px 6px rgba(92, 78, 78, 0.15);
+}
+.btn-black:hover {
+  background: #473B3B;
 }
 
 /* User Info Form */
@@ -433,19 +561,23 @@ const handleDownload = () => {
   display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
 }
 .form-group { display: flex; flex-direction: column; gap: 8px; }
-.form-group label { font-size: 0.85rem; font-weight: 500; color: #333; }
+.form-group label { font-size: 0.85rem; font-weight: 600; color: #5C4E4E; }
 .form-group input {
-  padding: 14px; border: 1px solid #ccc; border-radius: 8px;
-  font-size: 0.9rem; color: #111; font-family: inherit; font-weight: 500;
-  outline: none; transition: border-color 0.2s;
+  padding: 14px 16px; border: 1.5px solid #D1D5DB; border-radius: 10px;
+  font-size: 0.92rem; color: #2A2421; font-family: inherit; font-weight: 500;
+  outline: none; transition: all 0.2s;
+  background: #ffffff;
 }
-.form-group input:focus { border-color: #5C4E4E; }
+.form-group input:focus {
+  border-color: #5C4E4E;
+  box-shadow: 0 0 0 3px rgba(92, 78, 78, 0.12);
+}
 
 .input-with-icon {
   position: relative; display: flex; align-items: center;
 }
 .input-with-icon svg {
-  position: absolute; left: 14px; color: #555; pointer-events: none;
+  position: absolute; left: 14px; color: #5C4E4E; pointer-events: none;
 }
 .input-with-icon input {
   width: 100%; padding-left: 42px;
@@ -455,13 +587,15 @@ const handleDownload = () => {
 .landlord-info { margin-bottom: 48px; }
 .landlord-card {
   display: flex; justify-content: space-between; align-items: center;
-  border: 1px solid #ccc; border-radius: 12px; padding: 12px 20px;
+  border: 1px solid #EDE8E3; border-radius: 14px; padding: 16px 20px;
   margin-bottom: 16px;
+  background: #FAF8F5;
 }
 .l-avatar { display: flex; align-items: center; gap: 12px; }
-.l-avatar img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-.l-name { font-size: 0.95rem; font-weight: 600; }
-.l-view { font-size: 0.8rem; color: #999; cursor: pointer; }
+.l-avatar img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1px solid #EDE8E3; }
+.l-name { font-size: 0.95rem; font-weight: 600; color: #2A2421; }
+.l-view { font-size: 0.85rem; color: #5C4E4E; font-weight: 600; cursor: pointer; }
+.l-view:hover { text-decoration: underline; }
 
 .landlord-details-grid {
   display: flex; gap: 16px; flex-wrap: wrap;
@@ -469,19 +603,39 @@ const handleDownload = () => {
 .detail-box {
   flex: 1; min-width: 200px;
   display: flex; align-items: center; gap: 12px;
-  border: 1px solid #ccc; border-radius: 8px; padding: 16px;
-  font-size: 0.85rem; font-weight: 500; color: #111;
+  border: 1px solid #EDE8E3; border-radius: 10px; padding: 16px;
+  font-size: 0.85rem; font-weight: 500; color: #2A2421;
+  background: #ffffff;
   overflow-wrap: anywhere;
+}
+.detail-box svg {
+  color: #5C4E4E;
+  flex-shrink: 0;
 }
 
 /* Agreement */
 .agreement-info { margin-bottom: 48px; }
 .doc-row {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 18px 20px; border: 1px solid #ccc; border-radius: 8px;
+  padding: 18px 20px; border: 1px solid #EDE8E3; border-radius: 10px;
   font-size: 0.9rem; font-weight: 500; margin-bottom: 24px; cursor: pointer;
+  background: #FAF8F5;
+  color: #2A2421;
+  transition: all 0.15s ease;
 }
-.doc-row.borderless { border: none; padding: 0 4px; color: #111; font-weight: 600; margin-bottom: 0; }
+.doc-row:hover {
+  background: #F4EDEA;
+  border-color: #5C4E4E;
+}
+.doc-row svg {
+  color: #5C4E4E;
+}
+.doc-row.borderless {
+  border: none; padding: 0 4px; color: #2A2421; font-weight: 600; margin-bottom: 0; background: transparent;
+}
+.doc-row.borderless:hover {
+  background: transparent;
+}
 
 .spacer { height: 100px; }
 
@@ -493,9 +647,9 @@ const handleDownload = () => {
   right: 0;
   width: 100%;
   background: #ffffff;
-  border-top: 1px solid rgba(92, 78, 78, 0.1);
-  box-shadow: 0 -8px 24px rgba(92, 78, 78, 0.05);
-  padding: 20px 8%;
+  border-top: 1px solid #EDE8E3;
+  box-shadow: 0 -8px 24px rgba(92, 78, 78, 0.06);
+  padding: 16px 8%;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -503,10 +657,10 @@ const handleDownload = () => {
   z-index: 100;
 }
 .payment-info { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
-.payment-label { font-size: 0.95rem; font-weight: 500; color: #666; }
+.payment-label { font-size: 0.88rem; font-weight: 500; color: #8C7E7E; }
 .payment-val { display: flex; align-items: baseline; }
 .p-amount { font-size: 1.8rem; font-weight: 700; color: #5C4E4E; line-height: 1; }
-.p-period { font-size: 0.95rem; font-weight: 600; color: #888; line-height: 1; margin-left: 2px; }
+.p-period { font-size: 0.95rem; font-weight: 600; color: #8C7E7E; line-height: 1; margin-left: 2px; }
 
 .btn-submit {
   width: auto;
@@ -518,6 +672,7 @@ const handleDownload = () => {
   border: none;
   font-size: 1rem;
   font-weight: 600;
+  font-family: inherit;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 4px 12px rgba(92, 78, 78, 0.15);
@@ -531,8 +686,8 @@ const handleDownload = () => {
   transform: translateY(0);
 }
 .btn-submit:disabled {
-  background: #ccc;
-  color: #888;
+  background: #EDE8E3;
+  color: #8C7E7E;
   cursor: not-allowed;
   box-shadow: none;
 }
@@ -658,7 +813,7 @@ const handleDownload = () => {
     right: 0;
     padding: 16px 20px;
     background: #ffffff;
-    border-top: 1px solid rgba(92, 78, 78, 0.1);
+    border-top: 1px solid #EDE8E3;
     box-shadow: 0 -8px 24px rgba(92, 78, 78, 0.08);
     display: flex;
     flex-direction: row;
@@ -711,6 +866,30 @@ const handleDownload = () => {
     padding-left: 14px;
     padding-right: 14px;
   }
+}
+
+.submit-toast {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2A2421;
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  box-shadow: 0 10px 25px rgba(42, 36, 33, 0.3);
+  z-index: 99999;
+  animation: fadeInToast 0.25s ease-out;
+}
+
+@keyframes fadeInToast {
+  from { opacity: 0; transform: translate(-50%, 15px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
 }
 </style>
 
