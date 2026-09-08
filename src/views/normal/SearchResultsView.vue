@@ -219,29 +219,33 @@
           <div class="map-grid-overlay"></div>
           <div class="map-river-shape"></div>
 
-          <!-- SVG Vector Route Connector connecting selected property to destination -->
+          <!-- SVG Vector Route Connector connecting user location to target property -->
           <svg v-if="selectedProperty" class="vector-route-svg">
             <line 
-              :x1="getVectorPercentCoords(selectedProperty).left" 
-              :y1="getVectorPercentCoords(selectedProperty).top" 
-              :x2="getVectorPercentCoords(currentDestination).left" 
-              :y2="getVectorPercentCoords(currentDestination).top" 
-              stroke="#5C4E4E" 
-              stroke-width="3.5" 
+              :x1="getVectorPercentCoords(userLocation).left" 
+              :y1="getVectorPercentCoords(userLocation).top" 
+              :x2="getVectorPercentCoords(selectedProperty).left" 
+              :y2="getVectorPercentCoords(selectedProperty).top" 
+              stroke="#2563EB" 
+              stroke-width="3" 
               stroke-dasharray="6,6"
               stroke-linecap="round"
             />
           </svg>
 
-          <!-- Destination Pin on Vector Canvas -->
+          <!-- User Location Pin on Vector Canvas -->
           <div 
-            class="vector-dest-pin"
-            :style="getVectorPinStyle(currentDestination)"
-            :title="currentDestination.name"
-            @click.stop="toggleDestinationModal"
+            class="vector-user-pin"
+            :style="getVectorPinStyle(userLocation)"
+            :title="userLocation.name + ' • Click to refresh GPS'"
+            @click.stop="requestUserLocation(false)"
           >
-            <div class="dest-pill">🎓 {{ currentDestination.name }}</div>
-            <div class="dest-pointer"></div>
+            <div class="user-pulse-ring"></div>
+            <div class="user-loc-pill">
+              <span class="user-loc-dot" :class="{ 'is-locating': userLocation.isLocating }"></span>
+              <span>Your Location</span>
+            </div>
+            <div class="user-loc-pointer"></div>
           </div>
           
           <!-- Interactive Property Markers placed on the vector canvas -->
@@ -462,13 +466,24 @@
           <!-- Floating Commute / Travel-Time Card (Left) -->
           <transition name="panel-pop-left">
             <div v-if="selectedProperty" class="floating-commute-panel">
-              <div class="commute-origin-box">
-                <div class="origin-icon-badge">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#ffffff">
-                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+              <!-- Origin Box: User's Current Location -->
+              <div 
+                class="commute-origin-box" 
+                @click="requestUserLocation(false)" 
+                title="Click to detect/refresh your GPS position"
+              >
+                <div class="origin-icon-badge user-origin-badge">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
                   </svg>
                 </div>
-                <span class="origin-title">This Place</span>
+                <div class="origin-info-col">
+                  <span class="origin-title">{{ userLocation.name }}</span>
+                  <span class="origin-gps-tag" :class="{ 'active': userLocation.isDetected, 'locating': userLocation.isLocating }">
+                    {{ userLocation.isLocating ? 'Locating...' : (userLocation.isDetected ? 'GPS Active' : 'Default Pin') }}
+                  </span>
+                </div>
               </div>
 
               <div class="commute-down-pointer">
@@ -478,7 +493,7 @@
               </div>
 
               <div class="commute-transit-modes">
-                <div class="transit-mode-item">
+                <div class="transit-mode-item" title="Walking Estimate">
                   <div class="mode-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2">
                       <circle cx="12" cy="4" r="2" />
@@ -490,7 +505,7 @@
 
                 <div class="mode-separator"></div>
 
-                <div class="transit-mode-item">
+                <div class="transit-mode-item" title="Scooter / Moto Estimate">
                   <div class="mode-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2">
                       <circle cx="6" cy="17" r="3" />
@@ -503,7 +518,7 @@
 
                 <div class="mode-separator"></div>
 
-                <div class="transit-mode-item">
+                <div class="transit-mode-item" title="Car / Taxi Estimate">
                   <div class="mode-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2">
                       <rect x="3" y="11" width="18" height="8" rx="2" />
@@ -517,7 +532,7 @@
 
                 <div class="mode-separator"></div>
 
-                <div class="transit-mode-item">
+                <div class="transit-mode-item" title="Public Transit Estimate">
                   <div class="mode-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2">
                       <rect x="4" y="4" width="16" height="14" rx="2" />
@@ -536,10 +551,13 @@
                 </svg>
               </div>
 
-              <div class="commute-destination-card" @click="toggleDestinationModal">
-                <div class="destination-name">To {{ currentDestination.name }}</div>
-                <div class="destination-est-label">Estimated time</div>
-                <div class="destination-est-time">{{ calculatedCommute.car }} - {{ calculatedCommute.walking }} min</div>
+              <!-- Destination Box: Target Property -->
+              <div class="commute-destination-card">
+                <div class="destination-name">To {{ selectedProperty.name }}</div>
+                <div class="destination-est-label">From your location</div>
+                <div class="destination-est-time">
+                  {{ calculatedCommute.distanceKm }} km &bull; {{ calculatedCommute.car }} min drive
+                </div>
               </div>
             </div>
           </transition>
@@ -765,6 +783,7 @@ import { properties, globalSearchQuery, globalFilterState } from '../../store.js
 import { auth, db } from '../../firebase'
 import { doc, getDoc } from 'firebase/firestore'
 import { onAuthStateChanged } from 'firebase/auth'
+import { getCurrentCoordinates, reverseGeocodeCoordinates } from '../../services/locationService'
 
 const router = useRouter()
 
@@ -814,12 +833,17 @@ const selectedProperty = ref(null)
 const isFullscreenNavExpanded = ref(false)
 const activeSlideIndex = ref(0)
 
-// Destination university for commute calculation
-const currentDestination = ref({
-  name: 'CamTech University',
-  lat: 11.5695,
-  lng: 104.8910
+// User Location state (Origin for commute calculations and map routing)
+const userLocation = ref({
+  lat: 11.5621,
+  lng: 104.9160,
+  name: 'Your Location',
+  address: 'Phnom Penh, Cambodia',
+  isLocating: false,
+  isDetected: false
 })
+
+const googleRouteData = ref({ distanceText: '', distanceKm: null, durationMin: null })
 
 // User profile
 const userProfile = ref({
@@ -831,7 +855,7 @@ const userProfile = ref({
 // Google Maps objects
 let googleMap = null
 let googleMarkers = []
-let destinationMarker = null
+let userLocationMarker = null
 let routePolyline = null
 let directionsService = null
 let directionsRenderer = null
@@ -883,21 +907,30 @@ const currentPropertyImage = computed(() => {
   return imgs[activeSlideIndex.value] || imgs[0] || '/homesweet/c02ffd00-ccf6-448e-a21c-6202e14a9340.jpeg'
 })
 
-// Commute travel time calculation
+// Commute travel time calculation (Origin: User Location -> Target: Selected Property)
 const calculatedCommute = computed(() => {
   if (!selectedProperty.value) {
-    return { walking: 20, scooter: 10, car: 8, transit: 12 }
+    return { walking: 18, scooter: 8, car: 6, transit: 12, distanceKm: '2.1' }
   }
   const p = selectedProperty.value
-  const dLat = (p.lat || 11.5900) - currentDestination.value.lat
-  const dLng = (p.lng || 104.9300) - currentDestination.value.lng
-  const distanceKm = Math.max(1.5, Math.sqrt(dLat * dLat + dLng * dLng) * 110)
+  const dLat = (Number(p.lat) || 11.5900) - userLocation.value.lat
+  const dLng = (Number(p.lng) || 104.9300) - userLocation.value.lng
+  const rawDist = Math.max(0.4, Math.sqrt(dLat * dLat + dLng * dLng) * 110)
+
+  const distanceKm = googleRouteData.value.distanceKm != null 
+    ? googleRouteData.value.distanceKm 
+    : Math.round(rawDist * 10) / 10
+
+  const carTime = googleRouteData.value.durationMin != null 
+    ? googleRouteData.value.durationMin 
+    : Math.max(3, Math.round(distanceKm * 2.8))
 
   return {
-    walking: Math.round(distanceKm * 7.5),
-    scooter: Math.max(5, Math.round(distanceKm * 2.2)),
-    car: Math.max(5, Math.round(distanceKm * 1.8)),
-    transit: Math.max(6, Math.round(distanceKm * 2.8))
+    distanceKm: typeof distanceKm === 'number' ? distanceKm.toFixed(1) : distanceKm,
+    walking: Math.max(4, Math.round(distanceKm * 12)),
+    scooter: Math.max(2, Math.round(distanceKm * 2.2)),
+    car: carTime,
+    transit: Math.max(5, Math.round(distanceKm * 3.5))
   }
 })
 
@@ -924,6 +957,9 @@ onMounted(() => {
 
   // Load Google Maps API
   initGoogleMaps()
+
+  // Detect user current location via GPS
+  requestUserLocation(true)
 })
 
 onBeforeUnmount(() => {
@@ -935,6 +971,7 @@ onBeforeUnmount(() => {
 function dismissCards() {
   if (selectedProperty.value) {
     selectedProperty.value = null
+    googleRouteData.value = { distanceText: '', distanceKm: null, durationMin: null }
     if (directionsRenderer) directionsRenderer.set('directions', null)
     if (routePolyline) {
       routePolyline.setMap(null)
@@ -1080,19 +1117,22 @@ function renderGoogleMarkers() {
     googleMarkers.push(marker)
   })
 
-  // Destination Marker - updates position dynamically whenever currentDestination changes
-  const destPos = { lat: currentDestination.value.lat, lng: currentDestination.value.lng }
-  if (destinationMarker) {
-    destinationMarker.setPosition(destPos)
-    destinationMarker.setTitle(currentDestination.value.name)
-    destinationMarker.setMap(googleMap)
+  // User Location Marker - origin on the map
+  const userPos = { lat: userLocation.value.lat, lng: userLocation.value.lng }
+  if (userLocationMarker) {
+    userLocationMarker.setPosition(userPos)
+    userLocationMarker.setTitle(userLocation.value.name)
+    userLocationMarker.setMap(googleMap)
   } else {
-    destinationMarker = new window.google.maps.Marker({
-      position: destPos,
+    userLocationMarker = new window.google.maps.Marker({
+      position: userPos,
       map: googleMap,
-      title: currentDestination.value.name,
-      icon: getDestinationMarkerIcon(),
-      zIndex: 90
+      title: userLocation.value.name,
+      icon: getUserLocationMarkerIcon(),
+      zIndex: 95
+    })
+    userLocationMarker.addListener('click', () => {
+      requestUserLocation(false)
     })
   }
 
@@ -1115,13 +1155,15 @@ function drawRouteLine() {
     routePolyline = null
   }
 
+  // Origin is User Location
   const origin = { 
+    lat: Number(userLocation.value.lat), 
+    lng: Number(userLocation.value.lng) 
+  }
+  // Destination is Target Property
+  const destination = { 
     lat: Number(selectedProperty.value.lat) || 11.5900, 
     lng: Number(selectedProperty.value.lng) || 104.9300 
-  }
-  const destination = { 
-    lat: Number(currentDestination.value.lat), 
-    lng: Number(currentDestination.value.lng) 
   }
 
   if (directionsService && directionsRenderer) {
@@ -1132,6 +1174,14 @@ function drawRouteLine() {
     }, (result, status) => {
       if (status === 'OK' && result) {
         directionsRenderer.setDirections(result)
+        const leg = result.routes?.[0]?.legs?.[0]
+        if (leg) {
+          googleRouteData.value = {
+            distanceText: leg.distance?.text || '',
+            distanceKm: (leg.distance?.value || 0) / 1000,
+            durationMin: Math.round((leg.duration?.value || 0) / 60)
+          }
+        }
       } else {
         // Fallback to direct geodesic polyline
         drawDirectRouteLine(origin, destination)
@@ -1193,17 +1243,22 @@ function getMarkerIcon(isSelected) {
   }
 }
 
-function getDestinationMarkerIcon() {
+function getUserLocationMarkerIcon() {
   const svg = `
     <svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <filter id="dsh" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000000" flood-opacity="0.25"/>
+        <filter id="uGlow" x="-30%" y="-30%" width="160%" height="160%">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#2563eb" flood-opacity="0.35"/>
         </filter>
       </defs>
-      <circle cx="24" cy="24" r="20" fill="#ffffff" filter="url(#dsh)"/>
-      <circle cx="24" cy="24" r="15" fill="#e2e8f0"/>
-      <path d="M24 16 L14 21 L24 26 L34 21 Z M18 24.5 L18 29 Q24 33 30 29 L30 24.5 Q24 28 18 24.5 Z" fill="#475569"/>
+      <!-- Outer ripple halo -->
+      <circle cx="24" cy="24" r="20" fill="rgba(37, 99, 235, 0.18)" />
+      <!-- Middle ring -->
+      <circle cx="24" cy="24" r="14" fill="#ffffff" filter="url(#uGlow)" stroke="#2563eb" stroke-width="2.5"/>
+      <!-- Inner user blue center -->
+      <circle cx="24" cy="24" r="7" fill="#2563eb"/>
+      <!-- Small white core -->
+      <circle cx="24" cy="24" r="2.5" fill="#ffffff"/>
     </svg>
   `;
   return {
@@ -1259,7 +1314,6 @@ function getVectorPercentCoords(target) {
   }
 }
 
-
 function nextSlide() {
   if (!selectedProperty.value) return
   const total = selectedProperty.value.images?.length || 1
@@ -1287,7 +1341,11 @@ function navigateToDetail(propId) {
 
 function recenterMap() {
   if (googleMap) {
-    googleMap.setCenter({ lat: 11.5750, lng: 104.9080 })
+    if (userLocation.value.isDetected && userLocation.value.lat) {
+      googleMap.setCenter({ lat: userLocation.value.lat, lng: userLocation.value.lng })
+    } else {
+      googleMap.setCenter({ lat: 11.5750, lng: 104.9080 })
+    }
     googleMap.setZoom(13)
   }
 }
@@ -1304,17 +1362,40 @@ function handleShare() {
   }
 }
 
-function toggleDestinationModal() {
-  const unis = [
-    { name: 'CamTech University', lat: 11.5695, lng: 104.8910 },
-    { name: 'RUPP University', lat: 11.5682, lng: 104.8906 },
-    { name: 'CADT Digital Academy', lat: 11.6540, lng: 104.9140 }
-  ]
-  const currentIdx = unis.findIndex(u => u.name === currentDestination.value.name)
-  const nextIdx = (currentIdx + 1) % unis.length
-  currentDestination.value = unis[nextIdx]
-  if (isGoogleMapReady.value) {
-    renderGoogleMarkers()
+async function requestUserLocation(silent = false) {
+  userLocation.value.isLocating = true
+  if (!silent) showToast("Detecting your location via GPS...")
+  try {
+    const coords = await getCurrentCoordinates({ enableHighAccuracy: true, timeout: 8000 })
+    userLocation.value.lat = coords.lat
+    userLocation.value.lng = coords.lng
+    userLocation.value.isDetected = true
+    userLocation.value.name = 'Your Location'
+
+    try {
+      const geoResult = await reverseGeocodeCoordinates(coords.lat, coords.lng)
+      if (geoResult?.formattedAddress) {
+        userLocation.value.address = geoResult.formattedAddress
+      }
+    } catch {
+      // Keep default
+    }
+
+    if (!silent) showToast("✓ Location updated to your GPS coordinates")
+
+    if (isGoogleMapReady.value) {
+      renderGoogleMarkers()
+      if (selectedProperty.value) {
+        drawRouteLine()
+      }
+    }
+  } catch (err) {
+    console.warn("GPS location notice:", err)
+    if (!silent) {
+      showToast(err.message || "Could not retrieve GPS location. Using Phnom Penh center.")
+    }
+  } finally {
+    userLocation.value.isLocating = false
   }
 }
 
@@ -2222,6 +2303,14 @@ watch(filteredProperties, () => {
   align-items: center;
   gap: 12px;
   width: 100%;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 12px;
+  transition: background 0.18s ease;
+}
+
+.commute-origin-box:hover {
+  background: #f8fafc;
 }
 
 .origin-icon-badge {
@@ -2235,10 +2324,42 @@ watch(filteredProperties, () => {
   flex-shrink: 0;
 }
 
+.origin-icon-badge.user-origin-badge {
+  background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.32);
+}
+
+.origin-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
 .origin-title {
-  font-size: 0.96rem;
+  font-size: 0.94rem;
   font-weight: 700;
   color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.origin-gps-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.origin-gps-tag.active {
+  color: #10B981;
+}
+
+.origin-gps-tag.locating {
+  color: #3B82F6;
+  animation: pulse 1s infinite;
 }
 
 .commute-down-pointer {
@@ -2877,39 +2998,79 @@ watch(filteredProperties, () => {
   z-index: 8;
 }
 
-.vector-dest-pin {
+.vector-user-pin {
   position: absolute;
   transform: translate(-50%, -100%);
   cursor: pointer;
-  z-index: 15;
+  z-index: 18;
   display: flex;
   flex-direction: column;
   align-items: center;
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.vector-dest-pin:hover {
+.vector-user-pin:hover {
   transform: translate(-50%, -112%) scale(1.08);
 }
 
-.dest-pill {
-  background: #2A2421;
+.user-pulse-ring {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.25);
+  animation: pulse-ring 2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+  pointer-events: none;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: translate(-50%, 50%) scale(0.6);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(-50%, 50%) scale(2.2);
+    opacity: 0;
+  }
+}
+
+.user-loc-pill {
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
   color: #ffffff;
   font-weight: 700;
   font-size: 0.78rem;
   padding: 5px 12px;
   border-radius: 50px;
-  box-shadow: 0 4px 14px rgba(42, 36, 33, 0.28);
-  border: 1.5px solid #453B36;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.38);
+  border: 1.5px solid #60A5FA;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.dest-pointer {
+.user-loc-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 6px #ffffff;
+}
+
+.user-loc-dot.is-locating {
+  animation: pulse 0.8s infinite;
+  background: #FEF08A;
+}
+
+.user-loc-pointer {
   width: 0;
   height: 0;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-top: 6px solid #2A2421;
+  border-top: 6px solid #1D4ED8;
   margin-top: -1px;
 }
 </style>
