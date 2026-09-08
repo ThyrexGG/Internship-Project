@@ -3,6 +3,7 @@ module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
     https: true,
+    historyApiFallback: true,
     headers: {
       "Cross-Origin-Opener-Policy": "unsafe-none",
       "Cross-Origin-Embedder-Policy": "unsafe-none"
