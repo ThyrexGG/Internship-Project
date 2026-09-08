@@ -4,7 +4,7 @@
  */
 
 // Reference coordinate centers for Phnom Penh districts
-const DISTRICT_CENTERS = [
+export const DISTRICT_CENTERS = [
   { name: 'Chroy Chongva', lat: 11.5900, lng: 104.9300 },
   { name: 'BKK1', lat: 11.5500, lng: 104.9250 },
   { name: 'Tonle Bassac', lat: 11.5450, lng: 104.9350 },
@@ -14,7 +14,7 @@ const DISTRICT_CENTERS = [
   { name: 'Daun Penh', lat: 11.5650, lng: 104.9250 }
 ]
 
-function getNearestDistrict(lat, lng) {
+export function getNearestDistrict(lat, lng) {
   let nearest = DISTRICT_CENTERS[0]
   let minDistance = Infinity
 

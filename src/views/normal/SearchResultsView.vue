@@ -214,8 +214,19 @@
         <!-- Google Map Canvas -->
         <div ref="mapContainerRef" class="google-map-canvas"></div>
 
+        <!-- Active "Pick Location on Map" Banner -->
+        <transition name="toast-fade">
+          <div v-if="isPickingLocationOnMap" class="map-pick-indicator-banner">
+            <div class="pick-banner-content">
+              <span class="pick-pulse-dot"></span>
+              <span>Click anywhere on the map to place your starting point</span>
+              <button type="button" class="btn-cancel-pick" @click="isPickingLocationOnMap = false">Cancel</button>
+            </div>
+          </div>
+        </transition>
+
         <!-- High-Fidelity Interactive Vector Map Fallback (Active when Google Maps key is loading/offline) -->
-        <div v-if="!isGoogleMapReady" class="interactive-fallback-canvas" @click="dismissCards">
+        <div v-if="!isGoogleMapReady" class="interactive-fallback-canvas" @click="handleVectorCanvasClick">
           <div class="map-grid-overlay"></div>
           <div class="map-river-shape"></div>
 
@@ -237,13 +248,13 @@
           <div 
             class="vector-user-pin"
             :style="getVectorPinStyle(userLocation)"
-            :title="userLocation.name + ' • Click to refresh GPS'"
-            @click.stop="requestUserLocation(false)"
+            :title="userLocation.name + ' • Click to change or drag location'"
+            @click.stop="showLocationPickerModal = true"
           >
             <div class="user-pulse-ring"></div>
             <div class="user-loc-pill">
               <span class="user-loc-dot" :class="{ 'is-locating': userLocation.isLocating }"></span>
-              <span>Your Location</span>
+              <span>{{ userLocation.isManual ? userLocation.name : 'Your Location' }}</span>
             </div>
             <div class="user-loc-pointer"></div>
           </div>
@@ -283,8 +294,23 @@
             </svg>
           </button>
 
-          <!-- Floating "Search this area" Button at Top Center of Map -->
+          <!-- Floating Map Control Buttons at Top Center of Map -->
           <div class="split-map-top-bar">
+            <!-- Manual Location Placer Button -->
+            <button 
+              type="button" 
+              class="btn-set-loc-pill" 
+              :class="{ 'is-manual': userLocation.isManual }"
+              @click="showLocationPickerModal = true"
+              title="Set or place starting point manually"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.4">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+              </svg>
+              <span>{{ userLocation.isManual ? userLocation.name : 'Set Location' }}</span>
+            </button>
+
             <button type="button" class="btn-search-area-pill" @click="recenterMap">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"/>
@@ -403,8 +429,22 @@
             <button v-if="searchQuery" type="button" class="search-clear-btn" @click="searchQuery = ''">✕</button>
           </div>
 
-          <!-- Floating Controls (Top Right): Filters, Share, Heart, Split View -->
+          <!-- Floating Controls (Top Right): Location Placer, Filters, Share, Heart, Split View -->
           <div class="floating-top-actions">
+            <button 
+              type="button" 
+              class="btn-floating-filter" 
+              :class="{ 'loc-manual': userLocation.isManual }"
+              title="Set or change starting location"
+              @click="showLocationPickerModal = true"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.2">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+              </svg>
+              <span>{{ userLocation.isManual ? userLocation.name : 'Location' }}</span>
+            </button>
+
             <button 
               type="button" 
               class="btn-floating-filter" 
@@ -469,8 +509,8 @@
               <!-- Origin Box: User's Current Location -->
               <div 
                 class="commute-origin-box" 
-                @click="requestUserLocation(false)" 
-                title="Click to detect/refresh your GPS position"
+                @click="showLocationPickerModal = true" 
+                title="Click to manually set, drag, or change starting point"
               >
                 <div class="origin-icon-badge user-origin-badge">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5">
@@ -480,9 +520,15 @@
                 </div>
                 <div class="origin-info-col">
                   <span class="origin-title">{{ userLocation.name }}</span>
-                  <span class="origin-gps-tag" :class="{ 'active': userLocation.isDetected, 'locating': userLocation.isLocating }">
-                    {{ userLocation.isLocating ? 'Locating...' : (userLocation.isDetected ? 'GPS Active' : 'Default Pin') }}
+                  <span class="origin-gps-tag" :class="{ 'active': userLocation.isDetected, 'locating': userLocation.isLocating, 'manual': userLocation.isManual }">
+                    {{ userLocation.isLocating ? 'Locating...' : (userLocation.isManual ? 'Manual Pin' : (userLocation.isDetected ? 'GPS Active' : 'Default Pin')) }}
                   </span>
+                </div>
+                <div class="origin-edit-badge" title="Edit location">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
                 </div>
               </div>
 
@@ -764,6 +810,90 @@
         <button type="button" class="btn-apply-filter" @click="isFilterPopoverOpen = false">Apply</button>
       </div>
     </div>
+
+    <!-- Manual Location Placer Modal -->
+    <transition name="modal-fade">
+      <div v-if="showLocationPickerModal" class="location-modal-overlay" @click.self="showLocationPickerModal = false">
+        <div class="location-modal-card" @click.stop>
+          <div class="loc-modal-header">
+            <div class="loc-header-title-group">
+              <div class="loc-icon-bubble">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.2">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="loc-modal-title">Set Starting Location</h3>
+                <p class="loc-modal-subtitle">Route calculations & travel times will measure from this point</p>
+              </div>
+            </div>
+            <button type="button" class="loc-modal-close" @click="showLocationPickerModal = false">✕</button>
+          </div>
+
+          <div class="loc-modal-body">
+            <!-- Current Location Status Card -->
+            <div class="current-loc-status-card">
+              <div class="loc-status-left">
+                <span class="loc-indicator-dot" :class="{ 'manual': userLocation.isManual, 'gps': userLocation.isDetected && !userLocation.isManual }"></span>
+                <div class="loc-name-col">
+                  <span class="current-loc-name">{{ userLocation.name }}</span>
+                  <span class="current-loc-coords">{{ userLocation.lat.toFixed(4) }}, {{ userLocation.lng.toFixed(4) }} &bull; {{ userLocation.isManual ? 'Manual Location' : (userLocation.isDetected ? 'Live GPS' : 'Default Location') }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Primary Action Buttons -->
+            <div class="loc-action-buttons-grid">
+              <button type="button" class="btn-loc-action primary" @click="startPickOnMap">
+                <div class="action-icon">📍</div>
+                <div class="action-text">
+                  <span class="action-bold">Pick on Map</span>
+                  <span class="action-hint">Click anywhere on the map to drop pin</span>
+                </div>
+              </button>
+
+              <button type="button" class="btn-loc-action" @click="handleGpsDetect" :disabled="userLocation.isLocating">
+                <div class="action-icon">🎯</div>
+                <div class="action-text">
+                  <span class="action-bold">{{ userLocation.isLocating ? 'Locating...' : 'Use Device GPS' }}</span>
+                  <span class="action-hint">Query browser GPS coordinates</span>
+                </div>
+              </button>
+            </div>
+
+            <!-- Drag Tip Box -->
+            <div class="loc-tip-box">
+              <span class="tip-icon">💡</span>
+              <span><strong>Drag & Drop:</strong> You can also grab and drag the blue location marker directly on the Google Map anytime!</span>
+            </div>
+
+            <!-- Phnom Penh Districts Presets -->
+            <div class="loc-presets-section">
+              <h4 class="presets-section-title">Or Choose Phnom Penh District</h4>
+              <div class="presets-pills-grid">
+                <button 
+                  v-for="preset in PHNOM_PENH_DISTRICTS" 
+                  :key="preset.name"
+                  type="button" 
+                  class="district-preset-pill"
+                  :class="{ 'is-active': userLocation.name.includes(preset.name) }"
+                  @click="selectDistrictPreset(preset)"
+                >
+                  <span class="preset-name">{{ preset.name }}</span>
+                  <span v-if="userLocation.name.includes(preset.name)" class="preset-check">✓</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="loc-modal-footer">
+            <button type="button" class="btn-loc-done" @click="showLocationPickerModal = false">Done</button>
+          </div>
+        </div>
+      </div>
+    </transition>
+
     <!-- Non-blocking toast -->
     <transition name="toast-fade">
       <div v-if="toast.visible" class="search-toast">
@@ -783,7 +913,7 @@ import { properties, globalSearchQuery, globalFilterState } from '../../store.js
 import { auth, db } from '../../firebase'
 import { doc, getDoc } from 'firebase/firestore'
 import { onAuthStateChanged } from 'firebase/auth'
-import { getCurrentCoordinates, reverseGeocodeCoordinates } from '../../services/locationService'
+import { getCurrentCoordinates, reverseGeocodeCoordinates, getNearestDistrict, DISTRICT_CENTERS } from '../../services/locationService'
 
 const router = useRouter()
 
@@ -833,6 +963,11 @@ const selectedProperty = ref(null)
 const isFullscreenNavExpanded = ref(false)
 const activeSlideIndex = ref(0)
 
+// Manual Location Placer State
+const isPickingLocationOnMap = ref(false)
+const showLocationPickerModal = ref(false)
+const PHNOM_PENH_DISTRICTS = DISTRICT_CENTERS
+
 // User Location state (Origin for commute calculations and map routing)
 const userLocation = ref({
   lat: 11.5621,
@@ -840,7 +975,8 @@ const userLocation = ref({
   name: 'Your Location',
   address: 'Phnom Penh, Cambodia',
   isLocating: false,
-  isDetected: false
+  isDetected: false,
+  isManual: false
 })
 
 const googleRouteData = ref({ distanceText: '', distanceKm: null, durationMin: null })
@@ -1064,8 +1200,14 @@ function mountMap() {
     isGoogleMapReady.value = true
     renderGoogleMarkers()
 
-    // Dismiss cards on map click or drag
-    googleMap.addListener('click', () => {
+    // Dismiss cards or place manual location on map click
+    googleMap.addListener('click', (e) => {
+      if (isPickingLocationOnMap.value && e.latLng) {
+        setManualLocation(e.latLng.lat(), e.latLng.lng())
+        isPickingLocationOnMap.value = false
+        showToast("✓ Starting location pin placed on map")
+        return
+      }
       dismissCards()
     })
     googleMap.addListener('dragstart', () => {
@@ -1117,22 +1259,29 @@ function renderGoogleMarkers() {
     googleMarkers.push(marker)
   })
 
-  // User Location Marker - origin on the map
+  // User Location Marker - origin on the map (draggable)
   const userPos = { lat: userLocation.value.lat, lng: userLocation.value.lng }
   if (userLocationMarker) {
     userLocationMarker.setPosition(userPos)
-    userLocationMarker.setTitle(userLocation.value.name)
+    userLocationMarker.setTitle(`${userLocation.value.name} (Drag to move or click to change)`)
     userLocationMarker.setMap(googleMap)
   } else {
     userLocationMarker = new window.google.maps.Marker({
       position: userPos,
       map: googleMap,
-      title: userLocation.value.name,
+      title: `${userLocation.value.name} (Drag to move or click to change)`,
       icon: getUserLocationMarkerIcon(),
+      draggable: true,
       zIndex: 95
     })
+    userLocationMarker.addListener('dragend', (e) => {
+      if (e.latLng) {
+        setManualLocation(e.latLng.lat(), e.latLng.lng())
+        showToast("✓ Location marker dragged to new position")
+      }
+    })
     userLocationMarker.addListener('click', () => {
-      requestUserLocation(false)
+      showLocationPickerModal.value = true
     })
   }
 
@@ -1397,6 +1546,81 @@ async function requestUserLocation(silent = false) {
   } finally {
     userLocation.value.isLocating = false
   }
+}
+
+function handleGpsDetect() {
+  showLocationPickerModal.value = false
+  userLocation.value.isManual = false
+  requestUserLocation(false)
+}
+
+function setManualLocation(lat, lng, customName = null) {
+  userLocation.value.lat = lat
+  userLocation.value.lng = lng
+  userLocation.value.isManual = true
+  userLocation.value.isDetected = true
+  
+  if (customName) {
+    userLocation.value.name = customName
+  } else {
+    try {
+      const nearest = getNearestDistrict(lat, lng)
+      userLocation.value.name = nearest ? `${nearest}` : 'Custom Location'
+    } catch {
+      userLocation.value.name = 'Custom Location'
+    }
+  }
+
+  // Also try reverse geocoding asynchronously to enrich address
+  reverseGeocodeCoordinates(lat, lng).then(res => {
+    if (res?.formattedAddress) {
+      userLocation.value.address = res.formattedAddress
+    }
+  }).catch(() => {})
+
+  if (isGoogleMapReady.value) {
+    renderGoogleMarkers()
+    if (selectedProperty.value) {
+      drawRouteLine()
+    }
+  }
+}
+
+function selectDistrictPreset(preset) {
+  setManualLocation(preset.lat, preset.lng, preset.name)
+  showLocationPickerModal.value = false
+  showToast(`✓ Starting point set to ${preset.name}`)
+}
+
+function startPickOnMap() {
+  showLocationPickerModal.value = false
+  isPickingLocationOnMap.value = true
+  showToast("📍 Click anywhere on the map to place your starting pin")
+}
+
+function handleVectorCanvasClick(e) {
+  if (isPickingLocationOnMap.value) {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const clickX = (e.clientX - rect.left) / rect.width
+    const clickY = (e.clientY - rect.top) / rect.height
+    
+    const minLat = 11.5300
+    const maxLat = 11.6050
+    const minLng = 104.8700
+    const maxLng = 104.9450
+    
+    const normX = Math.min(Math.max((clickX - 0.12) / 0.74, 0), 1)
+    const normY = Math.min(Math.max((clickY - 0.12) / 0.74, 0), 1)
+    
+    const lat = maxLat - normY * (maxLat - minLat)
+    const lng = minLng + normX * (maxLng - minLng)
+    
+    setManualLocation(lat, lng)
+    isPickingLocationOnMap.value = false
+    showToast("✓ Starting location pin placed")
+    return
+  }
+  dismissCards()
 }
 
 function resetFilters() {
@@ -3072,5 +3296,394 @@ watch(filteredProperties, () => {
   border-right: 5px solid transparent;
   border-top: 6px solid #1D4ED8;
   margin-top: -1px;
+}
+
+/* ======================================================== */
+/* MANUAL LOCATION PLACER STYLES                            */
+/* ======================================================== */
+.btn-set-loc-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 50px;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #1E293B;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.btn-set-loc-pill:hover {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+}
+
+.btn-set-loc-pill.is-manual {
+  background: #EFF6FF;
+  border-color: #93C5FD;
+  color: #1D4ED8;
+}
+
+.btn-floating-filter.loc-manual {
+  border-color: #93C5FD;
+  background: #EFF6FF;
+  color: #1D4ED8;
+}
+
+.origin-edit-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #F1F5F9;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+}
+
+.commute-origin-box:hover .origin-edit-badge {
+  background: #E2E8F0;
+  color: #1E293B;
+}
+
+.origin-gps-tag.manual {
+  color: #2563EB;
+}
+
+/* Active Map Pick Banner */
+.map-pick-indicator-banner {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  pointer-events: auto;
+}
+
+.pick-banner-content {
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #ffffff;
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.pick-pulse-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #3B82F6;
+  box-shadow: 0 0 12px #3B82F6;
+  animation: pulse 1s infinite;
+}
+
+.btn-cancel-pick {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #ffffff;
+  border-radius: 50px;
+  padding: 3px 12px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-cancel-pick:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* Location Picker Modal Overlay */
+.location-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.52);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.location-modal-card {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.loc-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.loc-header-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.loc-icon-bubble {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #EFF6FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.loc-modal-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1E293B;
+  margin: 0;
+}
+
+.loc-modal-subtitle {
+  font-size: 0.8rem;
+  color: #64748B;
+  margin: 2px 0 0;
+}
+
+.loc-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #94A3B8;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+
+.loc-modal-close:hover {
+  color: #334155;
+}
+
+.loc-modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  max-height: 65vh;
+}
+
+.current-loc-status-card {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.loc-status-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.loc-indicator-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #94A3B8;
+  flex-shrink: 0;
+}
+
+.loc-indicator-dot.gps {
+  background: #10B981;
+  box-shadow: 0 0 8px #10B981;
+}
+
+.loc-indicator-dot.manual {
+  background: #2563EB;
+  box-shadow: 0 0 8px #2563EB;
+}
+
+.loc-name-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.current-loc-name {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: #1E293B;
+}
+
+.current-loc-coords {
+  font-size: 0.74rem;
+  color: #64748B;
+}
+
+.loc-action-buttons-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.btn-loc-action {
+  background: #ffffff;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.18s ease;
+}
+
+.btn-loc-action:hover {
+  border-color: #3B82F6;
+  background: #F8FAFC;
+}
+
+.btn-loc-action.primary {
+  background: #EFF6FF;
+  border-color: #93C5FD;
+}
+
+.btn-loc-action.primary:hover {
+  background: #DBEAFE;
+}
+
+.btn-loc-action:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.action-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.action-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.action-bold {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1E293B;
+}
+
+.action-hint {
+  font-size: 0.72rem;
+  color: #64748B;
+  margin-top: 1px;
+}
+
+.loc-tip-box {
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  color: #92400E;
+  margin-bottom: 18px;
+}
+
+.tip-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.presets-section-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #475569;
+  margin: 0 0 10px;
+}
+
+.presets-pills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.district-preset-pill {
+  background: #ffffff;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 50px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.district-preset-pill:hover {
+  border-color: #CBD5E1;
+  background: #F8FAFC;
+}
+
+.district-preset-pill.is-active {
+  background: #2563EB;
+  color: #ffffff;
+  border-color: #2563EB;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
+}
+
+.preset-check {
+  font-weight: 800;
+}
+
+.loc-modal-footer {
+  padding: 14px 24px;
+  border-top: 1px solid #F1F5F9;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-loc-done {
+  background: #5C4E4E;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 24px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.btn-loc-done:hover {
+  background: #463B3B;
 }
 </style>
