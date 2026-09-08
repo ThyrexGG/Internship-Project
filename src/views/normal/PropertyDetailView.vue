@@ -83,7 +83,15 @@
             <span class="price-val">${{ property.price }}</span>
             <span class="price-period">/monthly</span>
           </div>
-          <button class="landlord-btn" @click="$router.push(`/landlord-profile/${property.id}?from=${route.query.from || ''}`)">Find out more Landlord Profile</button>
+          <div class="landlord-actions-row">
+            <button class="landlord-btn" @click="$router.push(`/landlord-profile/${property.id}?from=${route.query.from || ''}`)">Landlord Profile</button>
+            <button class="landlord-chat-btn" @click="router.push({ path: '/chat', query: { landlordId: `landlord_${property.id}`, contact: property.name + ' Host' } })">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              Chat Host
+            </button>
+          </div>
         </div>
       </section>
 
@@ -406,11 +414,41 @@ const reviews = [
 .price-val { font-size: 1.8rem; font-weight: 700; }
 .price-period { font-size: 0.85rem; font-weight: 600; color: #555; }
 
+.landlord-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .landlord-btn {
   background: #5C4E4E; color: #fff;
   border: none; border-radius: 8px;
   padding: 10px 18px; font-size: 0.9rem; font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.landlord-btn:hover {
+  background: #473B3B;
+}
+
+.landlord-chat-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  color: #5C4E4E;
+  border: 1.5px solid #5C4E4E;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.landlord-chat-btn:hover {
+  background: #F2EDE9;
 }
 
 /* ── ICONS DETAIL ── */

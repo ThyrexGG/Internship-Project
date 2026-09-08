@@ -218,6 +218,31 @@
         <div v-if="!isGoogleMapReady" class="interactive-fallback-canvas" @click="dismissCards">
           <div class="map-grid-overlay"></div>
           <div class="map-river-shape"></div>
+
+          <!-- SVG Vector Route Connector connecting selected property to destination -->
+          <svg v-if="selectedProperty" class="vector-route-svg">
+            <line 
+              :x1="getVectorPercentCoords(selectedProperty).left" 
+              :y1="getVectorPercentCoords(selectedProperty).top" 
+              :x2="getVectorPercentCoords(currentDestination).left" 
+              :y2="getVectorPercentCoords(currentDestination).top" 
+              stroke="#5C4E4E" 
+              stroke-width="3.5" 
+              stroke-dasharray="6,6"
+              stroke-linecap="round"
+            />
+          </svg>
+
+          <!-- Destination Pin on Vector Canvas -->
+          <div 
+            class="vector-dest-pin"
+            :style="getVectorPinStyle(currentDestination)"
+            :title="currentDestination.name"
+            @click.stop="toggleDestinationModal"
+          >
+            <div class="dest-pill">🎓 {{ currentDestination.name }}</div>
+            <div class="dest-pointer"></div>
+          </div>
           
           <!-- Interactive Property Markers placed on the vector canvas -->
           <div 
@@ -808,6 +833,8 @@ let googleMap = null
 let googleMarkers = []
 let destinationMarker = null
 let routePolyline = null
+let directionsService = null
+let directionsRenderer = null
 
 // Custom light grayscale map styling matching reference image
 const customMapStyles = [
@@ -900,6 +927,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  if (directionsRenderer) directionsRenderer.set('directions', null)
   if (routePolyline) routePolyline.setMap(null)
   window.removeEventListener('click', handleDocumentClick)
 })
@@ -907,8 +935,10 @@ onBeforeUnmount(() => {
 function dismissCards() {
   if (selectedProperty.value) {
     selectedProperty.value = null
+    if (directionsRenderer) directionsRenderer.set('directions', null)
     if (routePolyline) {
       routePolyline.setMap(null)
+      routePolyline = null
     }
     renderGoogleMarkers()
   }
@@ -954,10 +984,19 @@ function initGoogleMaps() {
     mountMap()
   }
 
+  // Prevent duplicate script tags
+  if (document.querySelector('script[src*="maps.googleapis.com"]')) {
+    return
+  }
+
   const script = document.createElement('script')
   script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMapCallback`
   script.async = true
   script.defer = true
+  script.onerror = () => {
+    console.warn("Notice: Google Maps API unavailable, vector map fallback remains active.")
+    isGoogleMapReady.value = false
+  }
   document.head.appendChild(script)
 }
 
@@ -972,6 +1011,17 @@ function mountMap() {
       disableDefaultUI: true,
       zoomControl: true,
       styles: customMapStyles
+    })
+
+    directionsService = new window.google.maps.DirectionsService()
+    directionsRenderer = new window.google.maps.DirectionsRenderer({
+      suppressMarkers: true,
+      polylineOptions: {
+        strokeColor: '#5C4E4E',
+        strokeOpacity: 0.85,
+        strokeWeight: 4
+      },
+      map: googleMap
     })
 
     isGoogleMapReady.value = true
@@ -998,7 +1048,7 @@ function mountMap() {
       })
     }
   } catch (err) {
-    console.warn("Google Maps init error:", err)
+    console.warn("Google Maps init notice:", err)
   }
 }
 
@@ -1030,39 +1080,76 @@ function renderGoogleMarkers() {
     googleMarkers.push(marker)
   })
 
-  // Destination Marker
-  if (!destinationMarker) {
+  // Destination Marker - updates position dynamically whenever currentDestination changes
+  const destPos = { lat: currentDestination.value.lat, lng: currentDestination.value.lng }
+  if (destinationMarker) {
+    destinationMarker.setPosition(destPos)
+    destinationMarker.setTitle(currentDestination.value.name)
+    destinationMarker.setMap(googleMap)
+  } else {
     destinationMarker = new window.google.maps.Marker({
-      position: { lat: currentDestination.value.lat, lng: currentDestination.value.lng },
+      position: destPos,
       map: googleMap,
       title: currentDestination.value.name,
-      icon: getDestinationMarkerIcon()
+      icon: getDestinationMarkerIcon(),
+      zIndex: 90
     })
   }
 
-  // Draw polyline route if property selected
+  // Draw real route if property selected
   if (selectedProperty.value) {
     drawRouteLine()
-  } else if (routePolyline) {
-    routePolyline.setMap(null)
+  } else {
+    if (directionsRenderer) directionsRenderer.set('directions', null)
+    if (routePolyline) {
+      routePolyline.setMap(null)
+      routePolyline = null
+    }
   }
 }
 
 function drawRouteLine() {
   if (!googleMap || !window.google?.maps || !selectedProperty.value) return
+  if (routePolyline) {
+    routePolyline.setMap(null)
+    routePolyline = null
+  }
+
+  const origin = { 
+    lat: Number(selectedProperty.value.lat) || 11.5900, 
+    lng: Number(selectedProperty.value.lng) || 104.9300 
+  }
+  const destination = { 
+    lat: Number(currentDestination.value.lat), 
+    lng: Number(currentDestination.value.lng) 
+  }
+
+  if (directionsService && directionsRenderer) {
+    directionsService.route({
+      origin,
+      destination,
+      travelMode: window.google.maps.TravelMode.DRIVING
+    }, (result, status) => {
+      if (status === 'OK' && result) {
+        directionsRenderer.setDirections(result)
+      } else {
+        // Fallback to direct geodesic polyline
+        drawDirectRouteLine(origin, destination)
+      }
+    })
+  } else {
+    drawDirectRouteLine(origin, destination)
+  }
+}
+
+function drawDirectRouteLine(origin, destination) {
+  if (directionsRenderer) directionsRenderer.set('directions', null)
   if (routePolyline) routePolyline.setMap(null)
-
-  const path = [
-    { lat: selectedProperty.value.lat || 11.5900, lng: selectedProperty.value.lng || 104.9300 },
-    { lat: 11.5750, lng: 104.9100 },
-    { lat: currentDestination.value.lat, lng: currentDestination.value.lng }
-  ]
-
   routePolyline = new window.google.maps.Polyline({
-    path,
+    path: [origin, destination],
     geodesic: true,
-    strokeColor: '#554848',
-    strokeOpacity: 0.8,
+    strokeColor: '#5C4E4E',
+    strokeOpacity: 0.85,
     strokeWeight: 4,
     map: googleMap
   })
@@ -1153,6 +1240,22 @@ function getVectorPinStyle(prop) {
   return {
     top: `${topPercent}%`,
     left: `${leftPercent}%`
+  }
+}
+
+function getVectorPercentCoords(target) {
+  if (!target || !target.lat || !target.lng) return { top: '50%', left: '50%' }
+  const minLat = 11.5300
+  const maxLat = 11.6050
+  const minLng = 104.8700
+  const maxLng = 104.9450
+  
+  const normY = Math.min(Math.max((maxLat - target.lat) / (maxLat - minLat), 0), 1)
+  const normX = Math.min(Math.max((target.lng - minLng) / (maxLng - minLng), 0), 1)
+  
+  return {
+    top: `${12 + normY * 74}%`,
+    left: `${12 + normX * 74}%`
   }
 }
 
@@ -2763,5 +2866,50 @@ watch(filteredProperties, () => {
   background: #10B981;
   box-shadow: 0 0 8px #10B981;
   animation: pulse 1.6s infinite;
+}
+
+.vector-route-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 8;
+}
+
+.vector-dest-pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  cursor: pointer;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.vector-dest-pin:hover {
+  transform: translate(-50%, -112%) scale(1.08);
+}
+
+.dest-pill {
+  background: #2A2421;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.78rem;
+  padding: 5px 12px;
+  border-radius: 50px;
+  box-shadow: 0 4px 14px rgba(42, 36, 33, 0.28);
+  border: 1.5px solid #453B36;
+  white-space: nowrap;
+}
+
+.dest-pointer {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid #2A2421;
+  margin-top: -1px;
 }
 </style>

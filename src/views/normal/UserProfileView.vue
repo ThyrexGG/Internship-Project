@@ -210,8 +210,8 @@ const goBack = () => {
 }
 
 const messageUser = () => {
-  const fullName = `${userInfo.value.firstName} ${userInfo.value.lastName}`.trim()
-  router.push({ path: '/chat', query: { contact: fullName } })
+  const fullName = `${userInfo.value.firstName} ${userInfo.value.lastName}`.trim() || 'Resident User'
+  router.push({ path: '/chat', query: { userId: route.params.id, contact: fullName } })
 }
 
 const toggleFriend = async () => {

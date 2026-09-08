@@ -1119,7 +1119,7 @@ import NotificationDropdown from '../../components/NotificationDropdown.vue'
 import { getCurrentCoordinates, reverseGeocodeCoordinates } from '../../services/locationService'
 import html2pdf from 'html2pdf.js'
 import { db, storage, auth } from '../../firebase.js'
-import { collection, addDoc, serverTimestamp, doc, deleteDoc, getDocs, updateDoc } from 'firebase/firestore'
+import { collection, addDoc, serverTimestamp, doc, deleteDoc, getDocs, updateDoc, setDoc } from 'firebase/firestore'
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 
 const route = useRoute()
@@ -1300,13 +1300,51 @@ function goToFullProfile() {
 }
 
 function openChatWithTenant() {
-  replyMessageText.value = "Hi Chlorinde, thank you for booking. Your request is currently under review!"
-  showReplyTenantModal.value = true
+  const tenantName = currentNotification.value?.tenantName || currentNotification.value?.applicantName || 'Chlorinde'
+  const tenantId = currentNotification.value?.applicantId || currentNotification.value?.userId || 'tenant_chlorinde_01'
+  router.push({
+    path: '/chat',
+    query: {
+      userId: tenantId,
+      contact: tenantName
+    }
+  })
 }
 
-function sendTenantMessage() {
+async function sendTenantMessage() {
   showReplyTenantModal.value = false
-  triggerToast("Message sent to Chlorinde!")
+  const text = replyMessageText.value.trim()
+  if (!text) return
+
+  const tenantName = currentNotification.value?.tenantName || currentNotification.value?.applicantName || 'Chlorinde'
+  const tenantId = currentNotification.value?.applicantId || currentNotification.value?.userId || 'tenant_chlorinde_01'
+  const myUid = auth.currentUser?.uid || 'landlord_skystar'
+  const chatId = [myUid, tenantId].sort().join('_')
+
+  try {
+    await addDoc(collection(db, 'chats', chatId, 'messages'), {
+      senderId: myUid,
+      senderName: auth.currentUser?.displayName || 'Property Landlord',
+      text,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: serverTimestamp(),
+      createdAt: serverTimestamp()
+    })
+    await setDoc(doc(db, 'chats', chatId), {
+      participants: [myUid, tenantId],
+      participantNames: {
+        [myUid]: auth.currentUser?.displayName || 'Property Landlord',
+        [tenantId]: tenantName
+      },
+      lastMessage: text,
+      lastMessageTime: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }, { merge: true })
+    triggerToast(`Message sent to ${tenantName}!`)
+  } catch (err) {
+    console.warn("Notice sending message from landlord:", err)
+    triggerToast(`Message queued for ${tenantName}!`)
+  }
 }
 
 async function confirmBooking() {

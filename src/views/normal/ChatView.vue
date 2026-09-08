@@ -482,160 +482,132 @@
 import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { db, auth } from '../../firebase'
-import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore'
+import { 
+  collection, 
+  addDoc, 
+  query, 
+  where, 
+  onSnapshot, 
+  serverTimestamp, 
+  doc, 
+  setDoc 
+} from 'firebase/firestore'
+import { onAuthStateChanged } from 'firebase/auth'
 
 const router = useRouter()
 const route = useRoute()
 const isSending = ref(false)
+
 let messagesUnsubscribe = null
+let chatsUnsubscribe = null
+
+// Current user state
+const currentAuthUser = ref(auth.currentUser)
+const currentUserId = computed(() => currentAuthUser.value?.uid || 'user_guest_01')
+const currentUserName = computed(() => {
+  return currentAuthUser.value?.displayName || 
+         currentAuthUser.value?.email?.split('@')[0] || 
+         'Resident User'
+})
+const currentUserAvatar = computed(() => {
+  return currentAuthUser.value?.photoURL || 
+         'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80'
+})
 
 // Top nav
-const userAvatar = ref('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80')
+const userAvatar = computed(() => currentUserAvatar.value)
 const showMoreOptions = ref(false)
 
 function goHome() {
   router.push('/home')
 }
 
-// Conversations list matching mockup
-const conversations = ref([
+// Seed starter contacts
+const defaultContacts = [
+  {
+    id: 'landlord_skystar',
+    targetId: 'landlord_skystar',
+    name: 'Skystar Asset Management',
+    preview: 'Hi! Your condo rental inquiry is welcome.',
+    time: 'Just now',
+    avatar: '/homesweet/c02ffd00-ccf6-448e-a21c-6202e14a9340.jpeg',
+    email: 'contact@skystar.com',
+    phone: '+855 23 888 999'
+  },
+  {
+    id: 'landlord_aurafa',
+    targetId: 'landlord_aurafa',
+    name: 'Aurafa Properties',
+    preview: 'Unit 201 is ready for viewing anytime.',
+    time: '20m',
+    avatar: '/homesweet/86af45b4-efa9-4714-84bb-c02232f793cc.jpeg',
+    email: 'info@aurafacondo.com',
+    phone: '+855 12 345 678'
+  },
   {
     id: 'meoww',
+    targetId: 'meoww',
     name: 'Meoww Zuckerberg',
-    preview: 'Hi, I\'m looking for a room to rent...',
-    time: 'Just now',
+    preview: "Hi, I'm looking for a room to rent...",
+    time: '1h',
     avatar: '/homesweet/meoww_cat.jpg',
     email: 'coconut123@gmail.com',
-    phone: '+855 92  401 458'
+    phone: '+855 92 401 458'
   },
   {
-    id: 'yim',
-    name: 'Yim Vatey',
-    preview: 'You: Where r you',
-    time: '1m',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80',
-    email: 'vatey.yim@gmail.com',
-    phone: '+855 12 345 678'
+    id: 'sophia_chea',
+    targetId: 'sophia_chea',
+    name: 'Sophia Chea',
+    preview: 'Is the apartment still available for this month?',
+    time: '3h',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80',
+    email: 'sophia.chea@example.com',
+    phone: '+855 12 888 123'
   },
   {
-    id: 'james',
-    name: 'James Son',
-    preview: 'You: Haha have fun',
-    time: '2m',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80',
-    email: 'jamesson@gmail.com',
-    phone: '+855 77 889 900'
-  },
-  {
-    id: 'muy',
-    name: 'Muy Leng',
-    preview: 'I almost there',
-    time: '5m',
-    avatar: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=100&q=80',
-    email: 'muyleng@gmail.com',
-    phone: '+855 88 123 456'
-  },
-  {
-    id: 'neav',
-    name: 'Neav Sveita',
-    preview: 'On my way there',
-    time: '7m',
-    avatar: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=100&q=80',
-    email: 'sveita.neav@gmail.com',
-    phone: '+855 93 456 789'
-  },
-  {
-    id: 'dave',
-    name: 'Dave Rim',
-    preview: 'Gogo !!!',
-    time: '10m',
-    avatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&q=80',
-    email: 'daverim@gmail.com',
-    phone: '+855 96 789 012'
-  },
-  {
-    id: 'yim2',
-    name: 'Yim Vatey',
-    preview: 'You: Where r you',
-    time: '1m',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80',
-    email: 'vatey.yim@gmail.com',
-    phone: '+855 12 345 678'
-  },
-  {
-    id: 'james2',
-    name: 'James Son',
-    preview: 'You: Haha have fun',
-    time: '2m',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80',
-    email: 'jamesson@gmail.com',
-    phone: '+855 77 889 900'
-  },
-  {
-    id: 'muy2',
-    name: 'Muy Leng',
-    preview: 'I almost there',
-    time: '5m',
-    avatar: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=100&q=80',
-    email: 'muyleng@gmail.com',
-    phone: '+855 88 123 456'
-  },
-  {
-    id: 'neav2',
-    name: 'Neav Sveita',
-    preview: 'On my way there',
-    time: '7m',
-    avatar: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=100&q=80',
-    email: 'sveita.neav@gmail.com',
-    phone: '+855 93 456 789'
-  },
-  {
-    id: 'dave2',
-    name: 'Dave Rim',
-    preview: 'Gogo !!!',
-    time: '10m',
-    avatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&q=80',
-    email: 'daverim@gmail.com',
-    phone: '+855 96 789 012'
+    id: 'dara_sok',
+    targetId: 'dara_sok',
+    name: 'Dara Sok',
+    preview: 'Thanks for the quick response!',
+    time: 'Yesterday',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80',
+    email: 'dara.sok@example.com',
+    phone: '+855 16 889 900'
   }
-])
+]
+
+// Dynamic conversations list
+const conversations = ref([...defaultContacts])
 
 // Currently selected contact
 const selectedContact = ref(conversations.value[0])
 
-// Chat history mapped by contact ID
+// Helper: deterministic room ID between two users
+function getDeterministicChatId(uidA, uidB) {
+  const safeA = String(uidA || 'guest_a').trim()
+  const safeB = String(uidB || 'guest_b').trim()
+  return [safeA, safeB].sort().join('_')
+}
+
+// In-memory fallback message history
 const messageHistory = ref({
+  landlord_skystar: [
+    {
+      sender: 'them',
+      text: "Hello! Welcome to Skystar Asset Management. Feel free to ask any questions about our listings.",
+      timestamp: '10:00 AM'
+    }
+  ],
   meoww: [
     {
       sender: 'them',
-      text: "Hi, I'm looking for a room to rent. Preferably in a safe area, with good internet and near public transportation. My budget is around $70 per month. I plan to move in on this month. Please let me know if you have any available rooms. Thank you!",
+      text: "Hi, I'm looking for a room to rent in a safe area with good wifi. Budget is around $150-200. Let me know if you have availability!",
       timestamp: '12:00 AM'
-    },
-    {
-      sender: 'me',
-      text: "Hi, I'm looking for a room to rent. Preferably in a safe area, with good internet and near public transportation. My budget is around $70 per month. I plan to move in on this month. Please let me know if you have any available rooms. Thank you!"
     }
-  ],
-  yim: [
-    { sender: 'them', text: 'Hey! Are you still at the condo?' },
-    { sender: 'me', text: 'Where r you' }
-  ],
-  james: [
-    { sender: 'them', text: 'Check out this awesome apartment listing!' },
-    { sender: 'me', text: 'Haha have fun' }
-  ],
-  muy: [
-    { sender: 'them', text: 'I almost there' }
-  ],
-  neav: [
-    { sender: 'them', text: 'On my way there' }
-  ],
-  dave: [
-    { sender: 'them', text: 'Gogo !!!' }
   ]
 })
 
-const currentMessages = ref(messageHistory.value.meoww)
+const currentMessages = ref([])
 const messageInput = ref('')
 const messagesContainerRef = ref(null)
 
@@ -668,30 +640,21 @@ function triggerPhotoUpload() {
   if (photoInputRef.value) photoInputRef.value.click()
 }
 
-function onDocSelected(e) {
+async function onDocSelected(e) {
   const file = e.target.files[0]
   if (!file) return
-  currentMessages.value.push({
-    sender: 'me',
-    text: `📎 Document: ${file.name} (${Math.round(file.size / 1024)} KB)`,
-    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  })
-  scrollToBottom()
+  const docName = `📎 Document: ${file.name} (${Math.round(file.size / 1024)} KB)`
+  await sendCustomMessage(docName, null)
   e.target.value = ''
 }
 
-function onPhotoSelected(e) {
+async function onPhotoSelected(e) {
   const file = e.target.files[0]
   if (!file) return
   const reader = new FileReader()
-  reader.onload = (evt) => {
-    currentMessages.value.push({
-      sender: 'me',
-      image: evt.target.result,
-      text: '',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    })
-    scrollToBottom()
+  reader.onload = async (evt) => {
+    const dataUrl = evt.target.result
+    await sendCustomMessage('', dataUrl)
   }
   reader.readAsDataURL(file)
   e.target.value = ''
@@ -784,8 +747,6 @@ const showMediaModal = ref(false)
 const showThemeModal = ref(false)
 const showPinnedModal = ref(false)
 const showReportModal = ref(false)
-const reportReason = ref('spam')
-const chatTheme = ref('default')
 
 const toast = reactive({ visible: false, message: '' })
 function showToast(msg) {
@@ -806,12 +767,14 @@ function toggleBlockContact() {
 
 function viewProfile() {
   showMoreOptions.value = false
-  router.push('/user-profile/1')
+  const targetId = selectedContact.value.targetId || selectedContact.value.id
+  router.push(`/user-profile/${targetId}`)
 }
 
-function submitReport() {
-  showReportModal.value = false
-  showToast('Report submitted for review. Thank you!')
+function confirmDeleteChat() {
+  showMoreOptions.value = false
+  currentMessages.value = []
+  showToast(`Chat history with ${selectedContact.value.name} cleared.`)
 }
 
 function alertAction(actionName) {
@@ -829,90 +792,188 @@ function alertAction(actionName) {
     toggleMuteContact()
   } else if (actionName === 'Pinned messages') {
     showPinnedModal.value = true
-  } else if (actionName === 'Report') {
-    showReportModal.value = true
   } else if (actionName === 'Block') {
     toggleBlockContact()
   }
 }
 
-function confirmDeleteChat() {
-  showMoreOptions.value = false
-  currentMessages.value = []
-  showToast(`Chat history with ${selectedContact.value.name} cleared.`)
+// Setup real-time listener for current user's chats in Firestore
+function listenToUserChats() {
+  if (chatsUnsubscribe) {
+    chatsUnsubscribe()
+    chatsUnsubscribe = null
+  }
+
+  const myUid = currentUserId.value
+  try {
+    const chatsQuery = query(
+      collection(db, 'chats'),
+      where('participants', 'array-contains', myUid)
+    )
+
+    chatsUnsubscribe = onSnapshot(chatsQuery, (snapshot) => {
+      if (!snapshot.empty) {
+        const liveChats = []
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data()
+          const otherId = (data.participants || []).find(p => p !== myUid) || 'unknown'
+          const name = data.participantNames?.[otherId] || 
+                       data.recipientName || 
+                       (otherId === 'admin' ? 'HomeSweet Support' : `User (${otherId.slice(0, 6)})`)
+          const avatar = data.participantAvatars?.[otherId] || 
+                         'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80'
+
+          let timeStr = 'Just now'
+          if (data.lastMessageTime?.toDate) {
+            timeStr = data.lastMessageTime.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }
+
+          liveChats.push({
+            id: docSnap.id,
+            targetId: otherId,
+            name,
+            preview: data.lastMessage || 'Open conversation',
+            time: timeStr,
+            avatar,
+            email: `${name.toLowerCase().replace(/\s+/g, '')}@homesweet.com`,
+            phone: '+855 12 345 678',
+            rawTimestamp: data.lastMessageTime?.toMillis ? data.lastMessageTime.toMillis() : Date.now()
+          })
+        })
+
+        // Sort recent chats first
+        liveChats.sort((a, b) => b.rawTimestamp - a.rawTimestamp)
+
+        // Merge live chats with default contacts avoiding duplicates
+        const merged = [...liveChats]
+        defaultContacts.forEach(dc => {
+          if (!merged.some(c => c.targetId === dc.targetId || c.name.toLowerCase() === dc.name.toLowerCase())) {
+            merged.push(dc)
+          }
+        })
+        conversations.value = merged
+      }
+    }, (err) => {
+      console.warn("Notice subscribing to chats:", err)
+    })
+  } catch (err) {
+    console.warn("Chats listener initialization notice:", err)
+  }
 }
 
-onMounted(() => {
-  if (route.query.contact) {
-    const matched = conversations.value.find(c => c.name.toLowerCase() === route.query.contact.toLowerCase())
-    if (matched) {
-      selectContact(matched)
-    } else {
-      const newContact = {
-        id: 'contact_' + Date.now(),
-        name: route.query.contact,
-        preview: 'New conversation',
-        time: 'Just now',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&q=80',
-        email: `${route.query.contact.toLowerCase().replace(/\s+/g, '')}@homesweet.com`,
-        phone: '+855 12 888 999'
-      }
-      conversations.value.unshift(newContact)
-      selectContact(newContact)
-    }
-  }
-})
-
+// Select contact and attach messages subcollection listener
 function selectContact(contact) {
   selectedContact.value = contact
-  if (!messageHistory.value[contact.id]) {
-    messageHistory.value[contact.id] = [
-      {
-        sender: 'them',
-        text: `Hi! This is ${contact.name}. Are you available to chat?`,
-        timestamp: 'Just now'
-      }
-    ]
-  }
-  setupMessagesListener(contact.id)
+  setupMessagesListener(contact)
 }
 
-function setupMessagesListener(contactId) {
+function setupMessagesListener(contact) {
   if (messagesUnsubscribe) {
     messagesUnsubscribe()
     messagesUnsubscribe = null
   }
 
-  currentMessages.value = [...(messageHistory.value[contactId] || [])]
+  const myUid = currentUserId.value
+  const targetId = contact.targetId || contact.id
+  const chatId = getDeterministicChatId(myUid, targetId)
+
+  // Initialize in-memory fallback messages
+  const fallback = messageHistory.value[targetId] || [
+    {
+      sender: 'them',
+      text: `Hi! This is ${contact.name}. How can I assist you with your rental?`,
+      timestamp: 'Just now'
+    }
+  ]
+  currentMessages.value = [...fallback]
 
   try {
-    const q = query(
-      collection(db, 'messages'),
-      where('conversationId', '==', contactId),
-      orderBy('createdAt', 'asc')
-    )
-
-    messagesUnsubscribe = onSnapshot(q, (snapshot) => {
+    const msgsColl = collection(db, 'chats', chatId, 'messages')
+    messagesUnsubscribe = onSnapshot(msgsColl, (snapshot) => {
       if (!snapshot.empty) {
         const liveList = []
         snapshot.forEach(d => {
           const m = d.data()
           liveList.push({
             id: d.id,
-            sender: m.senderId === (auth.currentUser?.uid || 'user_me') ? 'me' : 'them',
+            sender: m.senderId === myUid ? 'me' : 'them',
             text: m.text || '',
             image: m.image || null,
-            timestamp: m.timestamp || 'Just now'
+            timestamp: m.time || m.timestamp || 'Just now',
+            rawTime: m.createdAt?.toMillis ? m.createdAt.toMillis() : (m.timestamp?.toMillis ? m.timestamp.toMillis() : 0)
           })
         })
+        // Sort chronologically in memory
+        liveList.sort((a, b) => a.rawTime - b.rawTime)
         currentMessages.value = liveList
         scrollToBottom()
       }
     }, (err) => {
-      console.warn("Realtime message subscription notice:", err)
+      console.warn("Realtime message subcollection notice:", err)
     })
   } catch (err) {
     console.warn("Realtime messaging listener notice:", err)
+  }
+}
+
+async function sendCustomMessage(text, image = null) {
+  if (!text && !image) return
+  isSending.value = true
+
+  const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  const myUid = currentUserId.value
+  const targetId = selectedContact.value.targetId || selectedContact.value.id
+  const chatId = getDeterministicChatId(myUid, targetId)
+
+  // Optimistic UI push
+  const optimisticMsg = {
+    sender: 'me',
+    text: text || '',
+    image: image || null,
+    timestamp: timeStr,
+    rawTime: Date.now()
+  }
+  currentMessages.value.push(optimisticMsg)
+  scrollToBottom()
+
+  // Update conversation preview in sidebar
+  const conv = conversations.value.find(c => (c.targetId || c.id) === targetId)
+  if (conv) {
+    conv.preview = text ? `You: ${text}` : 'You sent an image'
+    conv.time = 'Just now'
+  }
+
+  try {
+    // 1. Add message to subcollection
+    await addDoc(collection(db, 'chats', chatId, 'messages'), {
+      senderId: myUid,
+      senderName: currentUserName.value,
+      text: text || '',
+      image: image || null,
+      time: timeStr,
+      timestamp: serverTimestamp(),
+      createdAt: serverTimestamp()
+    })
+
+    // 2. Update parent conversation metadata
+    await setDoc(doc(db, 'chats', chatId), {
+      participants: [myUid, targetId],
+      participantNames: {
+        [myUid]: currentUserName.value,
+        [targetId]: selectedContact.value.name || 'Recipient'
+      },
+      participantAvatars: {
+        [myUid]: currentUserAvatar.value,
+        [targetId]: selectedContact.value.avatar || ''
+      },
+      lastMessage: text || 'Sent an image',
+      lastMessageTime: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }, { merge: true })
+  } catch (err) {
+    console.warn('Notice saving message to Firestore:', err)
+  } finally {
+    isSending.value = false
   }
 }
 
@@ -920,38 +981,7 @@ async function sendMessage() {
   if (!messageInput.value.trim() || isSending.value) return
   const text = messageInput.value.trim()
   messageInput.value = ''
-  isSending.value = true
-
-  const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  const newMsgObj = {
-    sender: 'me',
-    text: text,
-    timestamp: timeStr
-  }
-  currentMessages.value.push(newMsgObj)
-  scrollToBottom()
-
-  // Update conversation preview in sidebar
-  const conv = conversations.value.find(c => c.id === selectedContact.value.id)
-  if (conv) {
-    conv.preview = `You: ${text}`
-    conv.time = 'Just now'
-  }
-
-  try {
-    await addDoc(collection(db, 'messages'), {
-      conversationId: selectedContact.value.id,
-      senderId: auth.currentUser?.uid || 'user_me',
-      senderName: auth.currentUser?.displayName || 'Resident',
-      text: text,
-      timestamp: timeStr,
-      createdAt: serverTimestamp()
-    })
-  } catch (err) {
-    console.warn('Notice saving message to Firestore:', err)
-  } finally {
-    isSending.value = false
-  }
+  await sendCustomMessage(text, null)
 }
 
 function scrollToBottom() {
@@ -962,8 +992,47 @@ function scrollToBottom() {
   })
 }
 
+function insertEmoji() {
+  messageInput.value += ' 😊 '
+}
+
 onMounted(() => {
-  setupMessagesListener(selectedContact.value.id)
+  // Listen for auth state changes to dynamically resolve user
+  onAuthStateChanged(auth, (user) => {
+    currentAuthUser.value = user
+    listenToUserChats()
+  })
+
+  // Deep-link query parameters
+  const queryTargetId = route.query.userId || route.query.landlordId
+  const queryContactName = route.query.contact
+
+  if (queryTargetId || queryContactName) {
+    const matched = conversations.value.find(c => {
+      if (queryTargetId && (c.targetId === queryTargetId || c.id === queryTargetId)) return true
+      if (queryContactName && c.name.toLowerCase() === queryContactName.toLowerCase()) return true
+      return false
+    })
+
+    if (matched) {
+      selectContact(matched)
+    } else {
+      const newContact = {
+        id: queryTargetId || 'contact_' + Date.now(),
+        targetId: queryTargetId || 'contact_' + Date.now(),
+        name: queryContactName || `Host (${(queryTargetId || '').slice(0, 6)})`,
+        preview: 'Start a new conversation',
+        time: 'Just now',
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&q=80',
+        email: `${(queryContactName || 'contact').toLowerCase().replace(/\s+/g, '')}@homesweet.com`,
+        phone: '+855 12 888 999'
+      }
+      conversations.value.unshift(newContact)
+      selectContact(newContact)
+    }
+  } else {
+    selectContact(conversations.value[0])
+  }
 })
 
 onUnmounted(() => {
@@ -971,11 +1040,11 @@ onUnmounted(() => {
     messagesUnsubscribe()
     messagesUnsubscribe = null
   }
+  if (chatsUnsubscribe) {
+    chatsUnsubscribe()
+    chatsUnsubscribe = null
+  }
 })
-
-function insertEmoji() {
-  messageInput.value += ' 😊 '
-}
 </script>
 
 <style scoped>

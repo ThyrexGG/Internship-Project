@@ -419,41 +419,45 @@ function messageLandlord() {
   showChatModal.value = true
 }
 
-function getChatId(uid, recipientName) {
-  return [uid, recipientName].sort().join('_');
-}
-
 async function sendDirectMessage() {
-  if (!chatMessage.value.trim()) return
+  const text = chatMessage.value.trim()
+  if (!text) return
   isSendingMessage.value = true
   
-  const text = chatMessage.value.trim()
-  const landlordName = landlordInfo.value.firstName + ' ' + landlordInfo.value.lastName
+  const landlordId = route.params.id ? `landlord_${route.params.id}` : 'landlord_skystar'
+  const landlordName = `${landlordInfo.value.firstName} ${landlordInfo.value.lastName}`.trim() || 'Landlord'
   
   if (currentAuthUser.value) {
-    const chatId = getChatId(currentAuthUser.value.uid, landlordName);
+    const chatId = [currentAuthUser.value.uid, landlordId].sort().join('_')
     const msg = {
       senderId: currentAuthUser.value.uid,
+      senderName: currentAuthUser.value.displayName || 'Resident',
       text,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      timestamp: serverTimestamp()
-    };
+      timestamp: serverTimestamp(),
+      createdAt: serverTimestamp()
+    }
     
     try {
-      await addDoc(collection(db, 'chats', chatId, 'messages'), msg);
+      await addDoc(collection(db, 'chats', chatId, 'messages'), msg)
       await setDoc(doc(db, 'chats', chatId), {
-        participants: [currentAuthUser.value.uid, landlordName],
+        participants: [currentAuthUser.value.uid, landlordId],
+        participantNames: {
+          [currentAuthUser.value.uid]: currentAuthUser.value.displayName || 'Resident',
+          [landlordId]: landlordName
+        },
+        participantAvatars: {
+          [currentAuthUser.value.uid]: currentAuthUser.value.photoURL || '',
+          [landlordId]: landlordInfo.value.avatar || ''
+        },
         lastMessage: text,
-        lastMessageTime: serverTimestamp()
-      }, { merge: true });
+        lastMessageTime: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }, { merge: true })
     } catch(e) {
-      console.error("Error sending message to landlord:", e);
+      console.warn("Notice sending message to landlord:", e)
     }
   }
-  
-  // Set active tab in sessionStorage and redirect to home messages page
-  sessionStorage.setItem('homeActiveTab', 'messages')
-  sessionStorage.setItem('activeChatRecipient', landlordName)
   
   setTimeout(() => {
     isSendingMessage.value = false
@@ -461,9 +465,15 @@ async function sendDirectMessage() {
     showSuccessToast.value = true
     setTimeout(() => {
       showSuccessToast.value = false
-      router.push('/home')
-    }, 1500)
-  }, 1000)
+      router.push({
+        path: '/chat',
+        query: {
+          landlordId,
+          contact: landlordName
+        }
+      })
+    }, 1200)
+  }, 800)
 }
 
 function shareProfile() {
