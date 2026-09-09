@@ -536,11 +536,11 @@ function proceedAnyway() {
 /* Tips Card */
 .tips-card {
   border: 1px solid #EDE8E3;
-  border-radius: 14px;
-  padding: 18px 20px;
+  border-radius: 16px;
+  padding: 22px 24px;
   background: #FAF8F5;
   margin-bottom: 24px;
-  box-shadow: 0 1px 3px rgba(92,78,78,0.02);
+  box-shadow: 0 2px 8px rgba(92,78,78,0.03);
 }
 
 .tips-header {
@@ -584,11 +584,11 @@ function proceedAnyway() {
 }
 
 .ring-correct {
-  border: 2px solid #2E7D32;
+  border: 2px solid #16a34a;
 }
 
 .ring-incorrect {
-  border: 2px solid #DC2626;
+  border: 2px solid #dc2626;
 }
 
 .tip-avatar-img {
@@ -600,54 +600,59 @@ function proceedAnyway() {
 .label-status {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.82rem;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
   font-weight: 700;
 }
 
 .status-correct {
-  color: #2E7D32;
+  background: #dcfce7;
+  color: #15803d;
 }
 
 .status-incorrect {
-  color: #DC2626;
+  background: #fee2e2;
+  color: #dc2626;
 }
 
 .checklist {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   padding-top: 4px;
 }
 
 .check-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-size: 0.88rem;
   font-weight: 500;
   color: #2A2421;
 }
 
 .check-good {
-  color: #2E7D32;
+  color: #15803d;
 }
 
 .check-bad {
-  color: #DC2626;
+  color: #dc2626;
 }
 
 /* Primary Action Button */
 .btn-primary-action {
   width: 100%;
-  padding: 14px 20px;
+  height: 48px;
+  padding: 0 20px;
   background: #5C4E4E;
   color: #ffffff;
   border: none;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: 12px;
+  font-size: 0.98rem;
+  font-weight: 700;
   font-family: inherit;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -658,6 +663,7 @@ function proceedAnyway() {
 .btn-primary-action:hover:not(:disabled) {
   background: #473B3B;
   box-shadow: 0 6px 16px rgba(92, 78, 78, 0.25);
+  transform: translateY(-1px);
 }
 
 .btn-primary-action:disabled {

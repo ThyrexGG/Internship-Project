@@ -258,38 +258,38 @@ function handleCompleteAndGoToAccount() {
 
 /* Dynamic Instruction Card */
 .liveness-prompt-card {
-  border: 1.5px solid #EDE8E3;
-  border-radius: 14px;
-  background: #FAF8F5;
+  border: 1.5px solid #E9D5FF;
+  border-radius: 16px;
+  background: #FAF5FF;
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 8px rgba(92, 78, 78, 0.04);
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(147, 51, 234, 0.05);
 }
 
 .prompt-icon-badge {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #F4EDEA;
+  background: #F3E8FF;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #5C4E4E;
+  color: #9333EA;
 }
 
 .prompt-instruction-text {
   font-size: 1rem;
   font-weight: 700;
-  color: #5C4E4E;
+  color: #581C87;
   text-align: center;
 }
 
 .text-verified {
-  color: #2E7D32 !important;
+  color: #15803D !important;
 }
 
 /* Stream Wrapper */
@@ -297,13 +297,14 @@ function handleCompleteAndGoToAccount() {
   position: relative;
   width: 100%;
   height: 260px;
-  border-radius: 14px;
+  border-radius: 18px;
   background: #2A2421;
   overflow: hidden;
   margin-bottom: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid #EDE8E3;
 }
 
 .camera-stream-video {
@@ -374,13 +375,14 @@ function handleCompleteAndGoToAccount() {
 /* Action Button */
 .btn-primary-action {
   width: 100%;
-  padding: 14px 20px;
+  height: 48px;
+  padding: 0 20px;
   background: #5C4E4E;
   color: #ffffff;
   border: none;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: 12px;
+  font-size: 0.98rem;
+  font-weight: 700;
   font-family: inherit;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -391,6 +393,7 @@ function handleCompleteAndGoToAccount() {
 .btn-primary-action:hover:not(:disabled) {
   background: #473B3B;
   box-shadow: 0 6px 16px rgba(92, 78, 78, 0.25);
+  transform: translateY(-1px);
 }
 
 .btn-primary-action:disabled {

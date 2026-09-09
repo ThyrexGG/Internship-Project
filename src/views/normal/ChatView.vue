@@ -1407,7 +1407,7 @@ onUnmounted(() => {
   flex: 1;
   display: flex;
   align-items: center;
-  border: 1.5px solid #D1D5DB;
+  border: 1.5px solid #E2E8F0;
   border-radius: 9999px;
   height: 44px;
   padding: 0 16px;

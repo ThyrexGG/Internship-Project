@@ -291,51 +291,52 @@ const toggleFriend = async () => {
 .profile-actions { display: flex; gap: 12px; margin-bottom: 12px; }
 .message-btn {
   display: flex; align-items: center; gap: 8px; padding: 12px 28px;
-  background: #5C4E4E; color: #fff; border: none; border-radius: 24px;
-  font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: background 0.2s;
+  background: #5C4E4E; color: #fff; border: none; border-radius: 9999px;
+  font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(92, 78, 78, 0.15);
 }
-.message-btn:hover { background: #4a3d3d; }
+.message-btn:hover { background: #473B3B; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(92, 78, 78, 0.25); }
 .action-btn {
   display: flex; align-items: center; gap: 8px; padding: 12px 28px;
-  background: #fff; color: #5C4E4E; border: 1px solid #5C4E4E; border-radius: 24px;
-  font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  background: #fff; color: #5C4E4E; border: 1.5px solid #5C4E4E; border-radius: 9999px;
+  font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
 }
-.action-btn:hover { background: #f7f7f7; }
+.action-btn:hover { background: #FAF8F5; transform: translateY(-1px); }
 .action-btn.friend-added { background: #5C4E4E; color: #fff; }
 
 /* Tabs */
 .profile-tabs-section {
-  max-width: 1000px; margin: 40px auto 0; padding: 0 32px;
-  border-bottom: 1px solid #eaeaea;
+  max-width: 1000px; margin: 36px auto 0; padding: 0 32px;
+  border-bottom: 1px solid #EDE8E3;
 }
 .tabs-wrapper { display: flex; justify-content: space-between; align-items: center; }
 .tab-buttons { display: flex; gap: 32px; }
 .tab-btn {
-  padding: 0 0 16px; background: none; border: none; border-bottom: 3px solid transparent;
-  font-size: 1.05rem; font-weight: 600; color: #666; cursor: pointer;
+  padding: 0 0 14px; background: none; border: none; border-bottom: 3px solid transparent;
+  font-size: 1rem; font-weight: 600; color: #8C7E7E; cursor: pointer;
   transition: all 0.2s; font-family: 'DM Sans', sans-serif;
 }
-.tab-btn:hover { color: #5C4E4E; }
-.tab-btn.active { color: #5C4E4E; border-bottom-color: #5C4E4E; }
+.tab-btn:hover { color: #2A2421; }
+.tab-btn.active { color: #5C4E4E; font-weight: 700; border-bottom-color: #5C4E4E; }
 
 /* Main Content */
-.profile-content { max-width: 1000px; margin: 40px auto; padding: 0 32px; width: 100%; flex: 1; }
+.profile-content { max-width: 1000px; margin: 36px auto; padding: 0 32px; width: 100%; flex: 1; }
 .tab-pane { animation: fadeIn 0.4s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 /* Info Pane */
 .info-list-container {
-  background: #fff; border-radius: 20px; padding: 32px; border: 1px solid #eaeaea; box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-  display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 600px;
+  background: #FAF8F5; border-radius: 20px; padding: 32px 36px; border: 1px solid #EDE8E3; box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+  display: grid; grid-template-columns: 1fr; gap: 18px; max-width: 640px; margin: 0 auto;
 }
-.info-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #eaeaea; padding-bottom: 16px; }
+.info-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #EDE8E3; padding-bottom: 16px; }
 .info-row:last-child { border-bottom: none; padding-bottom: 0; }
-.info-label { font-size: 1rem; color: #666; font-weight: 500; }
-.info-value { font-size: 1.05rem; color: #5C4E4A; font-weight: 600; text-align: right; }
+.info-label { font-size: 0.95rem; color: #8C7E7E; font-weight: 500; }
+.info-value { font-size: 1rem; color: #2A2421; font-weight: 600; text-align: right; }
 
 .empty-state {
-  background: #fff; border-radius: 20px; padding: 60px 32px; border: 1px solid #eaeaea; box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-  text-align: center; color: #666; font-size: 1.1rem;
+  background: #FAF8F5; border-radius: 20px; padding: 60px 32px; border: 1px solid #EDE8E3; box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+  text-align: center; color: #8C7E7E; font-size: 1rem; max-width: 640px; margin: 0 auto;
 }
 
 @media (max-width: 900px) {

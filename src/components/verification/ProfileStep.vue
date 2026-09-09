@@ -624,22 +624,31 @@ async function handleSaveAndContinue() {
 .avatar-section {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding-bottom: 8px;
+  gap: 18px;
+  padding: 18px 20px;
+  background: #FAF8F5;
+  border: 1px solid #EDE8E3;
+  border-radius: 16px;
 }
 
 .avatar-preview-wrapper {
-  width: 52px;
-  height: 52px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  background: #FAF8F5;
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   cursor: pointer;
-  border: 1px solid #EDE8E3;
+  border: 2px solid #EDE8E3;
   flex-shrink: 0;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.avatar-preview-wrapper:hover {
+  border-color: #5C4E4E;
+  transform: scale(1.03);
 }
 
 .avatar-image {
@@ -658,27 +667,28 @@ async function handleSaveAndContinue() {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
+  gap: 6px;
 }
 
 .btn-upload-photo {
   background: #ffffff;
-  border: 1px solid #5C4E4E;
+  border: 1.5px solid #5C4E4E;
   border-radius: 9999px;
   color: #5C4E4E;
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 5px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 6px 16px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .btn-upload-photo:hover {
-  background: #FAF8F5;
+  background: #5C4E4E;
+  color: #ffffff;
 }
 
 .avatar-hint {
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   color: #8C7E7E;
 }
 
@@ -690,7 +700,11 @@ async function handleSaveAndContinue() {
 .form-group-section {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
+  background: #FAF8F5;
+  border: 1px solid #EDE8E3;
+  border-radius: 16px;
+  padding: 22px 24px;
 }
 
 .group-title {
@@ -698,24 +712,26 @@ async function handleSaveAndContinue() {
   font-weight: 700;
   color: #2A2421;
   margin-bottom: 2px;
+  letter-spacing: -0.01em;
 }
 
 .field-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .field-label {
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   font-weight: 600;
   color: #5C4E4E;
 }
 
 .custom-input {
   width: 100%;
-  padding: 12px 14px;
-  border: 1.5px solid #D1D5DB;
+  height: 44px;
+  padding: 0 14px;
+  border: 1.5px solid #E2E8F0;
   border-radius: 10px;
   font-size: 0.92rem;
   font-family: inherit;
@@ -743,8 +759,9 @@ async function handleSaveAndContinue() {
 
 .custom-select {
   width: 100%;
-  padding: 12px 36px 12px 14px;
-  border: 1.5px solid #D1D5DB;
+  height: 44px;
+  padding: 0 36px 0 14px;
+  border: 1.5px solid #E2E8F0;
   border-radius: 10px;
   font-size: 0.92rem;
   font-family: inherit;
@@ -764,7 +781,7 @@ async function handleSaveAndContinue() {
 
 .select-chevron {
   position: absolute;
-  right: 12px;
+  right: 14px;
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
@@ -778,14 +795,15 @@ async function handleSaveAndContinue() {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-top: 12px;
+  margin-top: 8px;
   padding-top: 12px;
 }
 
 .btn-skip {
-  padding: 12px 28px;
-  border: 1px solid #EDE8E3;
-  border-radius: 10px;
+  height: 48px;
+  padding: 0 28px;
+  border: 1.5px solid #EDE8E3;
+  border-radius: 12px;
   background: #ffffff;
   color: #5C4E4E;
   font-weight: 600;
@@ -803,12 +821,13 @@ async function handleSaveAndContinue() {
 
 .btn-save-continue {
   flex: 1;
-  padding: 14px 28px;
+  height: 48px;
+  padding: 0 28px;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   background: #5C4E4E;
   color: #ffffff;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.95rem;
   font-family: inherit;
   cursor: pointer;
@@ -819,6 +838,7 @@ async function handleSaveAndContinue() {
 .btn-save-continue:hover:not(:disabled) {
   background: #473B3B;
   box-shadow: 0 6px 16px rgba(92, 78, 78, 0.25);
+  transform: translateY(-1px);
 }
 
 .btn-save-continue:disabled {

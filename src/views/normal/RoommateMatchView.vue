@@ -244,32 +244,39 @@ const requestRoommate = async () => {
 .form-group { display: flex; flex-direction: column; gap: 6px; }
 .form-group label { font-size: 0.85rem; font-weight: 600; color: #5C4E4E; }
 .form-group input {
-  padding: 12px 16px; border: 1.5px solid #EDE8E3; border-radius: 10px;
-  font-size: 0.95rem; color: #2A2421; font-family: inherit; font-weight: 500;
-  outline: none; background: #FAF8F5;
+  height: 44px;
+  padding: 0 16px;
+  border: 1.5px solid #EDE8E3;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  color: #2A2421;
+  font-family: inherit;
+  font-weight: 500;
+  outline: none;
+  background: #FAF8F5;
   transition: all 0.15s ease;
 }
 .form-group input:read-only { color: #2A2421; }
 
 .pill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 .info-pill {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 16px; border: 1px solid #EDE8E3; border-radius: 10px;
-  background: #FAF8F5;
-  font-size: 0.95rem; font-weight: 500; color: #2A2421;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 18px; border: 1px solid #EDE8E3; border-radius: 9999px;
+  background: #F7F5F2;
+  font-size: 0.92rem; font-weight: 600; color: #2A2421;
 }
 
-.hobbies-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.hobbies-grid { display: flex; flex-wrap: wrap; gap: 10px; }
 .hobby-pill {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 16px; border: 1px solid #EDE8E3; border-radius: 10px;
-  background: #FAF8F5;
-  font-size: 0.95rem; font-weight: 500; color: #2A2421;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 16px; border: 1px solid #EDE8E3; border-radius: 9999px;
+  background: #F7F5F2;
+  font-size: 0.88rem; font-weight: 600; color: #2A2421;
 }
 .h-icon { display: flex; align-items: center; color: #5C4E4E; }
 
 .bottom-actions {
-  padding: 24px 40px 40px;
+  padding: 24px 40px 36px;
   background: #fff;
   border-top: 1px solid #EDE8E3;
   display: flex; gap: 12px;
@@ -277,30 +284,31 @@ const requestRoommate = async () => {
 }
 .btn-outline {
   flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 16px; border: 1.5px solid #5C4E4E; border-radius: 10px;
-  background: #fff; color: #5C4E4E; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+  height: 48px; border: 1.5px solid #5C4E4E; border-radius: 12px;
+  background: #fff; color: #5C4E4E; font-size: 0.92rem; font-weight: 700; cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
 }
-.btn-outline:hover { background: #FAF8F5; border-color: #473B3B; }
+.btn-outline:hover { background: #FAF8F5; border-color: #473B3B; transform: translateY(-1px); }
 
 .btn-black {
   flex: 1.5; display: flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 16px; border: none; border-radius: 10px;
-  background: #5C4E4E; color: #fff; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+  height: 48px; border: none; border-radius: 12px;
+  background: #5C4E4E; color: #fff; font-size: 0.92rem; font-weight: 700; cursor: pointer;
   transition: all 0.2s;
   box-shadow: 0 4px 12px rgba(92, 78, 78, 0.15);
 }
-.btn-black:hover { background: #473B3B; box-shadow: 0 6px 16px rgba(92, 78, 78, 0.25); }
+.btn-black:hover { background: #473B3B; box-shadow: 0 6px 16px rgba(92, 78, 78, 0.25); transform: translateY(-1px); }
 
 .btn-icon {
-  width: 52px; height: 52px; border-radius: 50%;
+  width: 48px; height: 48px; border-radius: 50%;
   background: #5C4E4E; border: none; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center; cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, transform 0.15s;
 }
 .btn-icon:hover {
   background: #473B3B;
+  transform: translateY(-1px);
 }
 
 /* ── RIGHT COLUMN ── */

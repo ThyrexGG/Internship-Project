@@ -11,7 +11,7 @@
               <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
           </button>
-          <span class="plan-label">You plan</span>
+          <span class="plan-label">Your plan</span>
         </div>
 
         <div class="hero-content">
@@ -27,7 +27,7 @@
               <span class="plan-rate">${{ monthlyRate.toFixed(2) }}</span>
             </div>
             <p class="plan-terms">
-              All the payment cannot be cancel after 30 days was made.
+              Payments cannot be cancelled after 30 days.
             </p>
 
             <!-- Promo Code Action -->
@@ -85,7 +85,7 @@
             <h2 class="form-title">Billing frequency</h2>
             <div class="frequency-card">
               <div class="freq-sub">Pay monthly</div>
-              <div class="freq-amount">${{ total.toFixed(2) }}/monthly</div>
+              <div class="freq-amount">${{ total.toFixed(2) }} / month</div>
             </div>
           </div>
 
@@ -150,7 +150,7 @@
                   />
                 </div>
                 <div class="input-col col-exp">
-                  <label class="input-lbl">Expired date</label>
+                  <label class="input-lbl">Expiry date</label>
                   <input 
                     type="text" 
                     v-model="expiryDate" 
@@ -174,7 +174,7 @@
 
               <!-- Card Name -->
               <div class="form-row">
-                <label class="input-lbl">Card Name</label>
+                <label class="input-lbl">Name on card</label>
                 <input 
                   type="text" 
                   v-model="cardName" 
@@ -196,7 +196,7 @@
                   type="text" 
                   v-model="address2" 
                   class="txt-input mt-10" 
-                  placeholder="Apt., suit, unit, building (opt)"
+                  placeholder="Apt., suite, unit, building (optional)"
                 />
               </div>
 
@@ -819,20 +819,20 @@ onMounted(() => {
 
 /* Billing frequency */
 .frequency-card {
-  border: 1.5px solid #d1d5db;
-  border-radius: 8px;
-  padding: 12px 18px;
-  background: #ffffff;
+  border: 1.5px solid #EDE8E3;
+  border-radius: 14px;
+  padding: 14px 20px;
+  background: #FAF8F5;
 }
 
 .freq-sub {
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   color: #6b7280;
   font-weight: 500;
 }
 
 .freq-amount {
-  font-size: 1.12rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: #111827;
   margin-top: 2px;
@@ -847,8 +847,8 @@ onMounted(() => {
 .method-btn {
   flex: 1;
   height: 52px;
-  border-radius: 8px;
-  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  border: 1.5px solid #EDE8E3;
   background: #ffffff;
   display: flex;
   align-items: center;
@@ -858,14 +858,14 @@ onMounted(() => {
 }
 
 .method-btn:hover {
-  border-color: #93c5fd;
+  border-color: #5C4E4E;
   background: #fbfcfe;
 }
 
 .method-btn.active {
-  border-color: #2563eb;
+  border-color: #5C4E4E;
   background: #f8faff;
-  box-shadow: 0 0 0 1px #2563eb;
+  box-shadow: 0 0 0 2px rgba(92, 78, 78, 0.2);
 }
 
 /* Mastercard logo circles */
@@ -913,7 +913,7 @@ onMounted(() => {
   font-size: 0.85rem;
   font-weight: 800;
   padding: 4px 10px;
-  border-radius: 5px;
+  border-radius: 6px;
   letter-spacing: 0.5px;
 }
 
@@ -940,8 +940,8 @@ onMounted(() => {
   width: 100%;
   height: 44px;
   padding: 0 14px;
-  border: 1.5px solid #d1d5db;
-  border-radius: 8px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 10px;
   font-size: 0.92rem;
   color: #111827;
   outline: none;
@@ -950,8 +950,8 @@ onMounted(() => {
 }
 
 .txt-input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  border-color: #5C4E4E;
+  box-shadow: 0 0 0 3px rgba(92, 78, 78, 0.12);
 }
 
 .txt-input::placeholder {

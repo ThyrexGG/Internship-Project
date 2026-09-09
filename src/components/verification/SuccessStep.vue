@@ -135,9 +135,10 @@ const router = useRouter()
   width: 100%;
   background: #FAF8F5;
   border: 1px solid #EDE8E3;
-  border-radius: 14px;
-  padding: 20px;
-  margin-bottom: 20px;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(92, 78, 78, 0.03);
 }
 
 .review-status-pill {
@@ -145,42 +146,43 @@ const router = useRouter()
   align-items: center;
   gap: 8px;
   background: #FEF3C7;
-  color: #D97706;
-  font-size: 0.8rem;
+  color: #B45309;
+  font-size: 0.82rem;
   font-weight: 700;
-  padding: 6px 14px;
-  border-radius: 50px;
-  margin-bottom: 16px;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  margin-bottom: 20px;
 }
 
 .pulse-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #D97706;
+  background: #B45309;
   animation: pulse 1.5s infinite;
 }
 
 .trust-notice-text {
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   color: #8C7E7E;
-  line-height: 1.5;
-  margin-bottom: 24px;
-  max-width: 420px;
+  line-height: 1.6;
+  margin-bottom: 28px;
+  max-width: 440px;
   text-align: left;
 }
 
 .details-title {
   font-size: 1rem;
   font-weight: 700;
-  color: #5C4E4E;
+  color: #2A2421;
   margin-bottom: 16px;
+  letter-spacing: -0.01em;
 }
 
 .details-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .detail-item {
@@ -191,9 +193,9 @@ const router = useRouter()
 }
 
 .detail-item .icon {
-  color: #2E7D32;
+  color: #15803D;
   font-weight: 700;
-  margin-right: 8px;
+  margin-right: 10px;
 }
 
 .detail-item .label {
@@ -203,8 +205,8 @@ const router = useRouter()
 }
 
 .detail-item .value.success {
-  color: #2E7D32;
-  font-weight: 600;
+  color: #15803D;
+  font-weight: 700;
 }
 
 .security-seal {
@@ -212,16 +214,16 @@ const router = useRouter()
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin-top: 18px;
-  padding-top: 14px;
+  margin-top: 20px;
+  padding-top: 16px;
   border-top: 1px solid #EDE8E3;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   color: #8C7E7E;
 }
 
 .shield-icon {
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
   color: #5C4E4E;
 }
 
@@ -231,13 +233,14 @@ const router = useRouter()
 
 .btn-primary {
   width: 100%;
-  padding: 14px 28px;
+  height: 48px;
+  padding: 0 28px;
   background: #5C4E4E;
   color: #ffffff;
   border: none;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: 12px;
+  font-size: 0.98rem;
+  font-weight: 700;
   font-family: inherit;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -247,5 +250,6 @@ const router = useRouter()
 .btn-primary:hover {
   background: #473B3B;
   box-shadow: 0 6px 16px rgba(92, 78, 78, 0.25);
+  transform: translateY(-1px);
 }
 </style>

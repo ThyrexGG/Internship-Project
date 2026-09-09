@@ -658,26 +658,29 @@ function shareProfile() {
   background: #5C4E4E;
   color: #ffffff;
   border: none;
-  border-radius: 8px;
-  padding: 10px 24px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  border-radius: 9999px;
+  padding: 12px 28px;
+  font-size: 0.95rem;
+  font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
   margin-bottom: 8px;
+  box-shadow: 0 4px 12px rgba(92, 78, 78, 0.15);
 }
 
 .message-btn:hover {
-  background: #2a2a2a;
+  background: #473B3B;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(92, 78, 78, 0.25);
 }
 
 /* --- Navigation Tabs --- */
 .profile-tabs-section {
-  background: #e0e0e0;
-  border-bottom: 1px solid #eaeaea;
+  background: #FAF8F5;
+  border-bottom: 1px solid #EDE8E3;
 }
 
 .tabs-wrapper {
@@ -698,20 +701,21 @@ function shareProfile() {
   background: none;
   border: none;
   padding: 16px 0;
-  font-size: 0.92rem;
+  font-size: 0.98rem;
   font-weight: 600;
-  color: #666;
+  color: #8C7E7E;
   cursor: pointer;
   position: relative;
   transition: color 0.2s ease;
 }
 
 .tab-btn:hover {
-  color: #5C4E4E;
+  color: #2A2421;
 }
 
 .tab-btn.active {
   color: #5C4E4E;
+  font-weight: 700;
 }
 
 .tab-btn.active::after {
@@ -720,7 +724,7 @@ function shareProfile() {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 2.5px;
+  height: 3px;
   background: #5C4E4E;
   border-radius: 2px;
 }
@@ -746,7 +750,7 @@ function shareProfile() {
 }
 
 .tab-action-icon-btn:hover {
-  background: #e0e0e0;
+  background: #EDE8E3;
 }
 
 /* --- Main Content Area --- */
@@ -770,18 +774,19 @@ function shareProfile() {
 .info-pane {
   display: grid;
   grid-template-columns: 1.1fr 1.9fr;
-  gap: 80px;
+  gap: 60px;
   align-items: start;
 }
 
 .info-list-container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  background: #e0e0e0;
-  padding: 32px;
-  border-radius: 16px;
-  border: 1px solid #f0f0f0;
+  gap: 18px;
+  background: #FAF8F5;
+  padding: 32px 36px;
+  border-radius: 20px;
+  border: 1px solid #EDE8E3;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.02);
 }
 
 .info-row {
@@ -789,16 +794,23 @@ function shareProfile() {
   justify-content: space-between;
   font-size: 0.95rem;
   line-height: 1.4;
+  border-bottom: 1px dashed #EDE8E3;
+  padding-bottom: 14px;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .info-label {
   font-weight: 500;
-  color: #5C4E4E;
+  color: #8C7E7E;
   min-width: 140px;
 }
 
 .info-value {
-  color: #333;
+  color: #2A2421;
   font-weight: 600;
   text-align: right;
   word-break: break-word;
@@ -813,29 +825,32 @@ function shareProfile() {
 .section-title {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #5C4E4E;
+  color: #2A2421;
   margin-top: 0;
   margin-bottom: 24px;
+  letter-spacing: -0.01em;
 }
 
 .properties-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 18px;
 }
 
 .landlord-prop-card {
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
   aspect-ratio: 1.15;
+  border: 1px solid #EDE8E3;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.04);
   cursor: pointer;
   position: relative;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .landlord-prop-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
 }
 
 .prop-img-wrapper {

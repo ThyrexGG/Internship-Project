@@ -43,7 +43,7 @@
           <h1 class="hero-headline">Find your sweet home</h1>
           <p class="hero-subtext">
             Welcome to your comfort zone.<br />
-            Schedule visit in just a few click.
+            Schedule a visit in just a few clicks.
           </p>
 
           <!-- 4 Bars + Dot Indicator matching reference mockup -->
@@ -60,14 +60,18 @@
       <!-- Right Form Content Panel -->
       <main class="form-content-panel">
         <div class="form-card-container">
-          <!-- Stepper Indicator Header: (1) --- (2) --- (3) --- (4) -->
+          <!-- Stepper Indicator Header -->
           <div class="stepper-indicator-row" v-if="currentStep <= 4">
             <div 
               class="stepper-node" 
               :class="{ active: currentStep === 1, completed: currentStep > 1 }"
               @click="currentStep = 1"
             >
-              <div class="node-circle">1</div>
+              <div class="node-circle">
+                <span v-if="currentStep > 1">✓</span>
+                <span v-else>1</span>
+              </div>
+              <span class="node-label">Profile</span>
             </div>
             <div class="stepper-connector" :class="{ filled: currentStep > 1 }"></div>
 
@@ -76,7 +80,11 @@
               :class="{ active: currentStep === 2, completed: currentStep > 2 }"
               @click="currentStep = 2"
             >
-              <div class="node-circle">2</div>
+              <div class="node-circle">
+                <span v-if="currentStep > 2">✓</span>
+                <span v-else>2</span>
+              </div>
+              <span class="node-label">National ID</span>
             </div>
             <div class="stepper-connector" :class="{ filled: currentStep > 2 }"></div>
 
@@ -85,7 +93,11 @@
               :class="{ active: currentStep === 3, completed: currentStep > 3 }"
               @click="currentStep = 3"
             >
-              <div class="node-circle">3</div>
+              <div class="node-circle">
+                <span v-if="currentStep > 3">✓</span>
+                <span v-else>3</span>
+              </div>
+              <span class="node-label">Selfie Match</span>
             </div>
             <div class="stepper-connector" :class="{ filled: currentStep > 3 }"></div>
 
@@ -94,7 +106,11 @@
               :class="{ active: currentStep === 4, completed: currentStep > 4 }"
               @click="currentStep = 4"
             >
-              <div class="node-circle">4</div>
+              <div class="node-circle">
+                <span v-if="currentStep > 4">✓</span>
+                <span v-else>4</span>
+              </div>
+              <span class="node-label">Liveness</span>
             </div>
           </div>
 
@@ -470,7 +486,7 @@ async function handleLivenessComplete() {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 40px 24px 80px;
+  padding: 48px 32px 100px;
   overflow-y: auto;
   height: 100%;
   background: #ffffff;
@@ -478,7 +494,7 @@ async function handleLivenessComplete() {
 
 .form-card-container {
   width: 100%;
-  max-width: 520px;
+  max-width: 560px;
   display: flex;
   flex-direction: column;
 }
@@ -487,52 +503,82 @@ async function handleLivenessComplete() {
 .stepper-indicator-row {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   margin-bottom: 36px;
   width: 100%;
+  padding: 0 8px;
 }
 
 .stepper-node {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 8px;
   cursor: pointer;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.15s ease;
+}
+
+.stepper-node:hover {
+  transform: translateY(-1px);
 }
 
 .node-circle {
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  background: #EDE8E3;
+  background: #F4F0EC;
   color: #8C7E7E;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.82rem;
-  font-weight: 600;
-  transition: all 0.2s ease;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border: 2px solid transparent;
+  transition: all 0.25s ease;
 }
 
 .stepper-node.active .node-circle {
   background: #5C4E4E;
   color: #ffffff;
+  border-color: #EDE8E3;
+  box-shadow: 0 4px 12px rgba(92, 78, 78, 0.2);
 }
 
 .stepper-node.completed .node-circle {
-  background: #5C4E4E;
+  background: #15803d;
   color: #ffffff;
 }
 
+.node-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #8C7E7E;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+  transition: color 0.2s ease;
+}
+
+.stepper-node.active .node-label {
+  color: #2A2421;
+  font-weight: 700;
+}
+
+.stepper-node.completed .node-label {
+  color: #15803d;
+}
+
 .stepper-connector {
-  width: 40px;
-  height: 0px;
-  background: transparent;
-  border-top: 2.5px dotted #EDE8E3;
-  margin: 0 4px;
+  flex: 1;
+  height: 2px;
+  background: #EDE8E3;
+  margin: -24px 10px 0;
+  transition: background 0.3s ease;
 }
 
 .stepper-connector.filled {
-  border-top-color: #5C4E4E;
+  background: #15803d;
 }
 
 /* Loading Overlay */
