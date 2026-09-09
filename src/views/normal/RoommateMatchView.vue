@@ -57,16 +57,18 @@
 
       <!-- Bottom Action Bar -->
       <div class="bottom-actions">
-        <button class="btn-outline" @click="nextProfile">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-          Find Someone Else
-        </button>
+        <div class="secondary-actions-row">
+          <button class="btn-outline" @click="nextProfile">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+            Find Someone Else
+          </button>
+          <button class="btn-icon" @click="$router.push('/user-profile/' + (currentIndex + 1))" title="View Detailed Profile">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </button>
+        </div>
         <button class="btn-black" @click="requestRoommate">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
           Request as Roommate
-        </button>
-        <button class="btn-icon" @click="$router.push('/user-profile/' + (currentIndex + 1))" title="View Detailed Profile">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </button>
       </div>
     </div>
@@ -336,7 +338,12 @@ const requestRoommate = async () => {
 
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
-  .roommate-match-page { flex-direction: column; overflow-y: auto; }
+  .roommate-match-page {
+    flex-direction: column;
+    overflow-y: auto;
+    height: auto;
+    min-height: 100dvh;
+  }
   
   .photo-panel {
     flex: none; width: 100%; height: 50vh; min-height: 400px;
@@ -349,11 +356,39 @@ const requestRoommate = async () => {
     margin-top: -24px;
   }
   
-  .top-nav { padding: 24px; }
-  .scroll-content { padding: 0 24px 24px; }
-  .bottom-actions { padding: 20px 24px 32px; flex-wrap: wrap; }
-  
-  .btn-outline, .btn-black { flex: 1; min-width: 200px; }
+  .top-nav { padding: 18px 20px; }
+  .scroll-content { padding: 0 20px 20px; }
+  .bottom-actions {
+    padding: 16px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+    flex-direction: column;
+    gap: 10px;
+  }
+  .secondary-actions-row {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+  }
+  .secondary-actions-row .btn-outline {
+    flex: 1;
+    min-width: 0;
+  }
+  .btn-black {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 500px) {
+  .photo-panel {
+    height: 42vh;
+    min-height: 320px;
+  }
+  .scroll-content {
+    padding: 0 16px 16px;
+  }
+  .bottom-actions {
+    padding: 14px 16px calc(24px + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 .roommate-toast {

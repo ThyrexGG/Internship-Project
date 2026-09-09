@@ -5728,31 +5728,7 @@ const filteredProperties = computed(() => {
 .composer-row input::placeholder { color: #888888 !important; }
 .card-carousel { background: #e0e0e0 !important; }
 
-@media (max-width: 900px) {
-  .bottom-nav {
-    width: calc(100% - 24px) !important;
-    max-width: 420px !important;
-    gap: 0 !important;
-    padding: 8px 10px !important;
-  }
-  .nav-tab {
-    flex: 1 !important;
-    min-width: 0 !important;
-    padding: 6px 2px !important;
-  }
-  .bottom-nav.auto-hide {
-    transform: translate(-50%, 0) !important;
-  }
-  .thin-bar-trigger {
-    display: none !important;
-  }
-}
-
-@media (max-width: 360px) {
-  .bottom-nav { width: calc(100% - 16px) !important; }
-}
-
-/* --- Bottom Nav Thin Bar Hover Interaction --- */
+/* --- Bottom Nav Thin Bar Hover Interaction (Desktop) --- */
 .bottom-nav-interaction-group {
   display: contents;
 }
@@ -5792,6 +5768,38 @@ const filteredProperties = computed(() => {
 
 .bottom-nav-interaction-group:hover .thin-bar-trigger::after {
   opacity: 0;
+}
+
+/* --- Responsive & Mobile Bottom Nav Overrides --- */
+@media (max-width: 900px) {
+  .bottom-nav {
+    width: calc(100% - 24px) !important;
+    max-width: 420px !important;
+    gap: 0 !important;
+    padding: 8px 8px !important;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .nav-tab {
+    flex: 1 !important;
+    min-width: 0 !important;
+    padding: 6px 2px !important;
+  }
+  .bottom-nav.auto-hide {
+    transform: translate(-50%, 0) !important;
+  }
+  .thin-bar-trigger {
+    display: none !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .bottom-nav { 
+    width: calc(100% - 16px) !important;
+    padding: 6px 4px !important;
+  }
+  .nav-tab {
+    padding: 4px 1px !important;
+  }
 }
 
 @media (hover: none) and (pointer: coarse) {

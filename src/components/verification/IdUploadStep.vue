@@ -826,4 +826,20 @@ function proceedAnyway() {
   font-size: 0.82rem;
   color: #5C4E4E;
 }
+
+@media (max-width: 480px) {
+  .requirements-card {
+    padding: 16px 12px;
+  }
+  .examples-grid {
+    gap: 8px;
+  }
+  .card-frame {
+    height: 90px;
+  }
+  .btn-primary-action {
+    height: 48px;
+    font-size: 0.95rem;
+  }
+}
 </style>

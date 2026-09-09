@@ -534,6 +534,7 @@ function shareProfile() {
   letter-spacing: -0.5px;
 }
 
+.nav-right .avatar,
 .profile-menu .avatar {
   width: 38px;
   height: 38px;
@@ -542,6 +543,7 @@ function shareProfile() {
   border: 1px solid #ddd;
 }
 
+.nav-right .avatar img,
 .profile-menu .avatar img {
   width: 100%;
   height: 100%;
@@ -1140,19 +1142,27 @@ function shareProfile() {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+    margin-top: -50px;
   }
   .profile-meta-content {
     gap: 16px;
+    align-items: center;
   }
   .landlord-avatar-wrapper {
-    width: 100px;
-    height: 100px;
+    width: 96px;
+    height: 96px;
+    border: 3px solid #ffffff;
   }
   .landlord-name {
-    font-size: 1.4rem;
+    font-size: 1.35rem;
+    color: #2A2421;
+  }
+  .landlord-tagline {
+    font-size: 0.88rem;
   }
   .message-btn {
     width: 100%;
+    height: 48px;
     justify-content: center;
     margin-bottom: 0;
   }

@@ -848,16 +848,57 @@ const reviews = [
 
   .icons-row {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 10px !important;
   }
 
   .d-icon {
     width: 100%;
-    height: 58px;
+    height: auto;
+    min-height: 72px;
     min-width: 0;
-    font-size: 0.58rem;
-    padding: 6px 2px;
+    font-size: 0.72rem;
+    padding: 12px 8px;
+  }
+
+  .d-icon .d-val {
+    font-size: 0.88rem;
+  }
+
+  .d-icon .d-lbl {
+    font-size: 0.72rem;
+  }
+
+  .detail-booking-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .detail-booking-actions .action-btn {
+    width: 100%;
+    height: 48px;
+    font-size: 0.95rem;
+    justify-content: center;
+  }
+
+  .landlord-actions-row {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+  }
+
+  .landlord-actions-row .landlord-btn,
+  .landlord-actions-row .landlord-chat-btn {
+    flex: 1;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.88rem;
+    padding: 0 10px;
   }
 
   .photos-carousel-wrapper {

@@ -1648,25 +1648,38 @@ function handleGuest() { router.push('/home') }
 }
 
 @media (max-width: 640px) {
-  .login-page { display: flex; flex-direction: column; background: #fafafa; }
+  .login-page { 
+    display: flex; 
+    flex-direction: column; 
+    background: #FAF8F5; 
+    min-height: 100vh;
+  }
   .login-page.forgot-flow { flex-direction: column; }
   .hero-panel { display: none; }
   .desktop-logo { display: none; }
-  .form-panel { padding: 24px 16px; align-items: flex-start; justify-content: center; background: transparent; }
+  .form-panel { 
+    padding: 24px 16px calc(32px + env(safe-area-inset-bottom, 0px)); 
+    align-items: center; 
+    justify-content: center; 
+    background: transparent; 
+    width: 100%;
+  }
   .form-inner { 
-    max-width: 100%; 
-    background: #e0e0e0; 
-    padding: 32px 24px; 
-    border-radius: 24px; 
-    box-shadow: 0 10px 40px rgba(0,0,0,0.06); 
+    width: 100%;
+    max-width: 440px; 
+    background: #ffffff; 
+    padding: 28px 20px; 
+    border-radius: 20px; 
+    border: 1px solid #EDE8E3;
+    box-shadow: 0 8px 30px rgba(92, 78, 78, 0.06); 
   }
   .mobile-logo { display: flex; }
-  .form-title { font-size: 1.8rem; }
+  .form-title { font-size: 1.7rem; }
   
   .guest-link {
     position: static;
     transform: none;
-    margin-top: 24px;
+    margin-top: 20px;
   }
 }
 </style>

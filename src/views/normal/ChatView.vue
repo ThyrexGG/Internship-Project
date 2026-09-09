@@ -17,7 +17,7 @@
     </header>
 
     <!-- Main 3-Column Chat Layout -->
-    <div class="chat-main-container">
+    <div class="chat-main-container" :class="{ 'mobile-active-chat': mobileChatActive }">
       <!-- ==================== COLUMN 1: MESSAGES LIST ==================== -->
       <aside class="messages-sidebar">
         <!-- Sidebar Header -->
@@ -55,6 +55,11 @@
       <main class="chat-conversation-area">
         <!-- Chat Header -->
         <header class="active-chat-header">
+          <button class="mobile-chat-back-btn" type="button" aria-label="Back to conversations" @click="mobileChatActive = false">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A2421" stroke-width="2.5">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+          </button>
           <div class="chat-recipient-info">
             <img :src="selectedContact.avatar" :alt="selectedContact.name" class="recipient-avatar" />
             <div class="recipient-text">
@@ -517,6 +522,7 @@ const currentUserAvatar = computed(() => {
 // Top nav
 const userAvatar = computed(() => currentUserAvatar.value)
 const showMoreOptions = ref(false)
+const mobileChatActive = ref(false)
 
 function goHome() {
   router.push('/home')
@@ -865,6 +871,7 @@ function listenToUserChats() {
 function selectContact(contact) {
   selectedContact.value = contact
   setupMessagesListener(contact)
+  mobileChatActive.value = true
 }
 
 function setupMessagesListener(contact) {
@@ -1669,6 +1676,104 @@ onUnmounted(() => {
 @media (max-width: 1100px) {
   .contact-info-sidebar {
     display: none;
+  }
+}
+
+.mobile-chat-back-btn {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .chat-main-container {
+    position: relative;
+    width: 100%;
+  }
+
+  /* When mobile active chat is FALSE: show messages list, hide chat pane */
+  .chat-main-container:not(.mobile-active-chat) .messages-sidebar {
+    display: flex !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    border-right: none !important;
+  }
+  .chat-main-container:not(.mobile-active-chat) .chat-conversation-area {
+    display: none !important;
+  }
+
+  /* When mobile active chat is TRUE: hide messages list, show chat pane */
+  .chat-main-container.mobile-active-chat .messages-sidebar {
+    display: none !important;
+  }
+  .chat-main-container.mobile-active-chat .chat-conversation-area {
+    display: flex !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .mobile-chat-back-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #FAF8F5;
+    border: 1px solid #EDE8E3;
+    margin-right: 10px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .active-chat-header {
+    padding: 0 16px;
+    height: 60px;
+    min-height: 60px;
+  }
+
+  .chat-recipient-info {
+    gap: 10px;
+  }
+
+  .recipient-avatar {
+    width: 38px;
+    height: 38px;
+  }
+
+  .recipient-name {
+    font-size: 0.95rem;
+  }
+
+  .recipient-email {
+    font-size: 0.75rem;
+  }
+
+  .message-stream-body {
+    padding: 16px 12px;
+  }
+
+  .message-bubble {
+    max-width: 82% !important;
+    font-size: 0.9rem !important;
+    padding: 10px 14px !important;
+  }
+
+  .chat-input-bar {
+    padding: 10px 12px calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .input-form {
+    gap: 8px !important;
+  }
+
+  .input-pill {
+    height: 42px !important;
+    padding: 0 12px !important;
+  }
+
+  .action-btn-pill {
+    padding: 0 6px !important;
   }
 }
 

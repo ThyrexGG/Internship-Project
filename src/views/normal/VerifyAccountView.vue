@@ -613,4 +613,40 @@ async function handleLivenessComplete() {
 .step-transition-wrapper {
   width: 100%;
 }
+
+@media (max-width: 560px) {
+  .form-content-panel {
+    padding: 24px 14px calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .stepper-indicator-row {
+    padding: 0;
+    margin-bottom: 24px;
+  }
+
+  .node-circle {
+    width: 28px;
+    height: 28px;
+    font-size: 0.78rem;
+  }
+
+  .node-label {
+    font-size: 0.68rem;
+    letter-spacing: -0.02em;
+  }
+
+  .stepper-connector {
+    margin: -18px 4px 0;
+  }
+
+  .dev-qa-bar {
+    left: 10px;
+    right: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    overflow-x: auto;
+    white-space: nowrap;
+    justify-content: flex-start;
+    padding: 6px 10px;
+  }
+}
 </style>

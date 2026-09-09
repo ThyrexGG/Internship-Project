@@ -3112,6 +3112,83 @@ watch(filteredProperties, () => {
     display: none;
   }
 }
+
+@media (max-width: 640px) {
+  .plum-nav-header {
+    height: 60px;
+    padding: 0 14px;
+  }
+  
+  .plum-brand-text {
+    font-size: 1.05rem;
+  }
+
+  .plum-header-right {
+    gap: 8px;
+  }
+
+  .plum-nav-link,
+  .plum-lang-currency {
+    display: none !important;
+  }
+
+  .btn-plum-filter {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    gap: 6px;
+  }
+
+  .plum-listings-column {
+    padding: 16px 14px calc(40px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .plum-cards-list {
+    gap: 16px;
+  }
+
+  /* Switch horizontal card to vertical stacked card on mobile phones */
+  .plum-property-card {
+    flex-direction: column !important;
+    border-radius: 16px;
+  }
+
+  .plum-card-media-box {
+    width: 100% !important;
+    min-width: 100% !important;
+    height: 200px !important;
+    border-radius: 16px 16px 0 0 !important;
+  }
+
+  .plum-card-details-box {
+    padding: 16px !important;
+    width: 100% !important;
+  }
+
+  .plum-property-name {
+    font-size: 1.15rem !important;
+  }
+
+  .plum-property-specs {
+    flex-wrap: wrap;
+    font-size: 0.82rem;
+    gap: 4px;
+  }
+
+  .plum-card-price-action-row {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #f2eee9;
+  }
+
+  .plum-price-val {
+    font-size: 1.35rem !important;
+  }
+
+  .btn-plum-view-detail {
+    padding: 9px 18px !important;
+    font-size: 0.88rem !important;
+  }
+}
 .search-toast {
   position: fixed;
   bottom: 24px;

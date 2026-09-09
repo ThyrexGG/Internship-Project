@@ -1377,4 +1377,40 @@ onMounted(() => {
     row-gap: 14px;
   }
 }
+
+@media (max-width: 600px) {
+  .left-hero, .right-form-panel {
+    padding: 24px 16px calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  .plan-price {
+    font-size: 2rem;
+  }
+  .order-summary-card {
+    padding: 18px 16px;
+  }
+  .form-row-three {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .col-card-num {
+    grid-column: 1 / -1;
+  }
+  .col-exp {
+    grid-column: 1 / 2;
+  }
+  .col-cvc {
+    grid-column: 2 / 3;
+  }
+  .payment-methods-row {
+    gap: 8px;
+  }
+  .method-btn {
+    height: 52px;
+  }
+  .btn-submit-payment {
+    height: 48px;
+    font-size: 0.95rem;
+  }
+}
 </style>
