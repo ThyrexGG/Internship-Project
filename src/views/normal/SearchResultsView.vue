@@ -2226,8 +2226,12 @@ watch(filteredProperties, () => {
 }
 
 .plum-badge-match {
-  background: #f0fdf4;
-  color: #166534;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
   font-size: 0.74rem;
   font-weight: 700;
   padding: 3px 8px;
@@ -2978,49 +2982,85 @@ watch(filteredProperties, () => {
 .price-range-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+}
+
+.price-range-row span {
+  color: #94a3b8;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .filter-input-small {
   flex: 1;
   min-width: 0;
   box-sizing: border-box;
-  padding: 8px 12px;
+  height: 40px;
+  padding: 0 12px;
   border-radius: 8px;
-  border: 1px solid #cbd5e1;
-  font-size: 0.85rem;
+  border: 1.5px solid #cbd5e1;
+  font-size: 0.9rem;
+  text-align: center;
+  font-weight: 600;
+  color: #1e293b;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.filter-input-small:focus {
+  border-color: #554848;
+  box-shadow: 0 0 0 3px rgba(85, 72, 72, 0.12);
 }
 
 .filter-select {
   box-sizing: border-box;
   width: 100%;
-  padding: 8px 12px;
+  height: 40px;
+  padding: 0 12px;
   border-radius: 8px;
-  border: 1px solid #cbd5e1;
-  font-size: 0.85rem;
+  border: 1.5px solid #cbd5e1;
+  font-size: 0.88rem;
+  color: #1e293b;
+  font-weight: 500;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.filter-select:focus {
+  border-color: #554848;
+  box-shadow: 0 0 0 3px rgba(85, 72, 72, 0.12);
 }
 
 .segmented-chips {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 .chip-btn {
   flex: 1;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #cbd5e1;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 1.5px solid #cbd5e1;
   background: #ffffff;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: #475569;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chip-btn:hover {
+  border-color: #554848;
+  color: #1e293b;
 }
 
 .chip-btn.active {
   background: #554848;
   color: #ffffff;
   border-color: #554848;
+  box-shadow: 0 2px 8px rgba(85, 72, 72, 0.25);
 }
 
 .popover-footer {

@@ -80,7 +80,7 @@
       <section class="roommate-cta">
         <h3 class="section-heading">Roommate</h3>
         <div class="cta-row">
-          <p class="cta-text">This room doesn't anyone yet, please find a roommate.</p>
+          <p class="cta-text">This room currently has no other occupants. Find a compatible roommate to split rent.</p>
           <button class="btn-black" @click="$router.push('/roommate-match')">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
@@ -165,7 +165,7 @@
           </div>
           <div class="detail-box">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            Chroy Chongva, Phnum Penh
+            Chroy Chongva, Phnom Penh
           </div>
         </div>
       </section>
@@ -377,7 +377,7 @@ Date: _______________________
 
 .find-roommate-page {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #fff;
+  background: #faf8f5;
   height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
@@ -390,13 +390,14 @@ Date: _______________________
 .hero-section {
   position: relative;
   width: 100%;
-  max-width: 1200px;
+  max-width: 880px;
   height: 280px;
   margin: 24px auto 0;
   border-radius: 16px;
   overflow: hidden;
   background: #FAF8F5;
   border: 1px solid #EDE8E3;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
 }
 .hero-image {
   width: 100%; height: 100%; object-fit: cover;
@@ -405,53 +406,76 @@ Date: _______________________
   position: absolute; inset: 0;
   padding: 24px;
   display: flex; flex-direction: column; justify-content: space-between;
-  background: linear-gradient(180deg, rgba(42,36,33,0.25) 0%, rgba(42,36,33,0) 40%, rgba(42,36,33,0.3) 100%);
+  background: linear-gradient(180deg, rgba(42,36,33,0.3) 0%, rgba(42,36,33,0) 40%, rgba(42,36,33,0.35) 100%);
 }
 .back-btn {
   width: 40px; height: 40px; border-radius: 50%;
   background: #5C4E4E; border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  transition: background 0.15s ease;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 .back-btn:hover {
   background: #473B3B;
+  transform: scale(1.05);
 }
 .roommate-badge {
   background: #5C4E4E; color: #fff;
   align-self: flex-start;
   padding: 8px 16px; border-radius: 8px;
   display: flex; align-items: center; gap: 8px;
-  font-size: 0.9rem; font-weight: 500;
+  font-size: 0.9rem; font-weight: 600;
   box-shadow: 0 2px 8px rgba(92, 78, 78, 0.2);
 }
 
 /* ── MAIN CONTENT ── */
 .main-content {
-  max-width: 1200px;
+  max-width: 880px;
   margin: 0 auto;
-  padding: 32px 40px 100px;
+  padding: 32px 20px 140px;
   width: 100%;
 }
 
 .section-heading {
-  font-size: 1.4rem; font-weight: 700; color: #2A2421;
+  font-size: 1.35rem; font-weight: 700; color: #2A2421;
   margin-bottom: 20px;
+  letter-spacing: -0.3px;
 }
 .sub-heading {
-  font-size: 1.1rem; font-weight: 600; color: #2A2421;
+  font-size: 1.05rem; font-weight: 600; color: #2A2421;
   margin-bottom: 12px; margin-top: 24px;
 }
 .sub-heading:first-of-type { margin-top: 0; }
 
+/* Section Card Containers */
+.house-info,
+.photos-section,
+.roommate-cta,
+.user-info,
+.landlord-info,
+.agreement-info {
+  background: #ffffff;
+  border: 1px solid #ede8e3;
+  border-radius: 16px;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 10px rgba(92, 78, 78, 0.04);
+}
+
 /* Header Info */
 .header-info {
   display: flex; justify-content: space-between; align-items: flex-start;
-  margin-bottom: 40px;
+  margin-bottom: 32px;
+  background: #ffffff;
+  border: 1px solid #ede8e3;
+  border-radius: 16px;
+  padding: 24px 28px;
+  box-shadow: 0 2px 10px rgba(92, 78, 78, 0.04);
 }
 .page-title-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   min-width: 0;
 }
 .form-back-btn {
@@ -473,44 +497,57 @@ Date: _______________________
   border-color: #5C4E4E;
 }
 .page-title {
-  font-size: 2rem; font-weight: 700; color: #2A2421; margin-bottom: 8px; line-height: 1.2;
+  font-size: 1.85rem; font-weight: 700; color: #2A2421; margin-bottom: 4px; line-height: 1.2;
 }
 .property-subtitle {
-  font-size: 1.4rem; font-weight: 500; color: #5C4E4E;
+  font-size: 1.25rem; font-weight: 600; color: #5C4E4E;
 }
 .header-right {
   display: flex; align-items: baseline; gap: 4px;
 }
-.price-amount { font-size: 1.8rem; font-weight: 700; color: #5C4E4E; }
-.price-period { font-size: 0.9rem; font-weight: 600; color: #8C7E7E; }
+.price-amount { font-size: 1.8rem; font-weight: 800; color: #1e1b18; }
+.price-period { font-size: 0.9rem; font-weight: 600; color: #78716c; }
 
 /* House Info */
-.house-info { margin-bottom: 48px; }
 .house-detail-icons {
-  display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 32px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
 }
 .d-icon {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-  width: 60px; height: 60px;
-  border: 1px solid #EDE8E3; border-radius: 10px;
+  padding: 14px 10px;
+  border: 1px solid #EDE8E3; border-radius: 12px;
   background: #FAF8F5;
-  font-size: 0.65rem; font-weight: 600; color: #5C4E4E;
+  font-size: 0.85rem; font-weight: 600; color: #2A2421;
+  transition: all 0.2s ease;
+}
+.d-icon:hover {
+  border-color: #5C4E4E;
+  background: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
 }
 
 .rooms-grid {
-  display: flex; flex-wrap: wrap; gap: 12px; max-width: 400px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+  max-width: 100%;
 }
 .room-pill {
-  background: #fff; border: 1.5px solid #EDE8E3; border-radius: 8px;
-  padding: 8px 14px; font-size: 0.72rem; font-weight: 600; color: #8C7E7E;
-  cursor: pointer; transition: all 0.2s;
-  font-family: inherit;
+  background: #fff; border: 1.5px solid #dcd8d3; border-radius: 10px;
+  padding: 10px 12px; font-size: 0.86rem; font-weight: 700; color: #475569;
+  cursor: pointer; transition: all 0.2s ease;
+  font-family: inherit; text-align: center;
 }
 .room-pill:hover {
-  border-color: #5C4E4E; color: #5C4E4E; background: #FAF8F5;
+  border-color: #5C4E4E; color: #1e1b18; background: #FAF8F5;
 }
 .room-pill.selected {
   border-color: #5C4E4E; color: #ffffff; background: #5C4E4E;
+  box-shadow: 0 4px 12px rgba(92, 78, 78, 0.25);
 }
 
 /* Photos */

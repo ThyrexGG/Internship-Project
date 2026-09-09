@@ -77,13 +77,25 @@ onUnmounted(() => {
   --shadow-lg: 0 10px 30px rgba(92, 78, 78, 0.08);
   --shadow-dropdown: 0 12px 36px rgba(42, 36, 33, 0.12), 0 4px 12px rgba(42, 36, 33, 0.06);
 
-  /* Typography */
+/* Typography */
   --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'DM Serif Display', Georgia, serif;
 
+  /* Line Heights */
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+
+  /* Letter Spacing */
+  --tracking-tight: -0.025em;
+  --tracking-snug: -0.015em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.025em;
+
   /* Transitions */
-  --transition-fast: 0.15s ease;
-  --transition-normal: 0.25s ease;
+  --transition-fast: 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -92,6 +104,8 @@ body {
   font-family: var(--font-body);
   background: var(--color-bg-canvas);
   color: var(--color-text-primary);
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -99,6 +113,36 @@ body {
 #app {
   width: 100%;
   min-height: 100vh;
+}
+
+/* Global Typography Hierarchy */
+h1, .h1 {
+  font-family: var(--font-body);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text-primary);
+}
+
+h2, .h2 {
+  font-family: var(--font-body);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text-primary);
+}
+
+h3, .h3 {
+  font-family: var(--font-body);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-snug);
+  color: var(--color-text-primary);
+}
+
+p {
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
 }
 
 /* Global Container Utilities */
@@ -109,6 +153,71 @@ body {
   margin-right: auto;
   padding-left: var(--container-gutter);
   padding-right: var(--container-gutter);
+}
+
+/* Elevated Surface Cards */
+.surface-card {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.surface-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: #dcd6cd;
+}
+
+/* Badge System */
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  line-height: 1;
+}
+
+.badge-emerald {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.badge-neutral {
+  background: #f5f4f0;
+  color: #57534e;
+  border: 1px solid #e7e5e4;
+}
+
+.badge-amber {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+/* Standard Form Inputs */
+.input-base {
+  width: 100%;
+  height: 44px;
+  padding: 0 16px;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 0.92rem;
+  color: var(--color-text-primary);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.input-base:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(92, 78, 78, 0.12);
 }
 
 /* Custom Scrollbars */

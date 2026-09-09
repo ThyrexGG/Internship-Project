@@ -33,7 +33,7 @@
 
         <!-- Hero + Search -->
         <section class="hero-section">
-        <h1 class="hero-title">Safety is what we priority,<br />Affordable is what we offer.</h1>
+        <h1 class="hero-title">Safety is our priority,<br />Affordability is our promise.</h1>
         <div class="search-filter">
           <div class="search-box">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2">
@@ -5481,32 +5481,120 @@ const filteredProperties = computed(() => {
 }
 
 /* ── FINAL THEME OVERRIDE ── */
-.home-page, .content { background: #ffffff !important; }
+.home-page { background: #faf8f5 !important; }
+.content { background: #faf8f5 !important; padding-bottom: 140px !important; }
 .top-nav { background: #5C4E4E !important; border-bottom: none !important; }
 .logo-text, .logo-icon { color: #ffffff !important; }
-.hero-title, .feeds-title, .notification-title, .section-title { color: #000000 !important; }
+.hero-title, .feeds-title, .notification-title, .section-title { color: #1e1b18 !important; }
 
 /* Inputs and Buttons */
-.search-box, .filter-btn { background: #ffffff !important; border: 1px solid #c0c0c0 !important; color: #000000 !important; border-radius: 30px !important; }
-.search-box input { color: #000000 !important; }
-.search-box input::placeholder { color: #888888 !important; }
+.search-box { 
+  background: #ffffff !important; 
+  border: 1.5px solid #dcd8d3 !important; 
+  border-radius: 30px !important; 
+  height: 42px !important;
+  padding: 0 16px !important;
+  box-shadow: 0 2px 8px rgba(92, 78, 78, 0.04) !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+.search-box:focus-within {
+  border-color: #5C4E4E !important;
+  box-shadow: 0 0 0 3px rgba(92, 78, 78, 0.12) !important;
+}
+.search-box input { color: #1e1b18 !important; font-size: 0.88rem !important; }
+.search-box input::placeholder { color: #8c857b !important; }
+
+.filter-btn { 
+  background: #ffffff !important; 
+  border: 1.5px solid #dcd8d3 !important; 
+  color: #2b2723 !important; 
+  border-radius: 30px !important; 
+  height: 42px !important;
+  padding: 0 18px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(92, 78, 78, 0.04) !important;
+  transition: all 0.2s ease !important;
+}
+.filter-btn:hover {
+  border-color: #5C4E4E !important;
+  background: #fdfbf9 !important;
+}
 
 /* Cards (Feeds, Mates) */
 .post-composer, .feed-card, .mates-card, .chat-modal, .chat-header { 
   background: #ffffff !important; 
-  border: 1px solid #e0e0e0 !important; 
+  border: 1px solid #ede8e3 !important; 
   border-radius: 16px !important;
+  box-shadow: 0 2px 10px rgba(92, 78, 78, 0.04) !important;
 }
-.property-card { background: #fafafa !important; border: none !important; box-shadow: none !important; border-radius: 16px !important; }
+.property-card { 
+  background: #ffffff !important; 
+  border: 1px solid #ede8e3 !important; 
+  box-shadow: 0 2px 10px rgba(92, 78, 78, 0.04) !important; 
+  border-radius: 16px !important; 
+  padding: 10px 10px 14px !important;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease !important;
+}
+.property-card:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 12px 28px rgba(92, 78, 78, 0.09) !important;
+  border-color: #dcd6cd !important;
+}
 
 /* Text within cards */
-.feed-text, .card-name, .card-price, .chat-message.me .msg-bubble { color: #000000 !important; }
-.feed-author span, .mate-copy span { color: #000000 !important; }
-.card-location, .match, .mate-copy p, .mate-row time, .feed-caption, .chat-message.them .msg-bubble, .composer-row input { color: #888888 !important; }
+.feed-text, .chat-message.me .msg-bubble { color: #1e1b18 !important; }
+.card-name { 
+  font-size: 1.02rem !important; 
+  font-weight: 700 !important; 
+  color: #1e1b18 !important; 
+  letter-spacing: -0.2px !important;
+}
+.card-price { 
+  font-size: 1.05rem !important; 
+  font-weight: 800 !important; 
+  color: #1e1b18 !important; 
+}
+.feed-author span, .mate-copy span { color: #1e1b18 !important; }
+.card-location { 
+  color: #64748b !important; 
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+}
+.mate-copy p, .mate-row time, .feed-caption, .chat-message.them .msg-bubble, .composer-row input { color: #78716c !important; }
 .host-text { color: #ffffff !important; font-weight: 600 !important; font-size: 0.95rem !important; cursor: pointer; }
 
 /* Tags & Badges */
-.tag { background: #ffffff !important; color: #888888 !important; border: 1px solid #e0e0e0 !important; border-radius: 8px !important; position: relative; }
+.card-info {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding: 10px 4px 2px !important;
+}
+.tag { 
+  background: #f7f5f2 !important; 
+  color: #57534e !important; 
+  border: 1px solid #e7e5e4 !important; 
+  border-radius: 6px !important; 
+  font-size: 0.74rem !important;
+  font-weight: 600 !important;
+  padding: 3px 8px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  position: relative; 
+}
+.match {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #a7f3d0 !important;
+  border-radius: 6px !important;
+  font-size: 0.74rem !important;
+  font-weight: 700 !important;
+  padding: 3px 8px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
 .tag::after {
   content: attr(data-tooltip);
   position: absolute;

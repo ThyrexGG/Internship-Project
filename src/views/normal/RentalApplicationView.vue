@@ -675,57 +675,81 @@ const handleBack = () => {
 .step-item.done .step-connector { background: #22c55e; }
 
 /* ── HOUSE INFO ── */
-.section { margin-bottom: 20px; }
-.section-heading { font-size: 1.15rem; font-weight: 700; margin: 0 0 6px; }
-.sub-heading { font-size: 0.85rem; font-weight: 600; color: #444; margin: 0 0 12px; }
-.icons-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.section { margin-bottom: 24px; }
+.section-heading { font-size: 1.25rem; font-weight: 700; color: #1e1b18; margin: 0 0 6px; letter-spacing: -0.3px; }
+.sub-heading { font-size: 0.9rem; font-weight: 600; color: #64748b; margin: 0 0 14px; }
+.icons-row { 
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px; 
+}
 .d-icon {
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-  width: 56px; height: 56px;
-  border: 1px solid #e0e0e0; border-radius: 8px;
-  font-size: 0.6rem; font-weight: 600; color: #444; background: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  padding: 14px 10px;
+  border: 1px solid #ede8e3; border-radius: 12px;
+  font-size: 0.84rem; font-weight: 600; color: #2b2723; background: #faf8f5;
+  transition: all 0.2s ease;
+}
+.d-icon:hover {
+  border-color: #5C4E4E;
+  background: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
 }
 
 /* ── CARDS ── */
 .card {
-  background: #fff;
-  border-radius: 12px;
-  border: 1px solid #e8e8e8;
-  padding: 20px;
-  margin-bottom: 16px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #ede8e3;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 10px rgba(92, 78, 78, 0.04);
 }
 
 /* ── FORM FIELDS ── */
-.field-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 180px; }
-.field-row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; }
-.field-label { font-size: 0.82rem; font-weight: 600; color: #222; }
+.field-group { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 180px; }
+.field-row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 18px; }
+.field-label { font-size: 0.86rem; font-weight: 600; color: #2b2723; }
 .field-input {
-  border: 1px solid #ddd; border-radius: 8px;
-  padding: 9px 12px; font-size: 0.85rem;
-  font-family: inherit; color: #111; outline: none;
-  transition: border-color 0.2s; background: #fff;
+  border: 1.5px solid #dcd8d3; border-radius: 10px;
+  height: 44px;
+  padding: 0 14px; font-size: 0.9rem;
+  font-family: inherit; color: #1e1b18; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s; background: #ffffff;
 }
-.field-input:focus { border-color: #111; }
+.field-input:focus { 
+  border-color: #5C4E4E;
+  box-shadow: 0 0 0 3px rgba(92, 78, 78, 0.12);
+}
 .field-textarea {
-  border: 1px solid #ddd; border-radius: 8px;
-  padding: 9px 12px; font-size: 0.85rem;
-  font-family: inherit; color: #111; outline: none;
-  resize: none; height: 90px;
-  transition: border-color 0.2s; background: #fff;
+  border: 1.5px solid #dcd8d3; border-radius: 10px;
+  padding: 12px 14px; font-size: 0.9rem;
+  font-family: inherit; color: #1e1b18; outline: none;
+  resize: none; height: 100px;
+  transition: border-color 0.2s, box-shadow 0.2s; background: #ffffff;
 }
-.field-textarea:focus { border-color: #111; }
-.field-hint { font-size: 0.72rem; color: #888; line-height: 1.4; margin: 0; }
+.field-textarea:focus { 
+  border-color: #5C4E4E;
+  box-shadow: 0 0 0 3px rgba(92, 78, 78, 0.12);
+}
+.field-hint { font-size: 0.76rem; color: #78716c; line-height: 1.4; margin: 0; }
 
 /* Pills */
-.pill-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.pill-row { display: flex; gap: 10px; flex-wrap: wrap; }
 .pill-btn {
-  padding: 6px 16px; border-radius: 20px;
-  border: 1px solid #ddd; background: #fff;
-  font-size: 0.82rem; font-weight: 600; color: #444;
-  cursor: pointer; font-family: inherit; transition: all 0.18s;
+  padding: 8px 18px; border-radius: 30px;
+  border: 1.5px solid #dcd8d3; background: #ffffff;
+  font-size: 0.85rem; font-weight: 600; color: #475569;
+  cursor: pointer; font-family: inherit; transition: all 0.2s ease;
 }
-.pill-btn:hover { border-color: #111; color: #111; }
-.pill-btn.active { background: #111; color: #fff; border-color: #111; }
+.pill-btn:hover { border-color: #5C4E4E; color: #1e1b18; }
+.pill-btn.active { 
+  background: #5C4E4E; 
+  color: #ffffff; 
+  border-color: #5C4E4E;
+  box-shadow: 0 2px 8px rgba(92, 78, 78, 0.25);
+}
 
 /* ── DOCUMENTS ── */
 .doc-title { font-size: 0.9rem; font-weight: 600; margin: 0 0 14px; }
