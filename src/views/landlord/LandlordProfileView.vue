@@ -659,7 +659,7 @@ function shareProfile() {
 .message-btn {
   background: #5C4E4E;
   color: #ffffff;
-  border: none;
+  border: 1px solid #4a3e3e;
   border-radius: 9999px;
   padding: 12px 28px;
   font-size: 0.95rem;
@@ -668,15 +668,15 @@ function shareProfile() {
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: all 0.2s ease;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   margin-bottom: 8px;
-  box-shadow: 0 4px 12px rgba(92, 78, 78, 0.15);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 14px rgba(92, 78, 78, 0.28);
 }
 
 .message-btn:hover {
   background: #473B3B;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(92, 78, 78, 0.25);
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 20px rgba(92, 78, 78, 0.35);
 }
 
 /* --- Navigation Tabs --- */
@@ -784,11 +784,11 @@ function shareProfile() {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  background: #FAF8F5;
+  background: #ffffff;
   padding: 32px 36px;
   border-radius: 20px;
-  border: 1px solid #EDE8E3;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+  border: 1px solid rgba(220, 214, 205, 0.75);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 20px rgba(42, 36, 33, 0.05);
 }
 
 .info-row {
@@ -825,7 +825,7 @@ function shareProfile() {
 }
 
 .section-title {
-  font-size: 1.3rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: #2A2421;
   margin-top: 0;
@@ -843,16 +843,17 @@ function shareProfile() {
   border-radius: 16px;
   overflow: hidden;
   aspect-ratio: 1.15;
-  border: 1px solid #EDE8E3;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+  border: 1px solid rgba(220, 214, 205, 0.7);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 2px 6px rgba(42, 36, 33, 0.04), 0 6px 16px rgba(42, 36, 33, 0.04);
   cursor: pointer;
   position: relative;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s;
 }
 
 .landlord-prop-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+  transform: translateY(-4px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 12px 28px -4px rgba(42, 36, 33, 0.12);
+  border-color: #cfc7bc;
 }
 
 .prop-img-wrapper {

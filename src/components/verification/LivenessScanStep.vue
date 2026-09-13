@@ -258,7 +258,7 @@ function handleCompleteAndGoToAccount() {
 
 /* Dynamic Instruction Card */
 .liveness-prompt-card {
-  border: 1.5px solid #E9D5FF;
+  border: 1px solid rgba(216, 180, 254, 0.7);
   border-radius: 16px;
   background: #FAF5FF;
   padding: 18px 20px;
@@ -267,7 +267,7 @@ function handleCompleteAndGoToAccount() {
   align-items: center;
   gap: 10px;
   margin-bottom: 24px;
-  box-shadow: 0 2px 8px rgba(147, 51, 234, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 14px rgba(147, 51, 234, 0.08);
 }
 
 .prompt-icon-badge {
@@ -279,6 +279,7 @@ function handleCompleteAndGoToAccount() {
   align-items: center;
   justify-content: center;
   color: #9333EA;
+  box-shadow: 0 2px 8px rgba(147, 51, 234, 0.15);
 }
 
 .prompt-instruction-text {
@@ -304,7 +305,8 @@ function handleCompleteAndGoToAccount() {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #EDE8E3;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
 }
 
 .camera-stream-video {

@@ -52,7 +52,7 @@
 
       <div class="home-content-wrapper">
         <!-- Property Grid -->
-        <section class="listings">
+        <section v-if="filteredProperties.length > 0" class="listings">
         <div v-for="property in filteredProperties" :key="property.id" class="property-card" @click="handleCardClick($event, property.id, $router)">
           <!-- Carousel -->
           <div 
@@ -69,8 +69,14 @@
                 loading="lazy"
               />
             </div>
-            <button class="heart-btn" :class="{ liked: property.liked }" @click.stop="property.liked = !property.liked">
-              <svg width="13" height="13" viewBox="0 0 24 24" :fill="property.liked ? '#111' : 'none'" :stroke="property.liked ? '#111' : '#555'" stroke-width="2">
+            <button 
+              class="heart-btn" 
+              :class="{ liked: property.liked }" 
+              type="button" 
+              :aria-label="property.liked ? 'Remove from saved' : 'Save property'"
+              @click.stop="property.liked = !property.liked"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" :fill="property.liked ? '#E11D48' : 'none'" :stroke="property.liked ? '#E11D48' : '#2A2421'" stroke-width="2">
                 <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
               </svg>
             </button>
@@ -114,6 +120,19 @@
         </div>
         </section>
 
+        <!-- Empty State -->
+        <div v-else class="empty-listings-state">
+          <div class="empty-icon-wrap">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <h3 class="empty-title">No properties found</h3>
+          <p class="empty-subtext">Try adjusting your search criteria, price range, or clearing filters to discover available homes in Phnom Penh.</p>
+          <button class="btn-reset-filters" type="button" @click="searchQuery = ''">Clear Search</button>
+        </div>
+
         <div v-if="hasMoreProperties || loadingMoreProperties" style="display: flex; justify-content: center; padding: 20px 0 40px;">
           <button 
             @click="loadMoreProperties" 
@@ -148,10 +167,18 @@
         </section>
 
         <!-- Favorite Properties Grid -->
-        <section class="listings" style="flex-grow: 1;">
-          <div v-if="favoriteProperties.length === 0" class="empty-favorites">
-            <p>No favorites yet. Start saving properties you love!</p>
+        <div v-if="favoriteProperties.length === 0" class="empty-listings-state" style="margin: 40px auto; max-width: 480px;">
+          <div class="empty-icon-wrap">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#E11D48" stroke-width="1.8">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+            </svg>
           </div>
+          <h3 class="empty-title">No saved properties yet</h3>
+          <p class="empty-subtext">Click the heart icon on any property to save your favorites for easy comparison later.</p>
+          <button class="btn-reset-filters" type="button" @click="activeTab = 'home'">Explore Properties</button>
+        </div>
+
+        <section v-else class="listings" style="flex-grow: 1;">
           <div v-for="property in favoriteProperties" :key="property.id" class="property-card" @click="handleCardClick($event, property.id, $router)">
             <!-- Carousel -->
             <div 
@@ -167,8 +194,14 @@
                   class="carousel-img" draggable="false"
                 />
               </div>
-              <button class="heart-btn" :class="{ liked: property.liked }" @click.stop="property.liked = !property.liked">
-                <svg width="13" height="13" viewBox="0 0 24 24" :fill="property.liked ? '#111' : 'none'" :stroke="property.liked ? '#111' : '#555'" stroke-width="2">
+              <button 
+                class="heart-btn" 
+                :class="{ liked: property.liked }" 
+                type="button"
+                :aria-label="property.liked ? 'Remove from saved' : 'Save property'"
+                @click.stop="property.liked = !property.liked"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" :fill="property.liked ? '#E11D48' : 'none'" :stroke="property.liked ? '#E11D48' : '#2A2421'" stroke-width="2">
                   <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
                 </svg>
               </button>
@@ -2815,27 +2848,45 @@ const filteredProperties = computed(() => {
 }
 
 .search-box {
-  display: flex; align-items: center; gap: 7px;
-  border: 1.5px solid #e8e8e8; border-radius: 50px;
-  padding: 7px 12px; background: #fff; width: 100%;
+  display: flex; align-items: center; gap: 8px;
+  border: 1px solid rgba(220, 214, 205, 0.8); border-radius: 50px;
+  padding: 8px 14px; background: #ffffff; width: 100%;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 4px rgba(42, 36, 33, 0.04);
+  transition: all var(--transition-fast);
+}
+
+.search-box:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 4px 14px rgba(92, 78, 78, 0.12);
+  transform: translateY(-1px);
 }
 
 .search-box input {
   border: none; outline: none;
-  font-family: 'DM Sans', sans-serif; font-size: 0.8rem;
+  font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
   color: #333; flex: 1; background: transparent; min-width: 0;
 }
-.search-box input::placeholder { color: #bbb; }
+.search-box input::placeholder { color: #8C7E7E; }
 
 .filter-btn {
-  display: flex; align-items: center; gap: 5px;
-  padding: 6px 14px;
-  border: 1.5px solid #e8e8e8; border-radius: 50px;
-  background: #fff;
-  font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; color: #333;
-  cursor: pointer; white-space: nowrap; transition: border-color 0.2s;
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 16px;
+  border: 1px solid rgba(220, 214, 205, 0.8); border-radius: 50px;
+  background: #ffffff;
+  font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500; color: #333;
+  cursor: pointer; white-space: nowrap;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 1px 3px rgba(42, 36, 33, 0.04);
+  transition: all var(--transition-fast);
 }
-.filter-btn:hover { border-color: #bbb; }
+.filter-btn:hover {
+  border-color: #cfc7bc;
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 10px rgba(42, 36, 33, 0.08);
+}
+.filter-btn:active {
+  transform: translateY(0);
+  box-shadow: inset 0 1px 2px rgba(42, 36, 33, 0.08);
+}
 
 /* ── GRID — Responsive grid ── */
 .listings {
@@ -2846,14 +2897,27 @@ const filteredProperties = computed(() => {
 
 /* ── CARD ── */
 .property-card {
-  display: flex; flex-direction: column; gap: 7px;
+  display: flex; flex-direction: column; gap: 9px;
   cursor: pointer; min-width: 0;
+  border-radius: var(--radius-xl);
+  padding: 10px;
+  background: #ffffff;
+  border: 1px solid rgba(220, 214, 205, 0.65);
+  box-shadow: var(--shadow-elevation-1-specular);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal), border-color var(--transition-normal);
+}
+
+.property-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-elevation-2-specular);
+  border-color: #cfc7bc;
 }
 
 /* KEY CHANGE: smaller aspect ratio = shorter image */
 .card-carousel {
-  position: relative; border-radius: 12px;
+  position: relative; border-radius: var(--radius-md);
   overflow: hidden; aspect-ratio: 16/9; background: #f0f0f0;
+  box-shadow: 0 2px 8px rgba(42, 36, 33, 0.06);
 }
 
 .carousel-track {
@@ -2864,16 +2928,88 @@ const filteredProperties = computed(() => {
 .carousel-img {
   min-width: 100%; height: 100%; object-fit: cover;
   flex-shrink: 0; pointer-events: none; user-select: none;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.property-card:hover .carousel-img {
+  transform: scale(1.04);
 }
 
 .heart-btn {
-  position: absolute; top: 8px; right: 8px;
-  width: 26px; height: 26px; background: #fff; border: none;
+  position: absolute; top: 10px; right: 10px;
+  width: 32px; height: 32px; background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-  transition: transform 0.15s; z-index: 2;
+  cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.14);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.15s; z-index: 2;
 }
-.heart-btn:hover { transform: scale(1.1); }
+.heart-btn:hover { transform: scale(1.12); background: #ffffff; }
+.heart-btn.liked { background: #ffffff; }
+.heart-btn.liked svg { animation: heartPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+/* ── Empty State ── */
+.empty-listings-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 24px;
+  background: #ffffff;
+  border: 1px solid var(--color-border, #EDE8E3);
+  border-radius: var(--radius-xl, 18px);
+  box-shadow: var(--shadow-elevation-1-specular);
+  margin: 20px 0 40px;
+}
+
+.empty-icon-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #FAF8F5;
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary, #5C4E4E);
+  margin-bottom: 16px;
+}
+
+.empty-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1E1B18;
+  margin: 0 0 8px;
+}
+
+.empty-subtext {
+  font-size: 0.92rem;
+  color: var(--color-text-muted, #8C7E7E);
+  max-width: 440px;
+  line-height: 1.5;
+  margin: 0 0 20px;
+}
+
+.btn-reset-filters {
+  padding: 10px 24px;
+  background: var(--color-primary, #5C4E4E);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-pill, 50px);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(92, 78, 78, 0.2);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-reset-filters:hover {
+  background: #473B3B;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(92, 78, 78, 0.28);
+}
 
 .carousel-dots {
   position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
@@ -3974,21 +4110,26 @@ const filteredProperties = computed(() => {
   font-weight: 500;
   color: #5C4E4E;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   border: 1px solid transparent;
   position: relative;
 }
 
 .sidebar-item:hover {
-  background: rgba(92, 78, 78, 0.04);
+  background: #FAF8F5;
+  color: #2A2421;
 }
 
 .sidebar-item.active {
   border-color: transparent !important;
-  background: rgba(92, 78, 78, 0.08) !important;
-  color: #5C4E4E !important;
+  background: #5C4E4E !important;
+  color: #ffffff !important;
   font-weight: 600;
-  box-shadow: none !important;
+  box-shadow: var(--shadow-elevation-1, 0 2px 6px rgba(92, 78, 78, 0.2)) !important;
+}
+
+.sidebar-item.active svg {
+  stroke: #ffffff !important;
 }
 
 .menu-alert-dot {
@@ -4017,15 +4158,16 @@ const filteredProperties = computed(() => {
   gap: 16px;
   background: #fffbeb;
   border: 1px solid #fde68a;
-  border-radius: 12px;
-  padding: 14px 18px;
+  border-radius: 14px;
+  padding: 16px 20px;
   margin-bottom: 28px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow-elevation-1);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s;
 }
 .profile-verification-banner:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevation-2-specular);
 }
 .verification-banner-icon {
   color: #d97706;
@@ -4058,17 +4200,23 @@ const filteredProperties = computed(() => {
   font-weight: 600;
   cursor: pointer;
   flex-shrink: 0;
+  box-shadow: var(--shadow-elevation-1);
+  transition: all 0.2s;
+}
+.verification-banner-btn:hover {
+  background: #b45309;
+  transform: translateY(-1px);
 }
 
 .settings-main {
   flex: 1;
-  padding: 32px 40px;
+  padding: 36px 44px;
   background: #ffffff;
-  border-radius: 16px;
-  border: 1px solid rgba(92, 78, 78, 0.08);
-  box-shadow: 0 4px 24px rgba(92, 78, 78, 0.03);
-  margin-left: 40px;
-  max-width: 840px;
+  border-radius: 20px;
+  border: 1px solid #EDE8E3;
+  box-shadow: var(--shadow-elevation-2-specular, 0 6px 24px rgba(42, 36, 33, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.95));
+  margin-left: 36px;
+  max-width: 860px;
 }
 
 .main-title {
@@ -4238,17 +4386,20 @@ const filteredProperties = computed(() => {
 .settings-tile {
   display: flex;
   align-items: center;
-  padding: 16px;
-  background: #fdfdfd;
-  border: 1px solid #f0f0f0;
-  border-radius: 12px;
+  padding: 16px 20px;
+  background: #ffffff;
+  border: 1px solid #EDE8E3;
+  border-radius: 14px;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
-  max-width: 400px;
+  box-shadow: var(--shadow-elevation-1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 480px;
 }
 .settings-tile:hover {
-  background: #f5f5f5;
-  border-color: #e0e0e0;
+  background: #ffffff;
+  transform: translateY(-2px);
+  border-color: #5C4E4E;
+  box-shadow: var(--shadow-elevation-2-specular);
 }
 .tile-icon {
   margin-right: 12px;
@@ -4361,26 +4512,28 @@ const filteredProperties = computed(() => {
 .settings-list-group {
   display: flex;
   flex-direction: column;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
+  border: 1px solid #EDE8E3;
+  border-radius: 16px;
   overflow: hidden;
-  max-width: 500px;
+  max-width: 540px;
+  box-shadow: var(--shadow-elevation-1);
+  background: #ffffff;
 }
 .settings-list-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
-  background: #fff;
+  padding: 16px 20px;
+  background: #ffffff;
   cursor: pointer;
-  transition: background 0.2s;
-  border-bottom: 1px solid #e0e0e0;
+  transition: all 0.15s ease;
+  border-bottom: 1px solid #EDE8E3;
 }
 .settings-list-item:last-child {
   border-bottom: none;
 }
 .settings-list-item:hover {
-  background: #f7f7f7;
+  background: #FAF8F5;
 }
 .list-item-text {
   font-size: 0.95rem;
@@ -4583,6 +4736,12 @@ const filteredProperties = computed(() => {
 @media (min-width: 1200px) {
   .listings {
     grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1360px) {
+  .listings {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
@@ -5643,16 +5802,17 @@ const filteredProperties = computed(() => {
 .notification-badge { background: #000000 !important; color: #ffffff !important; }
 .heart-btn { background: #ffffff !important; border-radius: 50% !important; border: none !important; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 
-/* Bottom Nav - Floating Pill */
+/* Bottom Nav - Floating Spatial Capsule */
 .bottom-nav { 
-  background: rgba(92, 78, 78, 0.95) !important; /* #5C4E4E with some transparency */
-  backdrop-filter: blur(10px);
-  border-top: none !important; 
+  background: rgba(42, 36, 33, 0.92) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important; 
   border-radius: 40px !important; 
   margin: 0 auto 24px auto !important; 
   width: max-content !important; 
   padding: 8px 32px !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 16px 36px -4px rgba(42, 36, 33, 0.35), 0 6px 16px -2px rgba(42, 36, 33, 0.15) !important;
   position: fixed !important;
   bottom: 12px !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; margin: 0 !important;
   display: flex !important;

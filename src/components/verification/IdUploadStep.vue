@@ -494,29 +494,34 @@ function proceedAnyway() {
 .upload-dropzone {
   width: 100%;
   height: 180px;
-  border: 2px dashed #CBD5E1;
+  border: 2px dashed rgba(220, 214, 205, 0.9);
   border-radius: 16px;
-  background: #FAF8F5;
+  background: #fdfcfb;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   overflow: hidden;
-  transition: all 0.2s ease;
+  box-shadow: inset 0 2px 4px rgba(42, 36, 33, 0.03);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   margin-bottom: 24px;
   box-sizing: border-box;
 }
 
 .upload-dropzone:hover {
   border-color: #5C4E4E;
-  background: #F4EDEA;
+  background: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 14px rgba(42, 36, 33, 0.06);
+  transform: translateY(-2px);
 }
 
 .upload-dropzone.has-preview {
   cursor: default;
   border-style: solid;
-  border-color: #EDE8E3;
+  border-color: rgba(220, 214, 205, 0.7);
   background: #2A2421;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: none;
 }
 
 .hidden-input {
@@ -653,12 +658,12 @@ function proceedAnyway() {
 
 /* Requirements Card */
 .requirements-card {
-  border: 1px solid #EDE8E3;
+  border: 1px solid rgba(220, 214, 205, 0.75);
   border-radius: 16px;
   padding: 22px 24px;
-  background: #FAF8F5;
+  background: #ffffff;
   margin-bottom: 24px;
-  box-shadow: 0 2px 8px rgba(92,78,78,0.03);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 2px 10px rgba(42, 36, 33, 0.04);
 }
 
 .req-header {

@@ -1365,17 +1365,19 @@ onUnmounted(() => {
 }
 
 .received-bubble {
-  background: #FAF8F5;
+  background: #ffffff;
   color: #2A2421;
-  border: 1px solid #EDE8E3;
+  border: 1px solid rgba(220, 214, 205, 0.75);
   border-top-left-radius: 4px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 1px 3px rgba(42, 36, 33, 0.04);
 }
 
 .sent-bubble {
   background: #5C4E4E;
   color: #ffffff;
   border-top-right-radius: 4px;
-  box-shadow: 0 2px 8px rgba(92, 78, 78, 0.15);
+  border: 1px solid #4a3e3e;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 3px 10px rgba(92, 78, 78, 0.25);
 }
 
 .message-row.sent .bubble-content-wrap {
@@ -1400,8 +1402,11 @@ onUnmounted(() => {
 /* Chat Input Bar */
 .chat-input-bar {
   padding: 16px 28px 20px;
-  background: #ffffff;
-  border-top: 1px solid #EDE8E3;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-top: 1px solid rgba(220, 214, 205, 0.7);
+  box-shadow: 0 -4px 16px rgba(42, 36, 33, 0.03);
 }
 
 .input-form {
@@ -1414,18 +1419,20 @@ onUnmounted(() => {
   flex: 1;
   display: flex;
   align-items: center;
-  border: 1.5px solid #E2E8F0;
+  border: 1px solid rgba(220, 214, 205, 0.85);
   border-radius: 9999px;
   height: 44px;
   padding: 0 16px;
-  background: #FAF8F5;
-  transition: all 0.15s ease;
+  background: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 1px 4px rgba(42, 36, 33, 0.04);
+  transition: all var(--transition-fast);
 }
 
 .input-pill:focus-within {
   border-color: #5C4E4E;
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(92, 78, 78, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 12px rgba(92, 78, 78, 0.12);
+  transform: translateY(-1px);
 }
 
 .message-input-field {
@@ -1806,12 +1813,12 @@ onUnmounted(() => {
 /* Header Dropdown */
 .chat-more-dropdown {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 6px);
   right: 0;
   background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(92, 78, 78, 0.12);
-  border: 1px solid #EDE8E3;
+  border-radius: 14px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), var(--shadow-elevation-4);
+  border: 1px solid rgba(220, 214, 205, 0.75);
   width: 210px;
   padding: 6px;
   display: flex;

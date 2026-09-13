@@ -819,10 +819,11 @@ onMounted(() => {
 
 /* Billing frequency */
 .frequency-card {
-  border: 1.5px solid #EDE8E3;
+  border: 1px solid rgba(220, 214, 205, 0.8);
   border-radius: 14px;
-  padding: 14px 20px;
-  background: #FAF8F5;
+  padding: 16px 22px;
+  background: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 2px 6px rgba(42, 36, 33, 0.04);
 }
 
 .freq-sub {
@@ -846,26 +847,29 @@ onMounted(() => {
 
 .method-btn {
   flex: 1;
-  height: 52px;
+  height: 54px;
   border-radius: 12px;
-  border: 1.5px solid #EDE8E3;
+  border: 1px solid rgba(220, 214, 205, 0.8);
   background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.15s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 1px 3px rgba(42, 36, 33, 0.04);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .method-btn:hover {
-  border-color: #5C4E4E;
-  background: #fbfcfe;
+  border-color: #cfc7bc;
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 6px 14px rgba(42, 36, 33, 0.08);
 }
 
 .method-btn.active {
-  border-color: #5C4E4E;
-  background: #f8faff;
-  box-shadow: 0 0 0 2px rgba(92, 78, 78, 0.2);
+  border: 2px solid #7c3aed;
+  background: #faf5ff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 14px rgba(124, 58, 237, 0.2);
+  transform: translateY(-1px);
 }
 
 /* Mastercard logo circles */

@@ -2002,11 +2002,11 @@ onMounted(() => {
 .admin-login-card {
   background: #ffffff;
   border-radius: 16px;
-  border: 1px solid #EDE8E3;
+  border: 1px solid rgba(237, 232, 227, 0.95);
   max-width: 440px;
   width: 100%;
   padding: 36px 32px;
-  box-shadow: 0 20px 40px rgba(92, 78, 78, 0.16);
+  box-shadow: var(--shadow-elevation-3-specular, 0 16px 36px rgba(42, 36, 33, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.95));
   text-align: center;
 }
 
@@ -2135,7 +2135,11 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 2px 8px rgba(92, 78, 78, 0.12);
+  box-shadow: var(--shadow-elevation-2-specular, 0 4px 16px rgba(42, 36, 33, 0.12));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .brand-logo {
@@ -2216,6 +2220,7 @@ onMounted(() => {
   border-right: 1px solid #EDE8E3;
   padding: 24px 16px;
   flex-shrink: 0;
+  box-shadow: var(--shadow-elevation-1, 0 2px 8px rgba(42, 36, 33, 0.04));
 }
 
 .sidebar-heading {
@@ -2253,7 +2258,7 @@ onMounted(() => {
   font-weight: 500;
   color: #5C4E4E;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   margin-bottom: 4px;
   text-align: left;
 }
@@ -2267,6 +2272,7 @@ onMounted(() => {
   background: #5C4E4E;
   color: #ffffff;
   font-weight: 600;
+  box-shadow: var(--shadow-elevation-1, 0 2px 6px rgba(92, 78, 78, 0.2));
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -2292,11 +2298,17 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   background: #ffffff;
-  border: 1px solid #EDE8E3;
+  border: 1.5px solid #EDE8E3;
   border-radius: 9999px;
   padding: 8px 16px;
   width: 280px;
-  box-shadow: 0 2px 6px rgba(92, 78, 78, 0.04);
+  box-shadow: var(--shadow-elevation-1-specular, 0 2px 6px rgba(42, 36, 33, 0.04));
+  transition: all 0.2s ease;
+}
+
+.search-pill-container:focus-within {
+  border-color: #5C4E4E;
+  box-shadow: 0 0 0 3px rgba(92, 78, 78, 0.12);
 }
 
 .search-pill-input {
@@ -2317,12 +2329,14 @@ onMounted(() => {
   font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease;
-  box-shadow: 0 2px 6px rgba(92, 78, 78, 0.15);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-elevation-2, 0 4px 12px rgba(92, 78, 78, 0.2));
 }
 
 .btn-primary-action:hover {
   background: #473B3B;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-elevation-3, 0 6px 18px rgba(92, 78, 78, 0.25));
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -2346,18 +2360,18 @@ onMounted(() => {
   gap: 16px;
   background: #ffffff;
   border: 1px solid #EDE8E3;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
-  box-shadow: 0 2px 8px rgba(92, 78, 78, 0.04);
+  box-shadow: var(--shadow-elevation-1-specular, 0 2px 8px rgba(42, 36, 33, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9));
 }
 
 .agreement-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(92, 78, 78, 0.08);
-  border-color: #5C4E4E;
+  box-shadow: var(--shadow-elevation-2-specular, 0 8px 20px rgba(42, 36, 33, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95));
+  border-color: rgba(92, 78, 78, 0.3);
 }
 
 .pdf-badge {
@@ -2414,11 +2428,12 @@ onMounted(() => {
 .empty-state-card {
   background: #fff;
   border: 1px dashed #EDE8E3;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 32px;
   text-align: center;
   color: #8C7E7E;
   font-size: 0.9rem;
+  box-shadow: var(--shadow-elevation-1-specular);
 }
 
 /* Metrics Column */
@@ -2444,9 +2459,16 @@ onMounted(() => {
 .metric-card {
   background: #ffffff;
   border: 1px solid #EDE8E3;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 20px 24px;
-  box-shadow: 0 2px 8px rgba(92, 78, 78, 0.04);
+  box-shadow: var(--shadow-elevation-1-specular, 0 2px 8px rgba(42, 36, 33, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9));
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevation-2-specular, 0 8px 20px rgba(42, 36, 33, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95));
+  border-color: rgba(92, 78, 78, 0.25);
 }
 
 .metric-header {
@@ -2485,9 +2507,9 @@ onMounted(() => {
 .logs-table-container {
   background: #ffffff;
   border: 1px solid #EDE8E3;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(92, 78, 78, 0.04);
+  box-shadow: var(--shadow-elevation-1-specular, 0 2px 10px rgba(42, 36, 33, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9));
 }
 
 .logs-table {
@@ -2540,9 +2562,9 @@ onMounted(() => {
 .data-table-card {
   background: #ffffff;
   border: 1px solid #EDE8E3;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow-x: auto;
-  box-shadow: 0 2px 8px rgba(92, 78, 78, 0.04);
+  box-shadow: var(--shadow-elevation-1-specular, 0 2px 10px rgba(42, 36, 33, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9));
 }
 
 .data-table {
@@ -2613,11 +2635,11 @@ onMounted(() => {
 .form-pane-container {
   max-width: 820px;
   background: #ffffff;
-  border-radius: 14px;
+  border-radius: 16px;
   border: 1px solid #EDE8E3;
-  padding: 32px;
+  padding: 36px;
   margin: 0 auto;
-  box-shadow: 0 4px 16px rgba(92, 78, 78, 0.04);
+  box-shadow: var(--shadow-elevation-2-specular, 0 6px 24px rgba(42, 36, 33, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.95));
 }
 
 .form-header-bar {
@@ -2734,16 +2756,16 @@ onMounted(() => {
 
 .property-admin-card {
   background: #ffffff;
-  border: 1px solid #EDE8E3;
+  border: 1px solid rgba(237, 232, 227, 0.9);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(92, 78, 78, 0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: var(--shadow-elevation-1-specular, 0 2px 8px rgba(42, 36, 33, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9));
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
 }
 
 .property-admin-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(92, 78, 78, 0.08);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-elevation-2-specular, 0 8px 22px rgba(42, 36, 33, 0.09), inset 0 1px 0 rgba(255, 255, 255, 1));
 }
 
 .prop-thumb-wrap {
@@ -2836,11 +2858,11 @@ onMounted(() => {
 /* Static Cards for Help / Security / Status */
 .static-card {
   background: #ffffff;
-  border: 1px solid #EDE8E3;
+  border: 1px solid rgba(237, 232, 227, 0.9);
   border-radius: 12px;
   padding: 28px;
   max-width: 680px;
-  box-shadow: 0 2px 8px rgba(92, 78, 78, 0.04);
+  box-shadow: var(--shadow-elevation-1-specular, 0 2px 8px rgba(42, 36, 33, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9));
 }
 
 .static-card h3 {
@@ -3295,18 +3317,20 @@ onMounted(() => {
 .verif-kpi-card {
   background: #ffffff;
   border: 1px solid #EDE8E3;
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 18px 20px;
   display: flex;
   align-items: center;
   gap: 14px;
   cursor: pointer;
-  transition: all 0.18s ease;
+  box-shadow: var(--shadow-elevation-1-specular, 0 2px 8px rgba(42, 36, 33, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9));
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .verif-kpi-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(92, 78, 78, 0.08);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-elevation-2-specular, 0 8px 22px rgba(42, 36, 33, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95));
+  border-color: rgba(92, 78, 78, 0.3);
 }
 
 .kpi-icon-bubble {
@@ -3529,9 +3553,10 @@ onMounted(() => {
   gap: 12px;
   background: #ffffff;
   border: 1px solid #EDE8E3;
-  border-radius: 12px;
-  padding: 12px 16px;
+  border-radius: 16px;
+  padding: 14px 18px;
   margin-bottom: 20px;
+  box-shadow: var(--shadow-elevation-1-specular, 0 2px 8px rgba(42, 36, 33, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9));
 }
 
 .filter-group {
@@ -3612,6 +3637,9 @@ onMounted(() => {
   width: 95% !important;
   max-height: 90vh;
   overflow-y: auto;
+  border-radius: 20px !important;
+  box-shadow: var(--shadow-elevation-4-specular, 0 24px 48px rgba(42, 36, 33, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.95)) !important;
+  border: 1px solid rgba(237, 232, 227, 0.95) !important;
 }
 
 .dossier-header-title {

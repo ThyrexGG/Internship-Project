@@ -467,10 +467,10 @@ Date: _______________________
   display: flex; justify-content: space-between; align-items: flex-start;
   margin-bottom: 32px;
   background: #ffffff;
-  border: 1px solid #ede8e3;
+  border: 1px solid rgba(237, 232, 227, 0.9);
   border-radius: 16px;
   padding: 24px 28px;
-  box-shadow: 0 2px 10px rgba(92, 78, 78, 0.04);
+  box-shadow: var(--shadow-elevation-1-specular, 0 1px 3px rgba(42, 36, 33, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9));
 }
 .page-title-row {
   display: flex;
@@ -490,11 +490,14 @@ Date: _______________________
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(42, 36, 33, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9);
   transition: all 0.15s ease;
 }
 .form-back-btn:hover {
   background: #F4EDEA;
   border-color: #5C4E4E;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(42, 36, 33, 0.08);
 }
 .page-title {
   font-size: 1.85rem; font-weight: 700; color: #2A2421; margin-bottom: 4px; line-height: 1.2;
@@ -518,16 +521,17 @@ Date: _______________________
 .d-icon {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
   padding: 14px 10px;
-  border: 1px solid #EDE8E3; border-radius: 12px;
+  border: 1px solid rgba(237, 232, 227, 0.95); border-radius: 12px;
   background: #FAF8F5;
   font-size: 0.85rem; font-weight: 600; color: #2A2421;
-  transition: all 0.2s ease;
+  box-shadow: var(--shadow-elevation-1-specular, 0 1px 3px rgba(42, 36, 33, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.95));
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .d-icon:hover {
   border-color: #5C4E4E;
   background: #ffffff;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  box-shadow: var(--shadow-elevation-2-specular, 0 6px 16px rgba(42, 36, 33, 0.08), inset 0 1px 0 rgba(255, 255, 255, 1));
 }
 
 .rooms-grid {
@@ -537,17 +541,21 @@ Date: _______________________
   max-width: 100%;
 }
 .room-pill {
-  background: #fff; border: 1.5px solid #dcd8d3; border-radius: 10px;
+  background: #ffffff; border: 1.5px solid #dcd8d3; border-radius: 10px;
   padding: 10px 12px; font-size: 0.86rem; font-weight: 700; color: #475569;
-  cursor: pointer; transition: all 0.2s ease;
+  cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   font-family: inherit; text-align: center;
+  box-shadow: var(--shadow-elevation-1-specular, 0 1px 3px rgba(42, 36, 33, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9));
 }
 .room-pill:hover {
   border-color: #5C4E4E; color: #1e1b18; background: #FAF8F5;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-elevation-2-specular, 0 4px 12px rgba(42, 36, 33, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95));
 }
 .room-pill.selected {
   border-color: #5C4E4E; color: #ffffff; background: #5C4E4E;
-  box-shadow: 0 4px 12px rgba(92, 78, 78, 0.25);
+  box-shadow: 0 4px 14px rgba(92, 78, 78, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
 }
 
 /* Photos */
@@ -559,15 +567,26 @@ Date: _______________________
 .photo-item {
   position: relative;
   width: 280px; height: 380px; border-radius: 16px; overflow: hidden; flex-shrink: 0;
-  border: 1px solid #EDE8E3;
+  border: 1px solid rgba(237, 232, 227, 0.85);
+  box-shadow: var(--shadow-elevation-2-specular, 0 6px 18px rgba(42, 36, 33, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9));
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+.photo-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-elevation-3-specular, 0 12px 28px rgba(42, 36, 33, 0.12), inset 0 1px 0 rgba(255, 255, 255, 1));
 }
 .photo-item img { width: 100%; height: 100%; object-fit: cover; }
 .more-photos-btn {
   position: absolute; top: 50%; right: 16px; transform: translateY(-50%);
   width: 40px; height: 40px; border-radius: 50%;
-  background: rgba(255,255,255,0.9); border: 1px solid #EDE8E3; cursor: pointer;
+  background: rgba(255,255,255,0.92); border: 1px solid #EDE8E3; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   color: #5C4E4E;
+  box-shadow: var(--shadow-elevation-2, 0 4px 12px rgba(42, 36, 33, 0.1));
+  transition: transform 0.15s ease;
+}
+.more-photos-btn:hover {
+  transform: translateY(-50%) scale(1.05);
 }
 
 /* Roommate CTA */
@@ -576,20 +595,26 @@ Date: _______________________
   display: flex; justify-content: space-between; align-items: center;
   flex-wrap: wrap; gap: 16px;
   background: #FAF8F5;
-  border: 1px solid #EDE8E3;
+  border: 1px solid rgba(237, 232, 227, 0.95);
   padding: 20px 24px;
   border-radius: 14px;
+  box-shadow: var(--shadow-elevation-1-specular, 0 2px 8px rgba(42, 36, 33, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.95));
 }
 .cta-text { font-size: 1.05rem; font-weight: 600; color: #2A2421; }
 .btn-black {
   background: #5C4E4E; color: #fff; border: none; border-radius: 10px;
   padding: 12px 20px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
   display: flex; align-items: center; gap: 8px;
-  transition: background 0.15s ease;
-  box-shadow: 0 2px 6px rgba(92, 78, 78, 0.15);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(92, 78, 78, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 .btn-black:hover {
   background: #473B3B;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(92, 78, 78, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.btn-black:active {
+  transform: translateY(0);
 }
 
 /* User Info Form */
@@ -654,24 +679,29 @@ Date: _______________________
 .agreement-info { margin-bottom: 48px; }
 .doc-row {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 18px 20px; border: 1px solid #EDE8E3; border-radius: 10px;
+  padding: 18px 20px; border: 1px solid rgba(237, 232, 227, 0.95); border-radius: 10px;
   font-size: 0.9rem; font-weight: 500; margin-bottom: 24px; cursor: pointer;
   background: #FAF8F5;
   color: #2A2421;
-  transition: all 0.15s ease;
+  box-shadow: var(--shadow-elevation-1-specular, 0 1px 3px rgba(42, 36, 33, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.95));
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .doc-row:hover {
-  background: #F4EDEA;
+  background: #ffffff;
   border-color: #5C4E4E;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevation-2-specular, 0 6px 16px rgba(42, 36, 33, 0.08), inset 0 1px 0 rgba(255, 255, 255, 1));
 }
 .doc-row svg {
   color: #5C4E4E;
 }
 .doc-row.borderless {
   border: none; padding: 0 4px; color: #2A2421; font-weight: 600; margin-bottom: 0; background: transparent;
+  box-shadow: none;
 }
 .doc-row.borderless:hover {
   background: transparent;
+  transform: none;
 }
 
 .spacer { height: 100px; }
@@ -683,9 +713,11 @@ Date: _______________________
   left: 0;
   right: 0;
   width: 100%;
-  background: #ffffff;
-  border-top: 1px solid #EDE8E3;
-  box-shadow: 0 -8px 24px rgba(92, 78, 78, 0.06);
+  background: rgba(255, 255, 255, 0.94);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+  border-top: 1px solid rgba(237, 232, 227, 0.85);
+  box-shadow: 0 -8px 24px rgba(42, 36, 33, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.95);
   padding: 16px 8%;
   display: flex;
   flex-direction: row;
@@ -711,13 +743,13 @@ Date: _______________________
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(92, 78, 78, 0.15);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(92, 78, 78, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 .btn-submit:hover:not(:disabled) {
   background: #473B3B;
-  box-shadow: 0 6px 16px rgba(92, 78, 78, 0.25);
-  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(92, 78, 78, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
 }
 .btn-submit:active:not(:disabled) {
   transform: translateY(0);

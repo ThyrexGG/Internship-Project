@@ -279,7 +279,7 @@ const toggleFriend = async () => {
 .user-avatar-wrapper {
   width: 150px; height: 150px; border-radius: 50%;
   border: 5px solid #ffffff; overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 10px 28px rgba(0, 0, 0, 0.16);
   background: #ffffff; flex-shrink: 0;
 }
 .user-avatar { width: 100%; height: 100%; object-fit: cover; }
@@ -291,18 +291,21 @@ const toggleFriend = async () => {
 .profile-actions { display: flex; gap: 12px; margin-bottom: 12px; }
 .message-btn {
   display: flex; align-items: center; gap: 8px; padding: 12px 28px;
-  background: #5C4E4E; color: #fff; border: none; border-radius: 9999px;
-  font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(92, 78, 78, 0.15);
+  background: #5C4E4E; color: #fff; border: 1px solid #4a3e3e; border-radius: 9999px;
+  font-size: 0.95rem; font-weight: 700; cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 14px rgba(92, 78, 78, 0.28);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.message-btn:hover { background: #473B3B; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(92, 78, 78, 0.25); }
+.message-btn:hover { background: #473B3B; transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 20px rgba(92, 78, 78, 0.35); }
 .action-btn {
   display: flex; align-items: center; gap: 8px; padding: 12px 28px;
-  background: #fff; color: #5C4E4E; border: 1.5px solid #5C4E4E; border-radius: 9999px;
-  font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+  background: #fff; color: #5C4E4E; border: 1px solid rgba(220, 214, 205, 0.85); border-radius: 9999px;
+  font-size: 0.95rem; font-weight: 700; cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 1px 3px rgba(42, 36, 33, 0.04);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.action-btn:hover { background: #FAF8F5; transform: translateY(-1px); }
-.action-btn.friend-added { background: #5C4E4E; color: #fff; }
+.action-btn:hover { background: #FAF8F5; transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 12px rgba(92, 78, 78, 0.12); }
+.action-btn.friend-added { background: #5C4E4E; color: #fff; border-color: #4a3e3e; }
 
 /* Tabs */
 .profile-tabs-section {
@@ -326,7 +329,8 @@ const toggleFriend = async () => {
 
 /* Info Pane */
 .info-list-container {
-  background: #FAF8F5; border-radius: 20px; padding: 32px 36px; border: 1px solid #EDE8E3; box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+  background: #ffffff; border-radius: 20px; padding: 32px 36px; border: 1px solid rgba(220, 214, 205, 0.75);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 20px rgba(42, 36, 33, 0.04);
   display: grid; grid-template-columns: 1fr; gap: 18px; max-width: 640px; margin: 0 auto;
 }
 .info-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #EDE8E3; padding-bottom: 16px; }

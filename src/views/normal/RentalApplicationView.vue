@@ -562,7 +562,7 @@ const handleBack = () => {
 
 .app-page {
   font-family: 'DM Sans', sans-serif;
-  background: #f7f7f7;
+  background: #FAF8F5;
   min-height: 100vh;
   color: #111;
 }
@@ -641,16 +641,18 @@ const handleBack = () => {
 .step-circle {
   width: 30px; height: 30px;
   border-radius: 50%;
-  border: 2px solid #ddd;
+  border: 1.5px solid rgba(220, 214, 205, 0.85);
   background: #fff;
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.78rem; font-weight: 700; color: #aaa;
+  font-size: 0.78rem; font-weight: 700; color: #8C7E7E;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 1px 3px rgba(42, 36, 33, 0.04);
   transition: all 0.25s;
   position: relative;
   z-index: 2;
 }
 .step-item.active .step-circle {
-  border-color: #111; background: #111; color: #fff;
+  border-color: #4a3e3e; background: #5C4E4E; color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 3px 10px rgba(92, 78, 78, 0.3);
 }
 .step-item.done .step-circle {
   border-color: #22c55e; background: #22c55e; color: #fff;
@@ -686,25 +688,26 @@ const handleBack = () => {
 .d-icon {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
   padding: 14px 10px;
-  border: 1px solid #ede8e3; border-radius: 12px;
-  font-size: 0.84rem; font-weight: 600; color: #2b2723; background: #faf8f5;
-  transition: all 0.2s ease;
+  border: 1px solid rgba(220, 214, 205, 0.75); border-radius: 12px;
+  font-size: 0.84rem; font-weight: 600; color: #2b2723; background: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 1px 3px rgba(42, 36, 33, 0.04);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .d-icon:hover {
-  border-color: #5C4E4E;
+  border-color: #cfc7bc;
   background: #ffffff;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 6px 14px rgba(42, 36, 33, 0.08);
 }
 
 /* ── CARDS ── */
 .card {
   background: #ffffff;
-  border-radius: 16px;
-  border: 1px solid #ede8e3;
+  border-radius: 18px;
+  border: 1px solid rgba(220, 214, 205, 0.75);
   padding: 28px 32px;
   margin-bottom: 24px;
-  box-shadow: 0 2px 10px rgba(92, 78, 78, 0.04);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 1px 3px rgba(42, 36, 33, 0.04), 0 6px 18px rgba(42, 36, 33, 0.04);
 }
 
 /* ── FORM FIELDS ── */
@@ -739,16 +742,23 @@ const handleBack = () => {
 .pill-row { display: flex; gap: 10px; flex-wrap: wrap; }
 .pill-btn {
   padding: 8px 18px; border-radius: 30px;
-  border: 1.5px solid #dcd8d3; background: #ffffff;
+  border: 1px solid rgba(220, 214, 205, 0.85); background: #ffffff;
   font-size: 0.85rem; font-weight: 600; color: #475569;
-  cursor: pointer; font-family: inherit; transition: all 0.2s ease;
+  cursor: pointer; font-family: inherit;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 1px 3px rgba(42, 36, 33, 0.04);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.pill-btn:hover { border-color: #5C4E4E; color: #1e1b18; }
+.pill-btn:hover {
+  border-color: #cfc7bc;
+  color: #1e1b18;
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 3px 8px rgba(42, 36, 33, 0.08);
+}
 .pill-btn.active { 
   background: #5C4E4E; 
   color: #ffffff; 
-  border-color: #5C4E4E;
-  box-shadow: 0 2px 8px rgba(92, 78, 78, 0.25);
+  border-color: #4a3e3e;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 12px rgba(92, 78, 78, 0.28);
 }
 
 /* ── DOCUMENTS ── */
@@ -757,11 +767,17 @@ const handleBack = () => {
 .doc-upload-row { display: flex; gap: 16px; flex-wrap: wrap; }
 .upload-zone {
   flex: 1; min-width: 140px; max-width: 220px;
-  border: 1.5px dashed #d0d0d0;
-  border-radius: 10px; cursor: pointer;
-  transition: border-color 0.2s; display: block;
+  border: 1.5px dashed rgba(220, 214, 205, 0.9);
+  border-radius: 12px; cursor: pointer;
+  background: #fdfcfb;
+  box-shadow: inset 0 2px 4px rgba(42, 36, 33, 0.02);
+  transition: all 0.2s ease; display: block;
 }
-.upload-zone:hover { border-color: #999; }
+.upload-zone:hover {
+  border-color: #5C4E4E;
+  background: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 12px rgba(42, 36, 33, 0.05);
+}
 .upload-inner {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;

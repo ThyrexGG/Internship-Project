@@ -382,21 +382,24 @@ function proceedAnyway() {
 .selfie-dropzone {
   width: 100%;
   height: 180px;
-  border: 2px dashed #D1D5DB;
-  border-radius: 14px;
-  background: #FAF8F5;
+  border: 2px dashed rgba(220, 214, 205, 0.9);
+  border-radius: 16px;
+  background: #fdfcfb;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  box-shadow: inset 0 2px 4px rgba(42, 36, 33, 0.03);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   margin-bottom: 24px;
   box-sizing: border-box;
 }
 
 .selfie-dropzone:hover {
   border-color: #5C4E4E;
-  background: #F4EDEA;
+  background: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 14px rgba(42, 36, 33, 0.06);
+  transform: translateY(-2px);
 }
 
 .selfie-placeholder {
@@ -426,10 +429,12 @@ function proceedAnyway() {
   position: relative;
   width: 100%;
   height: 240px;
-  border-radius: 14px;
+  border-radius: 16px;
   background: #000;
   overflow: hidden;
   margin-bottom: 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .camera-stream-video {

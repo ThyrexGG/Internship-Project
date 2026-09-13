@@ -1,7 +1,7 @@
 # HomeSweet — Project State & Architectural Blueprint
-> **Document Version:** 1.0.0  
-> **Status:** Production-Ready MVP  
-> **Last Verified Date:** September 8, 2026  
+> **Document Version:** 1.1.0  
+> **Status:** Production-Ready MVP & Premium UX Enhanced  
+> **Last Verified Date:** September 14, 2026  
 > **Target Repository:** `ThyrexGG/Internship-Project` (Branch: `main`)  
 > **Primary Authors & Maintainers:** HomeSweet Core Engineering Team
 
@@ -214,14 +214,15 @@ To access the administrative console discreetly from any screen in the applicati
   - **"Become a Host"** CTA button that switches directly to the Host Upgrade onboarding view.
   - Compact **`NotificationDropdown.vue`** bell icon with live unread counter.
   - Profile menu button that navigates directly to user settings.
-- **Home Tab:** Filter pills (All, Condo, Apartment, House, Studio), property search input, featured listings carousel, responsive property grid, and bookmark toggling.
-- **Favorite Tab:** Displays saved properties saved by the user with one-click navigation to property details.
+- **Home Tab:** Filter pills (All, Condo, Apartment, House, Studio), property search input, featured listings carousel, responsive property grid (4-column layout on >=1360px screens, 3-column desktop, 2-column tablet, 1-column mobile), 1.04x card zoom on hover, and accessible heart favorite button with vibrant `#E11D48` state and `heartPop` bounce animation.
+- **Favorite Tab:** Displays saved properties with live store synchronization and direct one-click navigation to property details.
 - **Feeds Tab:** Community social wall where residents and landlords post updates, queries, and lifestyle stories with photo upload integration, like counts, and real-time comment threads.
 - **Messages Tab:** Integrated chat launcher routing seamlessly to `/chat`.
-- **Settings Tab:** Deep settings panel structured with sub-tabs:
-  - `profile`: Edit first/last name, phone, bio, avatar upload to Firebase Storage.
-  - `security`: Change password, toggle 2FA, session review.
-  - `verification`: Account KYC status banner displaying real-time verification state (`unverified`, `pending`, `verified`, or `rejected`) with direct link to `/verify-account`.
+- **Settings Subsystem (`activeTab === 'settings'`):**
+  - Modern spatial layout with elevated sidebar items and an elevated main card (`var(--shadow-elevation-2-specular)`).
+  - `profile`: Edit first/last name, phone, bio, avatar upload to Firebase Storage with floating edit button.
+  - `security`: Elevated list groups for password change, 2FA toggle, and account privacy.
+  - `verification`: Account KYC status banner displaying real-time verification state (`unverified`, `pending`, `verified`, or `rejected`) with actionable "Verify Now" button.
   - `upgrade`: Resident-to-Host upgrade request form writing to `landlord_applications`.
 - **Floating Bottom Nav Bar:** Capsule navigation bar supporting mobile swipe/tap interactions with active pill indicators and automatic scrolling visibility behaviors.
 
@@ -233,13 +234,31 @@ To access the administrative console discreetly from any screen in the applicati
 - **Filter & Sort Popover:** Real-time filtering by property type, price range slider ($50–$610+), bedroom and bathroom counts, amenities checklist, and rental term period (Short-term / Long-term).
 - **Fullscreen Mode:** Toggle button expands the map to 100% viewport width with floating listings overlay.
 
-#### 3. `PropertyDetailView.vue` (Listing Showcase)
-- **Gallery:** Hero display with horizontal thumbnail scroller and interactive index switching.
-- **Specifications:** Displays price/month, location badge, bedroom/bathroom count, square footage, and compatibility match score.
-- **Amenities Grid:** Wifi, kitchen, pool, air conditioning, parking, laundry with standardized SVG icons.
-- **Tenants Section:** Shows active verified residents living in the building with privacy-compliant avatars.
-- **Reviews & Ratings:** Aggregated rating score with breakdown bar indicators and resident review testimonials.
-- **Conversion Actions:** Direct action buttons to "Apply to Rent" (`/property/:id/apply`), "Find Roommate" (`/property/:id/roommate`), or "Pay Rent" (`/property/:id/payment`).
+#### 3. `PropertyDetailView.vue` (Marketplace Showcase & Booking Engine)
+- **Top Navigation & Breadcrumbs:** Back to listings link, breadcrumbs hierarchy (`Home / Phnom Penh / Property Name`), native Web Share API with clipboard fallback, and accessible heart favorite toggle with `heartPop` micro-interaction.
+- **Mosaic Photo Gallery (Desktop):** 5-image balanced mosaic layout (1 large hero photo on left, 4 supporting photos in a 2x2 grid on right) with subtle 1.03x hover zoom and a floating **"Show all photos"** button.
+- **Full-Screen Interactive Lightbox Modal:**
+  - Darkened frosted backdrop (`rgba(12, 10, 9, 0.94)` with `backdrop-filter: blur(16px)`).
+  - Photo counter indicator, close button (`✕`), Next/Prev buttons, and bottom thumbnail carousel strip.
+  - Keyboard navigation listener (`ArrowLeft`, `ArrowRight`, `Escape`).
+- **Two-Column Marketplace Layout:**
+  - **Left Column:**
+    - *Host Intro Card:* Verified landlord avatar, checkmark, response rate badge, and quick "Chat Host" button.
+    - *Bento Property Highlights:* Responsive bento grid with Large cards (Bedrooms, Bathrooms), Medium cards (Floor area, Furnished type), and Small amenity tiles rendered dynamically from `property.amenities`.
+    - *About This Home:* Architectural narrative and specifications.
+    - *"Explore Like a Local" / Neighborhood Guide:* Categorized authentic Phnom Penh landmarks (Universities, Cafes, Supermarkets, Hospitals) with walking distances, plus an interactive map preview card displaying latitude/longitude coordinates and a Google Maps deep link.
+    - *Verified Tenant Reviews:* Summary rating score (4.9/5.0) and resident testimonial cards.
+    - *Direct Channels:* Facebook, Telegram, and hotline pills.
+  - **Right Column — Sticky Booking Card (`position: sticky; top: 90px`):**
+    - Floating card with `var(--shadow-elevation-3-specular)`.
+    - Move-in date picker, lease duration selector pills (`1 Mo`, `3 Mo`, `6 Mo`, `1 Yr`), and occupant counter.
+    - Live pricing breakdown (Rent, Refundable Deposit, Utilities, Total due at signing).
+    - Primary CTA: **"Rent House / Apply"** (`/property/:id/apply`).
+    - Secondary CTAs: **"Pay Deposit Now"** (`/property/:id/payment`) and **"Find Roommate to Split"** (`/property/:id/roommate`).
+- **Mobile Viewport Optimization (390px):**
+  - Seamlessly collapses into a single-column layout with zero horizontal overflow.
+  - Switches desktop mosaic to a swipeable mobile hero carousel with photo counter pill.
+  - Features a fixed bottom action bar with monthly price and a high-priority "Rent House" button.
 
 #### 4. `RentalApplicationView.vue` (Lease Application Wizard)
 - **Step 1: Application Form:** Applicant identification, employment info, proposed lease duration (6, 12, 18, 24 months), desired move-in date, and legal declarations.
@@ -312,24 +331,26 @@ The identity verification pipeline (`src/views/normal/VerifyAccountView.vue` and
 
 ### 5.3 Landlord & Host Operations Portal
 
-#### 1. `LandlordNotification.vue` (Operations Dashboard)
-- **Listing Management:**
-  - View all managed properties with status indicators (Active, Occupied, Under Maintenance).
-  - Add New Property Modal with:
-    - Title, price per month, deposit amount, category (Condo, Apartment, House, Studio).
-    - **One-Click Geolocation:** Integrates `locationService.js` to read GPS coordinates from the browser, perform reverse geocoding via OpenStreetMap Nominatim, and auto-populate district and street address.
-    - **AI Description Assistant:** Automatically drafts appealing, professional property descriptions based on selected amenities.
-    - **Photo Gallery Upload:** Direct file-to-Firebase-Storage pipeline with image preview and delete actions.
-    - Spec attributes: Bedroom count, bathroom count, square meters, amenities checklist.
-- **Booking & Rental Applications:**
-  - Real-time stream of incoming tenant applications.
-  - Review applicant profile, uploaded financial documents, and verification badges.
+#### 1. `LandlordNotification.vue` (Operations & Management Console)
+- **Spatial Elevation & Theme Architecture:** Fully upgraded with warm taupe header (`#5C4E4E`), elevated sticky top navigation (`var(--shadow-elevation-2-specular)`), elevated sidebar, and pure white cards with dual shadows and specular highlights replacing legacy flat gray boxes.
+- **Financial & Performance Dashboard:**
+  - *Monthly Collection Donut Card:* Floating summary card (`var(--shadow-elevation-2-specular)`) with SVG donut visualization, collected breakdown, and occupancy metrics.
+  - *KPI Quick Stats Grid:* 4-column metric cards with soft colored pill icons (*Total Properties*, *Monthly Revenue*, *Active Tenants*, *Maintenance Requests*) with subtle hover lift interactions.
+  - *Properties & Payments Tables:* Clean elevated table cards (`var(--shadow-elevation-1-specular)`) with responsive horizontal scrolling.
+- **Notification Center & Booking Manager:**
+  - Real-time stream of incoming tenant applications with unread dot indicators and elevated notification rows.
+  - Comprehensive booking details card with property thumbnail, move-in duration, and tenant contact chips.
   - **One-Click Actions:** Accept application (transitions to agreement creation), Decline application, or Open direct chat with applicant.
-  - Export invoice and booking summaries as PDF via `html2pdf.js`.
+- **Leasing & Rental Catalog:**
+  - Multi-column property grid with 1.02x card lift on hover and specular highlights.
+  - Digital lease management table with status pills and tenant identifiers.
+- **Listing Creation Pipeline (`activePage === 'create'`):**
+  - Elevated drag-and-drop media upload area and multi-column specification form sections.
+  - Geolocation auto-detection via `locationService.js` and AI description generator.
+  - Elevated publish button with smooth hover elevation.
 
 #### 2. `LandlordProfileView.vue` (Public Landlord Portfolio)
-- Public profile page accessible by prospective tenants.
-- Displays landlord credentials: Email Verified, Phone Verified, Government ID Verified, Property Ownership Title Verified.
+- Public profile page accessible by prospective tenants with elevated identity badge and credentials.
 - Overall rating summary, responsiveness metrics (e.g., "Responds within 1 hour"), and tenant reviews.
 - Portfolio catalog displaying all listings operated by this landlord.
 - Embedded direct chat tab for immediate tenant inquiries.
@@ -342,12 +363,16 @@ The identity verification pipeline (`src/views/normal/VerifyAccountView.vue` and
 - **Security Access Control:**
   - Protected by a client-side PIN gate (`123456` or `admin@homesweet.com`) and session authorization stored in `sessionStorage.getItem('adminAuth')`.
   - Backend Firestore access is strictly validated via `firestore.rules` checking Firebase Auth token claims or admin email lists.
+- **Spatial Elevation Architecture:**
+  - Sticky top bar with `var(--shadow-elevation-2-specular)` and specular edge highlights.
+  - Elevated sidebar with active pill badge and smooth transition curves.
 - **Console Navigation Tabs:**
-  1. **Dashboard Tab:** High-level platform KPIs: Total Properties, Active Tenants, Monthly Revenue, Pending Verifications, and Recent System Activity Feed.
-  2. **Verifications Tab:** Dedicated audit queue for identity submissions. Admins inspect ID card uploads side-by-side with webcam selfies, review AI face match scores and liveness flags, and execute single-click **Approve** or **Reject** decisions (with customizable rejection feedback sent to the resident).
-  3. **Houses / Properties Tab:** Catalog of all active listings across Phnom Penh with ability to edit, feature, or remove non-compliant listings.
-  4. **Agreements Tab:** Digital lease agreement manager powered by `agreementService.js` displaying contract status (`draft`, `pending_landlord`, `pending_tenant`, `active`, `completed`, `cancelled`).
-  5. **Users Tab:** Complete resident and landlord directory with role management, status toggling, and verification badges.
+  1. **Dashboard Tab:** Elevated System Performance KPI cards (*Landlords*, *Students*, *Revenue*, *House Properties*) with 16px border-radii and hover elevation, plus an elevated activity logs table container.
+  2. **Verifications Tab:** Dedicated audit queue for identity submissions. Features 4 status KPI summary cards (*Pending Review*, *Approved & Verified*, *Rejected / Action Needed*, *Total Submissions*), elevated search pill, and side-by-side applicant document inspection.
+  3. **Verification Dossier Modal (`var(--shadow-elevation-4-specular)`):** 20px rounded floating modal displaying side-by-side ID card photo versus live webcam selfie, biometrics match percentage, liveness confidence score, and single-click **Approve** or **Reject** decisions (with customizable rejection feedback).
+  4. **Houses / Properties Tab:** Catalog of all active listings across Phnom Penh with elevated filter toolbar and property edit modals.
+  5. **Agreements Tab:** Digital lease agreement manager powered by `agreementService.js` displaying contract status (`draft`, `pending_landlord`, `pending_tenant`, `active`, `completed`, `cancelled`).
+  6. **Users Tab:** Complete resident and landlord directory with role management, status toggling, and verification badges.
 
 ---
 
@@ -624,6 +649,7 @@ The application design reflects an editorial, luxury residential visual aestheti
   --color-bg-surface: #ffffff;       /* Pure white card surface */
   --color-border: #ede8e3;           /* Standard container border */
   --color-border-subtle: #f2eee9;    /* Hairline divider */
+  --color-favorite: #E11D48;         /* Vibrant rose red for favorite interaction */
   
   /* Status Indicators */
   --color-success: #10B981;          /* Verified green */
@@ -656,25 +682,51 @@ The application design reflects an editorial, luxury residential visual aestheti
   --radius-2xl: 24px;
   --radius-pill: 50px;
 
-  /* Elevation Shadows */
-  --shadow-sm: 0 1px 3px rgba(92, 78, 78, 0.05);
-  --shadow-md: 0 4px 16px rgba(92, 78, 78, 0.06);
-  --shadow-lg: 0 10px 30px rgba(92, 78, 78, 0.08);
-  --shadow-dropdown: 0 12px 36px rgba(42, 36, 33, 0.12), 0 4px 12px rgba(42, 36, 33, 0.06);
+  /* 5-Tier Spatial Elevation Scale (Dual Contact/Ambient Shadows & Specular Highlights) */
+  --shadow-elevation-1: 0 1px 3px rgba(42, 36, 33, 0.05), 0 2px 8px rgba(42, 36, 33, 0.03);
+  --shadow-elevation-1-specular: 0 1px 3px rgba(42, 36, 33, 0.05), 0 2px 8px rgba(42, 36, 33, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+
+  --shadow-elevation-2: 0 3px 6px rgba(42, 36, 33, 0.05), 0 8px 24px rgba(42, 36, 33, 0.06);
+  --shadow-elevation-2-specular: 0 3px 6px rgba(42, 36, 33, 0.05), 0 8px 24px rgba(42, 36, 33, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+
+  --shadow-elevation-3: 0 6px 12px rgba(42, 36, 33, 0.06), 0 16px 36px rgba(42, 36, 33, 0.08);
+  --shadow-elevation-3-specular: 0 6px 12px rgba(42, 36, 33, 0.06), 0 16px 36px rgba(42, 36, 33, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+
+  --shadow-elevation-4: 0 12px 24px rgba(42, 36, 33, 0.08), 0 24px 48px rgba(42, 36, 33, 0.12);
+  --shadow-elevation-4-specular: 0 12px 24px rgba(42, 36, 33, 0.08), 0 24px 48px rgba(42, 36, 33, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+
+  --shadow-elevation-5: 0 16px 32px rgba(42, 36, 33, 0.1), 0 32px 64px rgba(42, 36, 33, 0.16);
+  --shadow-elevation-5-specular: 0 16px 32px rgba(42, 36, 33, 0.1), 0 32px 64px rgba(42, 36, 33, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+
+  /* Legacy Fallbacks */
+  --shadow-sm: var(--shadow-elevation-1);
+  --shadow-md: var(--shadow-elevation-2);
+  --shadow-lg: var(--shadow-elevation-3);
+  --shadow-dropdown: var(--shadow-elevation-4-specular);
 
   /* Typography */
   --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'DM Serif Display', Georgia, serif;
 
   /* Transitions */
-  --transition-fast: 0.15s ease;
-  --transition-normal: 0.25s ease;
+  --transition-fast: 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 ```
 
 ### 8.2 Typography Hierarchy
 - **Editorial Headlines (`--font-serif`):** Used on hero sections, marketing callouts, and landing titles to create a warm, inviting residential atmosphere.
 - **Functional Interface (`--font-body`):** High-legibility geometric sans-serif applied to navigation items, listing specs, form fields, and data tables.
+
+### 8.3 Spatial Layering & Micro-Interactions Architecture
+1. **Tier 1 (Surface/Tiles):** Subtle separation from background canvas (`--shadow-elevation-1-specular`), used on property card tiles, notification items, and filter pills.
+2. **Tier 2 (Cards & Forms):** Prominent content containers (`--shadow-elevation-2-specular`), used on main settings cards, dashboard KPI cards, and application forms.
+3. **Tier 3 (Floating & Sticky Elements):** Sticky booking card (`position: sticky; top: 90px`), hovered property cards (`transform: translateY(-4px)`), and active controls.
+4. **Tier 4 (Dialogs & Drawers):** Modal windows, KYC verification dossier windows, and dropdown menus (`--shadow-elevation-4-specular`).
+5. **Tier 5 (Toasts & Overlays):** Fixed system notifications and toast alerts.
+6. **Keyframe Animations:**
+   - `@keyframes heartPop`: Scaled elastic bounce animation (`scale(1.28) -> scale(1)`) triggered when saving properties to favorites.
+   - 1.04x card zoom on hover with smooth cubic-bezier easing.
 
 ---
 

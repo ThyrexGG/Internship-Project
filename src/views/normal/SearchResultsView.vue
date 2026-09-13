@@ -134,10 +134,10 @@
                 type="button" 
                 class="plum-heart-btn" 
                 :class="{ liked: prop.liked }" 
-                title="Save home"
+                :aria-label="prop.liked ? 'Remove from saved' : 'Save home'"
                 @click.stop="prop.liked = !prop.liked"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" :fill="prop.liked ? '#ef4444' : 'rgba(0,0,0,0.3)'" :stroke="prop.liked ? '#ef4444' : '#ffffff'" stroke-width="2">
+                <svg width="16" height="16" viewBox="0 0 24 24" :fill="prop.liked ? '#E11D48' : 'none'" :stroke="prop.liked ? '#E11D48' : '#2A2421'" stroke-width="2">
                   <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
                 </svg>
               </button>
@@ -1658,14 +1658,16 @@ watch(filteredProperties, () => {
 /* ======================================================== */
 .plum-nav-header {
   height: 76px;
-  background: #ffffff;
-  border-bottom: 1px solid #edebe8;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-bottom: 1px solid rgba(220, 214, 205, 0.7);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 32px;
   z-index: 40;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  box-shadow: 0 4px 16px -2px rgba(42, 36, 33, 0.05);
 }
 
 .plum-brand {
@@ -1698,16 +1700,17 @@ watch(filteredProperties, () => {
   display: flex;
   align-items: center;
   background: #ffffff;
-  border: 1px solid #dcd8d3;
+  border: 1px solid rgba(220, 214, 205, 0.85);
   border-radius: 40px;
   padding: 6px 8px 6px 20px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.06);
-  transition: all 0.2s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 3px 14px rgba(42, 36, 33, 0.06);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .plum-search-capsule:hover {
-  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-  border-color: #b8b2a9;
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 8px 22px rgba(42, 36, 33, 0.10);
+  border-color: #cfc7bc;
 }
 
 .capsule-col {
@@ -2067,23 +2070,23 @@ watch(filteredProperties, () => {
 .plum-property-card {
   display: flex;
   background: #ffffff;
-  border: 1px solid #ede9e3;
-  border-radius: 14px;
+  border: 1px solid rgba(220, 214, 205, 0.7);
+  border-radius: 16px;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 3px rgba(42, 36, 33, 0.04), 0 4px 14px rgba(42, 36, 33, 0.03);
 }
 
 .plum-property-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-  border-color: #dcd6cd;
+  transform: translateY(-3px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 2px 6px -1px rgba(42, 36, 33, 0.05), 0 12px 28px -4px rgba(42, 36, 33, 0.09);
+  border-color: #cfc7bc;
 }
 
 .plum-property-card.card-active-selected {
   border-color: #d99b45;
-  box-shadow: 0 4px 20px rgba(217, 155, 69, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 4px 22px rgba(217, 155, 69, 0.22);
 }
 
 /* Media Box */
@@ -2114,18 +2117,30 @@ watch(filteredProperties, () => {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(0,0,0,0.25);
-  backdrop-filter: blur(4px);
-  border: none;
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.15s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.14);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.15s;
+  z-index: 2;
 }
 
 .plum-heart-btn:hover {
-  transform: scale(1.1);
+  transform: scale(1.12);
+  background: #ffffff;
+}
+
+.plum-heart-btn.liked {
+  background: #ffffff;
+}
+
+.plum-heart-btn.liked svg {
+  animation: heartPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .plum-media-dots {

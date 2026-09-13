@@ -489,14 +489,19 @@ async function handleLivenessComplete() {
   padding: 48px 32px 100px;
   overflow-y: auto;
   height: 100%;
-  background: #ffffff;
+  background: #FAF8F5;
 }
 
 .form-card-container {
   width: 100%;
-  max-width: 560px;
+  max-width: 580px;
   display: flex;
   flex-direction: column;
+  background: #ffffff;
+  border-radius: var(--radius-2xl);
+  border: 1px solid rgba(220, 214, 205, 0.75);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 8px 32px -4px rgba(42, 36, 33, 0.08), 0 2px 6px -1px rgba(42, 36, 33, 0.04);
+  padding: 36px 32px;
 }
 
 /* Stepper Indicator Row */
@@ -517,38 +522,42 @@ async function handleLivenessComplete() {
   cursor: pointer;
   position: relative;
   z-index: 2;
-  transition: transform 0.15s ease;
+  transition: transform 0.18s ease;
 }
 
 .stepper-node:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .node-circle {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: #F4F0EC;
+  background: #ffffff;
   color: #8C7E7E;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.88rem;
   font-weight: 700;
-  border: 2px solid transparent;
-  transition: all 0.25s ease;
+  border: 1.5px solid rgba(220, 214, 205, 0.85);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 2px 5px rgba(42, 36, 33, 0.04);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .stepper-node.active .node-circle {
   background: #5C4E4E;
   color: #ffffff;
-  border-color: #EDE8E3;
-  box-shadow: 0 4px 12px rgba(92, 78, 78, 0.2);
+  border-color: #4a3e3e;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 4px 14px rgba(92, 78, 78, 0.32);
+  transform: scale(1.06);
 }
 
 .stepper-node.completed .node-circle {
-  background: #15803d;
-  color: #ffffff;
+  background: #ecfdf5;
+  border-color: #10B981;
+  color: #10B981;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 2px 6px rgba(16, 185, 129, 0.2);
 }
 
 .node-label {

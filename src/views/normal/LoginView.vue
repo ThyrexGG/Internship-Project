@@ -1105,10 +1105,10 @@ function handleGuest() { router.push('/home') }
   display: flex;
   flex-direction: column;
   background: #ffffff;
-  padding: 36px 36px;
-  border-radius: 20px;
-  border: 1px solid #EDE8E3;
-  box-shadow: 0 8px 30px rgba(92, 78, 78, 0.06);
+  padding: 38px 36px;
+  border-radius: 22px;
+  border: 1px solid rgba(220, 214, 205, 0.75);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 8px 32px -4px rgba(42, 36, 33, 0.08), 0 2px 6px -1px rgba(42, 36, 33, 0.04);
 }
 
 .mobile-logo {
@@ -1123,8 +1123,9 @@ function handleGuest() { router.push('/home') }
 /* ── ROLE SELECTOR ── */
 .role-selector {
   display: flex;
-  background: #F4F0EC;
-  border: 1px solid #EDE8E3;
+  background: #f5f2ed;
+  border: 1px solid rgba(220, 214, 205, 0.75);
+  box-shadow: inset 0 1px 3px rgba(42, 36, 33, 0.04);
   border-radius: 9999px;
   padding: 4px;
   margin-bottom: 20px;
@@ -1155,7 +1156,7 @@ function handleGuest() { router.push('/home') }
 .role-btn.active {
   background: #5C4E4E;
   color: #ffffff;
-  box-shadow: 0 2px 6px rgba(92, 78, 78, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 2px 8px rgba(92, 78, 78, 0.25);
 }
 
 .role-icon-svg {
@@ -1165,8 +1166,9 @@ function handleGuest() { router.push('/home') }
 /* ── AUTHENTICATION TABS & STATE FORMS ── */
 .auth-tabs {
   display: flex;
-  background: #F4F0EC;
-  border: 1px solid #EDE8E3;
+  background: #f5f2ed;
+  border: 1px solid rgba(220, 214, 205, 0.75);
+  box-shadow: inset 0 1px 3px rgba(42, 36, 33, 0.04);
   border-radius: 9999px;
   padding: 4px;
   margin-bottom: 28px;
@@ -1193,7 +1195,7 @@ function handleGuest() { router.push('/home') }
 .tab-btn.active {
   background: #ffffff;
   color: #5C4E4E;
-  box-shadow: 0 2px 8px rgba(92, 78, 78, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 2px 8px rgba(42, 36, 33, 0.08);
 }
 
 /* Method Selector */
