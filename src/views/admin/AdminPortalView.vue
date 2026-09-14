@@ -104,13 +104,13 @@
 
             <button 
               class="sidebar-nav-btn" 
-              :class="{ active: activeTab === 'renters' }" 
-              @click="switchTab('renters')"
+              :class="{ active: activeTab === 'tenants' || activeTab === 'renters' }" 
+              @click="switchTab('tenants')"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
               </svg>
-              <span>Renters</span>
+              <span>Tenants</span>
             </button>
           </div>
 
@@ -172,7 +172,7 @@
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
               </svg>
-              <span>Account status</span>
+              <span>Account Status</span>
             </button>
           </div>
         </aside>
@@ -226,7 +226,7 @@
               <!-- Right Column: System Performance & Activity Logs -->
               <div class="metrics-column">
                 <div class="metrics-section">
-                  <h3 class="section-title">System performance</h3>
+                  <h3 class="section-title">System Performance</h3>
                   <div class="metrics-grid">
                     <div class="metric-card">
                       <div class="metric-header">
@@ -238,10 +238,10 @@
 
                     <div class="metric-card">
                       <div class="metric-header">
-                        <span class="metric-label">Students</span>
+                        <span class="metric-label">Tenants</span>
                         <span class="metric-trend positive">+30%</span>
                       </div>
-                      <div class="metric-value">{{ performanceStats.students }}</div>
+                      <div class="metric-value">{{ performanceStats.tenants || performanceStats.students }}</div>
                     </div>
 
                     <div class="metric-card">
@@ -254,7 +254,7 @@
 
                     <div class="metric-card">
                       <div class="metric-header">
-                        <span class="metric-label">House Property</span>
+                        <span class="metric-label">Properties</span>
                         <span class="metric-trend positive">+20%</span>
                       </div>
                       <div class="metric-value">{{ performanceStats.properties }}</div>
@@ -264,7 +264,7 @@
 
                 <!-- System Activity Logs matching mockup media_1788721171162.png -->
                 <div class="logs-section">
-                  <h3 class="section-title">System Activity logs</h3>
+                  <h3 class="section-title">System Activity Logs</h3>
                   <div class="logs-table-container">
                     <table class="logs-table">
                       <tbody>
@@ -296,7 +296,7 @@
                 </div>
 
                 <button class="btn-primary-action" @click="showLandlordForm = true">
-                  Add New landlord
+                  Add New Landlord
                 </button>
               </div>
 
@@ -304,7 +304,7 @@
                 <table class="data-table">
                   <thead>
                     <tr>
-                      <th>Property address</th>
+                      <th>Property Address</th>
                       <th>Tenant</th>
                       <th>Start Date</th>
                       <th>End Date</th>
@@ -357,7 +357,7 @@
                   </div>
 
                   <!-- Section 2 -->
-                  <div class="form-banner-title">Property details</div>
+                  <div class="form-banner-title">Property Details</div>
                   <div class="form-row two-col">
                     <input v-model="newLandlord.propertyName" type="text" placeholder="Property Name" required class="form-input-box" />
                     <input v-model="newLandlord.propertyAddress" type="text" placeholder="Property Address" required class="form-input-box" />
@@ -398,8 +398,8 @@
             </template>
           </div>
 
-          <!-- ─── TAB 3: RENTERS / TENANTS (Table & Tenant Application Form) ─── -->
-          <div v-else-if="activeTab === 'renters'" class="tab-pane">
+          <!-- ─── TAB 3: TENANTS (Table & Tenant Application Form) ─── -->
+          <div v-else-if="activeTab === 'tenants' || activeTab === 'renters'" class="tab-pane">
             
             <!-- VIEW A: TENANTS TABLE matching media_1788721211364.png -->
             <template v-if="!showTenantForm">
@@ -412,7 +412,7 @@
                 </div>
 
                 <button class="btn-primary-action" @click="showTenantForm = true">
-                  Add New Tenants
+                  Add New Tenant
                 </button>
               </div>
 
@@ -420,7 +420,7 @@
                 <table class="data-table">
                   <thead>
                     <tr>
-                      <th>Property address</th>
+                      <th>Property Address</th>
                       <th>Tenant</th>
                       <th>Start Date</th>
                       <th>End Date</th>
@@ -448,19 +448,19 @@
               </div>
             </template>
 
-            <!-- VIEW B: TENANTS APPLICATION FORM matching media_1788721294632.png -->
+            <!-- VIEW B: TENANT APPLICATION FORM matching media_1788721294632.png -->
             <template v-else>
               <div class="form-pane-container">
                 <div class="form-header-bar">
                   <button class="btn-back-text" @click="showTenantForm = false">
-                    ← Back to Tenants Table
+                    ← Back to Tenant Table
                   </button>
-                  <h2 class="form-main-heading">Tenants Application Form</h2>
+                  <h2 class="form-main-heading">Tenant Application Form</h2>
                 </div>
 
                 <form @submit.prevent="submitTenantForm" class="styled-admin-form">
                   <!-- Section 1 -->
-                  <div class="form-banner-title">Tenants Information</div>
+                  <div class="form-banner-title">Tenant Information</div>
                   <div class="form-row two-col">
                     <input v-model="newTenant.firstName" type="text" placeholder="First name" required class="form-input-box" />
                     <input v-model="newTenant.lastName" type="text" placeholder="Last name" required class="form-input-box" />
@@ -473,7 +473,7 @@
                   </div>
 
                   <!-- Section 2 -->
-                  <div class="form-banner-title">Property details</div>
+                  <div class="form-banner-title">Property Details</div>
                   <div class="form-row two-col">
                     <input v-model="newTenant.propertyName" type="text" placeholder="Property Name" required class="form-input-box" />
                     <input v-model="newTenant.propertyAddress" type="text" placeholder="Property Address" required class="form-input-box" />
@@ -508,7 +508,7 @@
               </div>
 
               <button class="btn-primary-action" @click="showAddPropertyModal = true">
-                Add New property
+                Add New Property
               </button>
             </div>
 
@@ -1411,14 +1411,15 @@ function showToast(msg, type = 'success') {
 
 // Sidebar Title computed
 const sidebarTitle = computed(() => {
-  if (activeTab.value === 'landlords') return 'LandLords'
-  if (activeTab.value === 'renters') return 'Tenants'
+  if (activeTab.value === 'landlords') return 'Landlords'
+  if (activeTab.value === 'tenants' || activeTab.value === 'renters') return 'Tenants'
   return 'Admin'
 })
 
 // Data Stores
 const performanceStats = ref({
   landlords: 100,
+  tenants: 300,
   students: 300,
   revenue: '$120K',
   properties: 100

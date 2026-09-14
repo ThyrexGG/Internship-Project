@@ -677,7 +677,7 @@
         <div class="settings-layout">
           <!-- Sidebar -->
           <aside class="settings-sidebar">
-            <h2 class="settings-title">Setting</h2>
+            <h2 class="settings-title">Settings</h2>
             <div class="search-filter" style="max-width: 100%; margin-bottom: 24px;">
               <div class="search-box">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2">
@@ -703,7 +703,7 @@
             </div>
 
             <div class="sidebar-section">
-              <h3>Who can your content</h3>
+              <h3>Who can see your content</h3>
               <ul class="sidebar-menu">
                 <li class="sidebar-item" :class="{active: activeSettingsTab === 'security'}" @click="activeSettingsTab = 'security'">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -717,7 +717,7 @@
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
                   Location
                 </li>
-                <li class="sidebar-item" :class="{active: activeSettingsTab === 'visibility'}" @click="activeSettingsTab = 'visibility'">
+                <li class="sidebar-item" :class="{active: activeSettingsTab === 'visibility' || activeSettingsTab === 'public'}" @click="activeSettingsTab = 'visibility'">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
                   How public see you
                 </li>
@@ -737,7 +737,7 @@
                 </li>
                 <li class="sidebar-item" :class="{active: activeSettingsTab === 'status', 'unverified-profile': userProfile.verificationStatus !== 'verified'}" @click="activeSettingsTab = 'status'">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg>
-                  Account status
+                  Account Status
                   <span v-if="userProfile.verificationStatus !== 'verified'" class="menu-alert-dot"></span>
                 </li>
               </ul>
@@ -784,7 +784,7 @@
                     <button class="btn-outline" @click="cancelProfileChanges">Cancel</button>
                   </template>
                 </div>
-                <p class="profile-note">Please noted that you can only change your profile only once a week</p>
+                <p class="profile-note">Please note that you can only change your profile once a week</p>
               </div>
 
               <h2 class="sub-title">Personal Details</h2>
@@ -1028,7 +1028,7 @@
               </div>
             </template>
 
-            <template v-else-if="activeSettingsTab === 'public'">
+            <template v-else-if="activeSettingsTab === 'visibility' || activeSettingsTab === 'public'">
               <h1 class="main-title">How public see you</h1>
               <p style="color: #666; font-size: 0.95rem; margin-bottom: 24px;">Control your privacy and online visibility.</p>
               

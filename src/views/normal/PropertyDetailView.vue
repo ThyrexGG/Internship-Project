@@ -391,9 +391,9 @@
             </div>
           </section>
 
-          <!-- ── RECENTLY RENTED BY ── -->
+          <!-- ── RECENT TENANTS ── -->
           <section class="renters-section">
-            <h2 class="section-title">Recently Rented By</h2>
+            <h2 class="section-title">Recent Tenants</h2>
             <p class="renters-subtext">Students & young professionals who called this place home:</p>
             <div class="renter-list">
               <div class="renter-card" v-for="(renter, r) in renters" :key="r">
@@ -910,7 +910,7 @@ const neighborhoodPlaces = computed(() => {
   ]
 })
 
-// Mock Renters
+// Mock Tenants
 const renters = [
   { name: 'Yim Vatey', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&q=80' },
   { name: 'Muy Leng', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&q=80' },

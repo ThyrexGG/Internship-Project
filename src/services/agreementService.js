@@ -1,5 +1,5 @@
 /**
- * HomeSweet Normalized Landlord-Renter Agreement Architecture
+ * HomeSweet Normalized Landlord-Tenant Agreement Architecture
  * Lifecycle: draft -> pending_landlord -> pending_tenant -> active -> completed (or cancelled)
  */
 

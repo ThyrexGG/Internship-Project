@@ -52,7 +52,9 @@ The platform is designed around three distinct user personas:
    - Manages platform property inventories, moderates users, and audits digital lease contracts and payments.
 
 ### 1.3 Strict Terminology Standard
-- **No "rentalus":** The platform strictly enforces standard real estate nomenclature. The term "rentalus" is completely prohibited and has been eliminated across all UI labels, code variables, and data structures in favor of **"Tenants"**, **"Residents"**, and **"Renters"**.
+- **Strict "Tenant" Standard over "Renter":** In alignment with user and domain guidelines, all user-facing interfaces strictly employ **"Tenant" / "Tenants"** rather than "Renter / Renters" across the Admin Portal, Landlord Console, Property Details, and agreement documentation. "Renter" is deprecated in UI displays.
+- **Cross-Portal Casing & Menu Consistency:** Sidebars, navigation buttons, and section headers across Admin, Landlord, and Settings portals follow strict Title Case standards (`Account Status`, `Settings`, `Add New Landlord`, `Add New Tenant`, `Add New Property`).
+- **No "rentalus":** The platform strictly prohibits legacy terms such as "rentalus". Standard real estate nomenclature (**"Tenants"**, **"Landlords"**, **"Properties"**) is enforced everywhere.
 
 ---
 
