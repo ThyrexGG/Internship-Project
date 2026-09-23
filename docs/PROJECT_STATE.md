@@ -222,7 +222,15 @@ To access the administrative console discreetly from any screen in the applicati
 - **Messages Tab:** Integrated chat launcher routing seamlessly to `/chat`.
 - **Settings Subsystem (`activeTab === 'settings'`):**
   - Modern spatial layout with elevated sidebar items and an elevated main card (`var(--shadow-elevation-2-specular)`).
-  - `profile`: Edit first/last name, phone, bio, avatar upload to Firebase Storage with floating edit button.
+  - `profile`: Edit first/last name, phone, relationship status, university, job, hobbies, address details, avatar upload to Firebase Storage with floating edit button. Standardized outline SVG icons and matching form labels.
+  - `rentals` (**Rental Dashboard** via `RentalDashboard.vue`): Comprehensive tenant dashboard displaying:
+    - **KPI Metrics:** 4 summary cards (Currently Renting, Monthly Rent, Past Rentals, Pending Applications).
+    - **Segmented Filter Pills:** `All Rentals`, `Currently Renting`, `Past Rentals`, `Applications`.
+    - **Currently Renting (Active Lease):** Hero property card (Skystar Condo Premium - Unit 14B) with live lease countdown timeline and progress bar, rent breakdown ($450/mo), next due date, verified landlord card (`Skystar Asset Management`), and co-tenant roommate stack (`Yim Vatey`, `Muy Leng`).
+    - **Interactive Actions:** Direct shortcuts for "Pay Rent" (`/payment`), "View Lease Agreement" (interactive Tenancy Contract modal with digital signatures and PDF download), "Contact Landlord" (`/chat`), and "Request Maintenance" (service ticket modal syncing to Firestore `notifications`).
+    - **Past Rentals (History):** Completed tenancies (`Riverside Boutique Residence`, `Urban Garden Apartment`) with deposit return verification, 5-star ratings, and official tenancy statement modal.
+    - **Pending Applications:** Real-time Firestore sync with `rental_applications` collection allowing withdrawal or property review.
+    - **Deep-linking:** Direct navigation support via `/home?tab=settings&subtab=rentals`.
   - `security`: Elevated list groups for password change, 2FA toggle, and account privacy.
   - `verification`: Account KYC status banner displaying real-time verification state (`unverified`, `pending`, `verified`, or `rejected`) with actionable "Verify Now" button.
   - `upgrade`: Resident-to-Host upgrade request form writing to `landlord_applications`.

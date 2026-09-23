@@ -695,6 +695,14 @@
                   My Profile
                   <span v-if="userProfile.verificationStatus !== 'verified'" class="menu-alert-dot"></span>
                 </li>
+                <li class="sidebar-item" :class="{active: activeSettingsTab === 'rentals'}" @click="activeSettingsTab = 'rentals'">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                  </svg>
+                  Rental Dashboard
+                  <span class="rental-sidebar-tag">Active</span>
+                </li>
                 <li class="sidebar-item" :class="{active: activeSettingsTab === 'notification'}" @click="activeSettingsTab = 'notification'">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
                   Notification
@@ -919,6 +927,14 @@
                   </div>
                 </div>
               </div>
+            </template>
+
+            <template v-else-if="activeSettingsTab === 'rentals'">
+              <RentalDashboard 
+                :user-profile="userProfile" 
+                @browse-listings="activeTab = 'home'"
+                @toast="showHomeToast" 
+              />
             </template>
 
             <template v-else-if="activeSettingsTab === 'notification'">
@@ -1401,9 +1417,10 @@
 
 <script setup>
 import { ref, reactive, computed, h, onMounted, onUnmounted, watch, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import GlobalFooter from '../../components/GlobalFooter.vue'
 import NotificationDropdown from '../../components/NotificationDropdown.vue'
+import RentalDashboard from '../../components/RentalDashboard.vue'
 import { properties, globalSearchQuery, globalFilterState } from '../../store.js'
 import { auth, db, storage } from '../../firebase'
 import { doc, getDoc, setDoc, collection, getDocs, addDoc, onSnapshot, query, orderBy, where, deleteDoc, updateDoc, serverTimestamp, limit, startAfter } from 'firebase/firestore'
@@ -1411,6 +1428,7 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { ref as storageRef, uploadBytes, getDownloadURL, uploadString } from 'firebase/storage'
 
 const router = useRouter()
+const route = useRoute()
 const currentAuthUser = ref(null)
 
 const homeToast = reactive({ visible: false, message: '', type: 'success' })
@@ -2050,6 +2068,15 @@ const filterOpen  = ref(false)
 const savedHomeTab = sessionStorage.getItem('homeActiveTab')
 const activeTab   = ref(savedHomeTab && savedHomeTab !== 'noti' ? savedHomeTab : 'home')
 const activeSettingsTab = ref('profile')
+
+watch(() => route.query, (q) => {
+  if (q && q.tab === 'settings') {
+    activeTab.value = 'settings'
+    if (q.subtab) {
+      activeSettingsTab.value = q.subtab
+    }
+  }
+}, { immediate: true })
 
 const filterState = globalFilterState
 
@@ -4167,6 +4194,22 @@ const filteredProperties = computed(() => {
 
 .sidebar-item.unverified-profile:not(.active) svg {
   stroke: #ff3b30 !important;
+}
+
+.rental-sidebar-tag {
+  margin-left: auto;
+  background: #d1fae5;
+  color: #065f46;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  letter-spacing: 0.2px;
+}
+
+.sidebar-item.active .rental-sidebar-tag {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
 }
 
 /* Verification notice inside Profile Settings */
