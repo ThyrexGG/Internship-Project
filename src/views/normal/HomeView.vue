@@ -700,7 +700,7 @@
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                     <polyline points="9 22 9 12 15 12 15 22"/>
                   </svg>
-                  Rental Dashboard
+                  Rentals
                   <span class="rental-sidebar-tag">Active</span>
                 </li>
                 <li class="sidebar-item" :class="{active: activeSettingsTab === 'notification'}" @click="activeSettingsTab = 'notification'">
@@ -4158,6 +4158,7 @@ const filteredProperties = computed(() => {
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   border: 1px solid transparent;
   position: relative;
+  white-space: nowrap;
 }
 
 .sidebar-item:hover {
@@ -4198,18 +4199,20 @@ const filteredProperties = computed(() => {
 
 .rental-sidebar-tag {
   margin-left: auto;
-  background: #d1fae5;
-  color: #065f46;
-  font-size: 0.7rem;
+  background: #FAF8F5;
+  color: #5C4E4E;
+  border: 1px solid #e5e0dc;
+  font-size: 0.68rem;
   font-weight: 600;
-  padding: 2px 7px;
-  border-radius: 10px;
+  padding: 1px 7px;
+  border-radius: 8px;
   letter-spacing: 0.2px;
 }
 
 .sidebar-item.active .rental-sidebar-tag {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.2);
   color: #ffffff;
+  border-color: transparent;
 }
 
 /* Verification notice inside Profile Settings */

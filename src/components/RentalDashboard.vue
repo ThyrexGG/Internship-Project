@@ -3,21 +3,21 @@
     <!-- Header -->
     <header class="rd-header">
       <div class="rd-header-text">
-        <h1 class="main-title">Rental Dashboard</h1>
+        <h1 class="main-title">Rentals</h1>
         <p class="rd-subtitle">
           Manage your active tenancies, review lease terms, and explore your rental history.
         </p>
       </div>
       <div class="rd-header-actions">
         <button class="rd-btn-outline" @click="$emit('browse-listings')" type="button">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
           Browse Homes
         </button>
         <button class="rd-btn-icon" @click="fetchApplications" :class="{ 'is-spinning': isSyncing }" title="Refresh live rentals" type="button" aria-label="Refresh rentals">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="23 4 23 10 17 10"></polyline>
             <polyline points="1 20 1 14 7 14"></polyline>
             <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
@@ -26,11 +26,11 @@
       </div>
     </header>
 
-    <!-- Top KPI Summary Cards -->
+    <!-- Top KPI Summary Cards (4-column unified theme grid) -->
     <div class="rd-kpi-grid">
       <div class="rd-kpi-card" :class="{ 'highlight': activeFilter === 'active' }" @click="activeFilter = 'active'">
-        <div class="kpi-icon-wrap active-theme">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div class="kpi-icon-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
             <polyline points="9 22 9 12 15 12 15 22"></polyline>
           </svg>
@@ -39,15 +39,15 @@
           <span class="kpi-label">Currently Renting</span>
           <div class="kpi-value-row">
             <span class="kpi-value">{{ totalActiveCount }}</span>
-            <span class="kpi-pill active-pill">Active Lease</span>
+            <span class="kpi-pill">Active Lease</span>
           </div>
-          <span class="kpi-sub">{{ activeRental.unit }} · {{ activeRental.name }}</span>
+          <span class="kpi-sub">Unit {{ activeRental.unit }} · {{ activeRental.name }}</span>
         </div>
       </div>
 
       <div class="rd-kpi-card" @click="activeFilter = 'active'">
-        <div class="kpi-icon-wrap payment-theme">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div class="kpi-icon-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
             <line x1="1" y1="10" x2="23" y2="10"></line>
           </svg>
@@ -63,8 +63,8 @@
       </div>
 
       <div class="rd-kpi-card" :class="{ 'highlight': activeFilter === 'history' }" @click="activeFilter = 'history'">
-        <div class="kpi-icon-wrap history-theme">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div class="kpi-icon-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12 6 12 12 14 14"></polyline>
           </svg>
@@ -73,30 +73,28 @@
           <span class="kpi-label">Past Rentals</span>
           <div class="kpi-value-row">
             <span class="kpi-value">{{ pastRentals.length }}</span>
-            <span class="kpi-pill done-pill">Completed</span>
+            <span class="kpi-pill">Completed</span>
           </div>
-          <span class="kpi-sub">100% on-time record · All deposits returned</span>
+          <span class="kpi-sub">All deposits refunded</span>
         </div>
       </div>
 
       <div class="rd-kpi-card" :class="{ 'highlight': activeFilter === 'applications' }" @click="activeFilter = 'applications'">
-        <div class="kpi-icon-wrap apps-theme">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div class="kpi-icon-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
             <polyline points="14 2 14 8 20 8"></polyline>
             <line x1="16" y1="13" x2="8" y2="13"></line>
             <line x1="16" y1="17" x2="8" y2="17"></line>
-            <polyline points="10 9 9 9 8 9"></polyline>
           </svg>
         </div>
         <div class="kpi-info">
           <span class="kpi-label">Applications</span>
           <div class="kpi-value-row">
             <span class="kpi-value">{{ liveApplications.length }}</span>
-            <span v-if="liveApplications.length > 0" class="kpi-pill pending-pill">Pending</span>
-            <span v-else class="kpi-pill neutral-pill">None</span>
+            <span class="kpi-pill">{{ liveApplications.length > 0 ? 'Pending' : '0' }}</span>
           </div>
-          <span class="kpi-sub">{{ liveApplications.length > 0 ? 'Under landlord review' : 'No pending requests' }}</span>
+          <span class="kpi-sub">{{ liveApplications.length > 0 ? 'Under review' : 'No pending requests' }}</span>
         </div>
       </div>
     </div>
@@ -117,7 +115,7 @@
         @click="activeFilter = 'active'"
         type="button"
       >
-        <span class="pill-dot active-dot"></span>
+        <span class="pill-dot"></span>
         Currently Renting ({{ totalActiveCount }})
       </button>
       <button 
@@ -144,7 +142,7 @@
     <section v-if="activeFilter === 'all' || activeFilter === 'active'" class="rd-section">
       <div class="section-title-wrap">
         <h2 class="sub-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
             <polyline points="9 22 9 12 15 12 15 22"></polyline>
           </svg>
@@ -182,7 +180,7 @@
             </h3>
 
             <div class="arc-location">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                 <circle cx="12" cy="10" r="3"></circle>
               </svg>
@@ -223,7 +221,7 @@
               Payment Status
             </span>
             <span class="cell-val status-paid">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
               Paid for {{ activeRental.currentMonth }}
@@ -237,14 +235,14 @@
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
-              Landlord & Host
+              Landlord &amp; Host
             </span>
             <div class="landlord-preview-row">
               <img :src="activeRental.landlord.avatar" :alt="activeRental.landlord.name" class="ll-mini-avatar" />
               <div>
                 <span class="cell-val">{{ activeRental.landlord.name }}</span>
                 <span class="verified-tag">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="20 6 9 17 4 12"></polyline>
                   </svg>
                   Verified Host
@@ -296,14 +294,14 @@
         <div class="arc-actions-bar">
           <div class="arc-actions-left">
             <button class="rd-btn-primary" @click="handlePayRent" type="button">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
                 <line x1="1" y1="10" x2="23" y2="10"></line>
               </svg>
               Pay Rent
             </button>
             <button class="rd-btn-outline" @click="openLeaseModal" type="button">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
                 <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -312,7 +310,7 @@
               View Lease Agreement
             </button>
             <button class="rd-btn-outline" @click="handleContactLandlord" type="button">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
               </svg>
               Contact Landlord
@@ -320,7 +318,7 @@
           </div>
           <div class="arc-actions-right">
             <button class="rd-btn-light" @click="openMaintenanceModal" type="button">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
               </svg>
               Request Maintenance
@@ -336,7 +334,7 @@
     <section v-if="activeFilter === 'all' || activeFilter === 'history'" class="rd-section">
       <div class="section-title-wrap">
         <h2 class="sub-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12 6 12 12 14 14"></polyline>
           </svg>
@@ -350,7 +348,7 @@
           <div class="prc-img-wrap" @click="viewPropertyDetails(item.propertyId)">
             <img :src="item.image" :alt="item.name" class="prc-img" />
             <span class="prc-badge-completed">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
               Lease Completed
@@ -368,7 +366,7 @@
             </h3>
 
             <p class="prc-location">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                 <circle cx="12" cy="10" r="3"></circle>
               </svg>
@@ -379,7 +377,7 @@
               <div class="pm-item">
                 <span class="pm-label">Deposit Status</span>
                 <span class="pm-val deposit-ok">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="20 6 9 17 4 12"></polyline>
                   </svg>
                   Fully Returned (${{ item.deposit }})
@@ -416,13 +414,13 @@
     <section v-if="activeFilter === 'all' || activeFilter === 'applications'" class="rd-section">
       <div class="section-title-wrap">
         <h2 class="sub-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
             <polyline points="14 2 14 8 20 8"></polyline>
             <line x1="16" y1="13" x2="8" y2="13"></line>
             <line x1="16" y1="17" x2="8" y2="17"></line>
           </svg>
-          Pending Rental Applications
+          Pending Applications
         </h2>
         <span class="sub-count-badge">{{ liveApplications.length }} Active</span>
       </div>
@@ -435,14 +433,13 @@
           <div class="aic-info">
             <div class="aic-status-row">
               <span class="aic-badge pending">
-                <span class="pulsing-amber-dot"></span>
-                {{ app.status === 'pending' ? 'Pending Landlord Approval' : app.status }}
+                {{ app.status === 'pending' ? 'Pending Approval' : app.status }}
               </span>
               <span class="aic-date">Submitted {{ app.formattedDate }}</span>
             </div>
             <h4 class="aic-title">{{ app.propertyName || 'Apartment in Phnom Penh' }}</h4>
             <p class="aic-meta">
-              <span>Proposed Rent: <strong>${{ app.propertyPrice || 250 }} / mo</strong></span>
+              <span>Proposed: <strong>${{ app.propertyPrice || 250 }} / mo</strong></span>
               <span>&middot; Move-In: <strong>{{ app.moveInDate || 'Flexible' }}</strong></span>
               <span>&middot; Duration: <strong>{{ app.duration || '6 months' }}</strong></span>
             </p>
@@ -460,7 +457,7 @@
 
       <div v-else class="empty-applications-state">
         <div class="empty-icon-circle">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
             <polyline points="14 2 14 8 20 8"></polyline>
           </svg>
@@ -494,7 +491,7 @@
         <div class="rd-modal-body lease-doc-container">
           <div class="lease-doc-paper">
             <div class="ld-hero-badge">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                 <polyline points="22 4 12 14.01 9 11.01"></polyline>
               </svg>
@@ -573,7 +570,7 @@
 
         <footer class="rd-modal-footer">
           <button class="rd-btn-outline" @click="downloadLeaseCopy" type="button">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="7 10 12 15 17 10"></polyline>
               <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -594,7 +591,7 @@
       <div class="rd-modal-dialog sm">
         <header class="rd-modal-header">
           <div class="modal-header-titles">
-            <span class="doc-pill maintenance-pill">Service Request</span>
+            <span class="doc-pill">Service Request</span>
             <h3>Submit Maintenance Ticket</h3>
           </div>
           <button class="rd-close-btn" @click="showMaintenanceModal = false" type="button" aria-label="Close">
@@ -609,7 +606,7 @@
           <div class="form-group">
             <label class="form-label">Category</label>
             <div class="input-wrapper with-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
               </svg>
               <select v-model="maintenanceForm.category" class="form-select">
@@ -636,7 +633,7 @@
               </button>
               <button 
                 type="button" 
-                class="chip-btn urgent" 
+                class="chip-btn" 
                 :class="{ active: maintenanceForm.urgency === 'Urgent' }" 
                 @click="maintenanceForm.urgency = 'Urgent'"
               >
@@ -644,7 +641,7 @@
               </button>
               <button 
                 type="button" 
-                class="chip-btn emergency" 
+                class="chip-btn" 
                 :class="{ active: maintenanceForm.urgency === 'Emergency' }" 
                 @click="maintenanceForm.urgency = 'Emergency'"
               >
@@ -687,7 +684,7 @@
       <div class="rd-modal-dialog sm">
         <header class="rd-modal-header">
           <div class="modal-header-titles">
-            <span class="doc-pill done-pill">Completed Tenancy Statement</span>
+            <span class="doc-pill">Tenancy Statement</span>
             <h3>{{ selectedStatement.name }}</h3>
           </div>
           <button class="rd-close-btn" @click="showStatementModal = false" type="button" aria-label="Close">
@@ -712,7 +709,7 @@
               <span>Total Rent Settled</span>
               <strong>${{ selectedStatement.totalPaid }}.00 USD</strong>
             </div>
-            <div class="ss-row highlight-green">
+            <div class="ss-row">
               <span>Security Deposit Status</span>
               <strong>Returned in Full (${{ selectedStatement.deposit }}.00 USD)</strong>
             </div>
@@ -723,7 +720,7 @@
           </div>
 
           <div class="statement-verified-box">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
               <polyline points="22 4 12 14.01 9 11.01"></polyline>
             </svg>
@@ -733,7 +730,7 @@
 
         <footer class="rd-modal-footer">
           <button class="rd-btn-outline" @click="downloadStatementCopy" type="button">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="7 10 12 15 17 10"></polyline>
               <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -857,7 +854,6 @@ const fetchApplications = async () => {
 
     appsSnap.forEach(docSnap => {
       const data = docSnap.data()
-      // Include applications submitted by this user or general applications
       const matchesUser = !currentUser || !data.tenantId || data.tenantId === currentUser.uid || data.tenantEmail === currentUser.email
       if (matchesUser && data.status !== 'cancelled') {
         const created = data.createdAt ? new Date(data.createdAt) : new Date()
@@ -927,10 +923,10 @@ const submitMaintenanceTicket = async () => {
     await addDoc(collection(db, 'notifications'), {
       type: 'maintenance',
       title: `Maintenance Request: ${maintenanceForm.category}`,
-      desc: `${props.userProfile.firstName || 'Tenant'} (${activeRental.unit}) reported: "${maintenanceForm.description.trim()}" [Priority: ${maintenanceForm.urgency}]`,
+      desc: `${props.userProfile.firstName || 'Tenant'} (Unit ${activeRental.unit}) reported: "${maintenanceForm.description.trim()}" [Priority: ${maintenanceForm.urgency}]`,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      roomName: `${activeRental.name} - ${activeRental.unit}`,
+      roomName: `${activeRental.name} - Unit ${activeRental.unit}`,
       urgency: maintenanceForm.urgency,
       category: maintenanceForm.category,
       unread: true,
@@ -965,13 +961,13 @@ onMounted(() => {
 .rental-dashboard {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 28px;
   width: 100%;
-  animation: fadeIn 0.25s ease-out;
+  animation: fadeIn 0.2s ease-out;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -985,49 +981,61 @@ onMounted(() => {
 }
 
 .main-title {
-  font-size: 1.85rem;
+  font-size: 1.8rem;
   font-weight: 700;
   color: #2A2421;
-  margin: 0 0 6px;
+  margin: 0 0 4px;
 }
 
 .rd-subtitle {
-  font-size: 0.95rem;
-  color: #6b7280;
+  font-size: 0.92rem;
+  color: #786b66;
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 .rd-header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
-/* ── KPI METRICS CARDS ── */
+/* ── KPI METRICS CARDS (Homesweet Theme) ── */
 .rd-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 1024px) {
+  .rd-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .rd-kpi-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .rd-kpi-card {
   background: #ffffff;
-  border: 1px solid #f0ece9;
-  border-radius: 16px;
-  padding: 18px 20px;
+  border: 1px solid #e5e0dc;
+  border-radius: 14px;
+  padding: 16px 18px;
   display: flex;
   align-items: flex-start;
-  gap: 14px;
-  box-shadow: 0 2px 8px rgba(42, 36, 33, 0.04);
+  gap: 12px;
+  box-shadow: 0 1px 4px rgba(42, 36, 33, 0.03);
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.18s ease;
 }
 
 .rd-kpi-card:hover {
   transform: translateY(-2px);
-  border-color: #d1c7c2;
-  box-shadow: 0 6px 16px rgba(42, 36, 33, 0.08);
+  border-color: #5C4E4E;
+  box-shadow: 0 4px 12px rgba(42, 36, 33, 0.06);
 }
 
 .rd-kpi-card.highlight {
@@ -1036,33 +1044,24 @@ onMounted(() => {
 }
 
 .kpi-icon-wrap {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  background: #FAF8F5;
+  color: #5C4E4E;
+  border: 1px solid #e5e0dc;
+  transition: all 0.18s ease;
 }
 
-.kpi-icon-wrap.active-theme {
-  background: #ecfdf5;
-  color: #059669;
-}
-
-.kpi-icon-wrap.payment-theme {
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-.kpi-icon-wrap.history-theme {
-  background: #f5f3ff;
-  color: #7c3aed;
-}
-
-.kpi-icon-wrap.apps-theme {
-  background: #fffbeb;
-  color: #d97706;
+.rd-kpi-card:hover .kpi-icon-wrap,
+.rd-kpi-card.highlight .kpi-icon-wrap {
+  background: #5C4E4E;
+  color: #ffffff;
+  border-color: #5C4E4E;
 }
 
 .kpi-info {
@@ -1073,64 +1072,47 @@ onMounted(() => {
 }
 
 .kpi-label {
-  font-size: 0.8rem;
+  font-size: 0.74rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   color: #888;
 }
 
 .kpi-value-row {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 6px;
 }
 
 .kpi-value {
-  font-size: 1.45rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: #2A2421;
 }
 
 .kpi-sub-period {
-  font-size: 0.85rem;
-  color: #6b7280;
+  font-size: 0.8rem;
+  color: #786b66;
 }
 
 .kpi-sub {
-  font-size: 0.8rem;
-  color: #6b7280;
+  font-size: 0.76rem;
+  color: #786b66;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .kpi-pill {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 20px;
-}
-
-.kpi-pill.active-pill {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.kpi-pill.done-pill {
-  background: #ede9fe;
-  color: #5b21b6;
-}
-
-.kpi-pill.pending-pill {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.kpi-pill.neutral-pill {
-  background: #f3f4f6;
-  color: #6b7280;
+  padding: 1px 7px;
+  border-radius: 10px;
+  background: #FAF8F5;
+  color: #5C4E4E;
+  border: 1px solid #e5e0dc;
 }
 
 /* ── FILTER PILLS ── */
@@ -1139,19 +1121,19 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding-bottom: 2px;
 }
 
 .rd-filter-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 24px;
-  border: 1px solid #e5e7eb;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1px solid #e5e0dc;
   background: #ffffff;
-  color: #4b5563;
-  font-size: 0.88rem;
+  color: #5C4E4E;
+  font-size: 0.86rem;
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -1159,9 +1141,9 @@ onMounted(() => {
 }
 
 .rd-filter-pill:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
-  color: #111827;
+  background: #FAF8F5;
+  border-color: #5C4E4E;
+  color: #2A2421;
 }
 
 .rd-filter-pill.active {
@@ -1172,20 +1154,17 @@ onMounted(() => {
 }
 
 .pill-dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-}
-
-.active-dot {
-  background: #10b981;
+  background: currentColor;
 }
 
 /* ── SECTION GENERAL ── */
 .rd-section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .section-title-wrap {
@@ -1197,79 +1176,66 @@ onMounted(() => {
 .sub-title {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 1.25rem;
+  gap: 8px;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #2A2421;
   margin: 0;
 }
 
 .sub-count-badge {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  color: #6b7280;
-  background: #f3f4f6;
-  padding: 3px 10px;
-  border-radius: 12px;
+  color: #786b66;
+  background: #FAF8F5;
+  border: 1px solid #e5e0dc;
+  padding: 2px 9px;
+  border-radius: 10px;
 }
 
 .badge-active-lease {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #ecfdf5;
-  color: #065f46;
-  border: 1px solid #a7f3d0;
-  font-size: 0.8rem;
+  background: #FAF8F5;
+  color: #2A2421;
+  border: 1px solid #e5e0dc;
+  font-size: 0.78rem;
   font-weight: 600;
-  padding: 4px 12px;
-  border-radius: 20px;
+  padding: 3px 10px;
+  border-radius: 16px;
 }
 
 .pulsing-circle {
-  width: 8px;
-  height: 8px;
-  background: #10b981;
+  width: 7px;
+  height: 7px;
+  background: #5C4E4E;
   border-radius: 50%;
-  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-  animation: pulseGreen 1.8s infinite;
+  box-shadow: 0 0 0 0 rgba(92, 78, 78, 0.4);
+  animation: pulseTheme 1.8s infinite;
 }
 
-@keyframes pulseGreen {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}
-
-.pulsing-amber-dot {
-  width: 8px;
-  height: 8px;
-  background: #f59e0b;
-  border-radius: 50%;
-  animation: pulseAmber 1.8s infinite;
-}
-
-@keyframes pulseAmber {
-  0% { opacity: 0.6; }
-  50% { opacity: 1; }
-  100% { opacity: 0.6; }
+@keyframes pulseTheme {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(92, 78, 78, 0.4); }
+  70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(92, 78, 78, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(92, 78, 78, 0); }
 }
 
 /* ── ACTIVE HERO CARD ── */
 .active-rental-card {
   background: #ffffff;
   border: 1px solid #e5e0dc;
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 4px 20px rgba(42, 36, 33, 0.05);
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 2px 12px rgba(42, 36, 33, 0.04);
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 20px;
 }
 
 .arc-header {
   display: flex;
-  gap: 22px;
+  gap: 20px;
   align-items: stretch;
 }
 
@@ -1281,9 +1247,9 @@ onMounted(() => {
 
 .arc-img-wrapper {
   position: relative;
-  width: 260px;
-  height: 190px;
-  border-radius: 14px;
+  width: 250px;
+  height: 180px;
+  border-radius: 12px;
   overflow: hidden;
   flex-shrink: 0;
   cursor: pointer;
@@ -1292,7 +1258,7 @@ onMounted(() => {
 @media (max-width: 768px) {
   .arc-img-wrapper {
     width: 100%;
-    height: 200px;
+    height: 190px;
   }
 }
 
@@ -1314,13 +1280,13 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: rgba(30, 30, 30, 0.82);
+  background: rgba(42, 36, 33, 0.85);
   backdrop-filter: blur(4px);
   color: #ffffff;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 8px;
+  padding: 3px 8px;
+  border-radius: 6px;
 }
 
 .arc-main-details {
@@ -1328,7 +1294,7 @@ onMounted(() => {
   flex-direction: column;
   flex: 1;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
 }
 
 .arc-top-meta {
@@ -1339,30 +1305,29 @@ onMounted(() => {
 }
 
 .arc-type-tag {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   color: #786b66;
 }
 
 .arc-rent-tag {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   color: #2A2421;
 }
 
 .arc-rent-tag strong {
-  font-size: 1.45rem;
+  font-size: 1.4rem;
   color: #2A2421;
 }
 
 .arc-title {
-  font-size: 1.35rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: #2A2421;
   margin: 0;
   cursor: pointer;
-  transition: color 0.15s ease;
 }
 
 .arc-title:hover {
@@ -1373,27 +1338,27 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.9rem;
-  color: #6b7280;
+  font-size: 0.88rem;
+  color: #786b66;
 }
 
 /* ── LEASE PROGRESS BAR ── */
 .lease-progress-box {
   background: #FAF8F5;
-  border: 1px solid #ece7e4;
-  border-radius: 12px;
-  padding: 12px 14px;
-  margin-top: 8px;
+  border: 1px solid #e5e0dc;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-top: 6px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .lpb-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: #4b5563;
 }
 
@@ -1401,22 +1366,22 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #059669;
+  color: #5C4E4E;
   font-weight: 600;
 }
 
 .lpb-track {
   width: 100%;
-  height: 7px;
-  background: #e5e0dc;
-  border-radius: 10px;
+  height: 6px;
+  background: #f0ece9;
+  border-radius: 8px;
   overflow: hidden;
 }
 
 .lpb-fill {
   height: 100%;
-  background: linear-gradient(90deg, #10b981, #059669);
-  border-radius: 10px;
+  background: #5C4E4E;
+  border-radius: 8px;
   transition: width 0.4s ease;
 }
 
@@ -1424,38 +1389,38 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.75rem;
+  font-size: 0.74rem;
   color: #888;
 }
 
 /* ── 4-CELL INFO GRID ── */
 .arc-info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
   border-top: 1px solid #f0ece9;
   border-bottom: 1px solid #f0ece9;
-  padding: 16px 0;
+  padding: 14px 0;
 }
 
 .info-cell {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .cell-label {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.78rem;
+  gap: 5px;
+  font-size: 0.74rem;
   font-weight: 600;
   color: #888;
   text-transform: uppercase;
 }
 
 .cell-val {
-  font-size: 0.96rem;
+  font-size: 0.94rem;
   font-weight: 600;
   color: #2A2421;
 }
@@ -1464,12 +1429,12 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  color: #059669;
+  color: #2A2421;
 }
 
 .cell-sub {
-  font-size: 0.78rem;
-  color: #6b7280;
+  font-size: 0.76rem;
+  color: #786b66;
 }
 
 .landlord-preview-row {
@@ -1480,8 +1445,8 @@ onMounted(() => {
 }
 
 .ll-mini-avatar {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -1491,7 +1456,7 @@ onMounted(() => {
   align-items: center;
   gap: 3px;
   font-size: 0.72rem;
-  color: #2563eb;
+  color: #5C4E4E;
   font-weight: 600;
 }
 
@@ -1512,7 +1477,7 @@ onMounted(() => {
   height: 26px;
   border-radius: 50%;
   border: 2px solid #ffffff;
-  margin-left: -8px;
+  margin-left: -7px;
   object-fit: cover;
 }
 
@@ -1526,33 +1491,33 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
 }
 
 .arc-actions-left {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 .arc-actions-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
-/* ── BUTTON STYLES ── */
+/* ── BUTTON STYLES (Homesweet Theme) ── */
 .rd-btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   background: #5C4E4E;
   color: #ffffff;
   border: none;
-  border-radius: 12px;
-  padding: 10px 18px;
-  font-size: 0.9rem;
+  border-radius: 10px;
+  padding: 9px 16px;
+  font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.16s ease;
@@ -1563,21 +1528,21 @@ onMounted(() => {
 }
 
 .rd-btn-primary.sm {
-  padding: 7px 14px;
-  font-size: 0.82rem;
-  border-radius: 10px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  border-radius: 8px;
 }
 
 .rd-btn-outline {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   background: #ffffff;
   color: #2A2421;
   border: 1px solid #d5cec9;
-  border-radius: 12px;
-  padding: 9px 16px;
-  font-size: 0.88rem;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 0.86rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.16s ease;
@@ -1589,8 +1554,8 @@ onMounted(() => {
 }
 
 .rd-btn-outline.sm {
-  padding: 6px 12px;
-  font-size: 0.82rem;
+  padding: 5px 11px;
+  font-size: 0.8rem;
   border-radius: 8px;
 }
 
@@ -1598,25 +1563,26 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #f3f4f6;
-  color: #374151;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 9px 16px;
-  font-size: 0.88rem;
+  background: #FAF8F5;
+  color: #2A2421;
+  border: 1px solid #e5e0dc;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 0.86rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.16s ease;
 }
 
 .rd-btn-light:hover {
-  background: #e5e7eb;
+  background: #f0ece9;
+  border-color: #5C4E4E;
 }
 
 .rd-btn-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
   border: 1px solid #d5cec9;
   background: #ffffff;
   display: flex;
@@ -1643,30 +1609,30 @@ onMounted(() => {
 /* ── PAST RENTALS GRID ── */
 .past-rentals-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
 }
 
 .past-rental-card {
   background: #ffffff;
   border: 1px solid #e5e0dc;
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 10px rgba(42, 36, 33, 0.04);
+  box-shadow: 0 1px 6px rgba(42, 36, 33, 0.03);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .past-rental-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(42, 36, 33, 0.08);
+  box-shadow: 0 4px 14px rgba(42, 36, 33, 0.06);
 }
 
 .prc-img-wrap {
   position: relative;
   width: 100%;
-  height: 160px;
+  height: 150px;
   cursor: pointer;
 }
 
@@ -1678,25 +1644,25 @@ onMounted(() => {
 
 .prc-badge-completed {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 10px;
+  right: 10px;
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: rgba(30, 30, 30, 0.82);
-  color: #ffffff;
-  font-size: 0.72rem;
+  background: #FAF8F5;
+  color: #2A2421;
+  border: 1px solid #e5e0dc;
+  font-size: 0.7rem;
   font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 20px;
-  backdrop-filter: blur(4px);
+  padding: 3px 8px;
+  border-radius: 14px;
 }
 
 .prc-body {
-  padding: 18px 20px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   flex: 1;
 }
 
@@ -1707,19 +1673,19 @@ onMounted(() => {
 }
 
 .prc-term {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 600;
   color: #786b66;
 }
 
 .prc-price {
-  font-size: 0.95rem;
+  font-size: 0.94rem;
   font-weight: 700;
   color: #2A2421;
 }
 
 .prc-title {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: #2A2421;
   margin: 0;
@@ -1733,20 +1699,21 @@ onMounted(() => {
 .prc-location {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.84rem;
-  color: #6b7280;
+  gap: 5px;
+  font-size: 0.82rem;
+  color: #786b66;
   margin: 0;
 }
 
 .prc-meta-highlights {
   background: #FAF8F5;
-  border-radius: 10px;
-  padding: 10px 12px;
+  border: 1px solid #f0ece9;
+  border-radius: 8px;
+  padding: 9px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
 .pm-item {
@@ -1756,14 +1723,14 @@ onMounted(() => {
 }
 
 .pm-label {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: #888;
   font-weight: 600;
   text-transform: uppercase;
 }
 
 .pm-val {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
@@ -1771,11 +1738,11 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #059669;
+  color: #2A2421;
 }
 
 .rating-val {
-  color: #b45309;
+  color: #5C4E4E;
 }
 
 .prc-footer-actions {
@@ -1783,25 +1750,25 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   margin-top: auto;
-  padding-top: 4px;
+  padding-top: 2px;
 }
 
 /* ── PENDING APPLICATIONS LIST ── */
 .applications-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .application-item-card {
   background: #ffffff;
   border: 1px solid #e5e0dc;
-  border-radius: 14px;
-  padding: 14px 18px;
+  border-radius: 12px;
+  padding: 12px 16px;
   display: flex;
   align-items: center;
-  gap: 18px;
-  box-shadow: 0 2px 8px rgba(42, 36, 33, 0.04);
+  gap: 16px;
+  box-shadow: 0 1px 4px rgba(42, 36, 33, 0.03);
 }
 
 @media (max-width: 640px) {
@@ -1812,9 +1779,9 @@ onMounted(() => {
 }
 
 .aic-img-wrap {
-  width: 70px;
-  height: 70px;
-  border-radius: 10px;
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -1828,7 +1795,7 @@ onMounted(() => {
 .aic-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
   flex: 1;
 }
 
@@ -1841,31 +1808,30 @@ onMounted(() => {
 .aic-badge.pending {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  background: #fffbeb;
-  color: #b45309;
-  border: 1px solid #fde68a;
-  font-size: 0.74rem;
+  background: #FAF8F5;
+  color: #5C4E4E;
+  border: 1px solid #e5e0dc;
+  font-size: 0.72rem;
   font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 12px;
+  padding: 2px 7px;
+  border-radius: 10px;
 }
 
 .aic-date {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: #888;
 }
 
 .aic-title {
-  font-size: 1rem;
+  font-size: 0.96rem;
   font-weight: 600;
   color: #2A2421;
   margin: 0;
 }
 
 .aic-meta {
-  font-size: 0.82rem;
-  color: #6b7280;
+  font-size: 0.8rem;
+  color: #786b66;
   margin: 0;
   display: flex;
   align-items: center;
@@ -1882,20 +1848,21 @@ onMounted(() => {
 .empty-applications-state {
   background: #FAF8F5;
   border: 1px dashed #d5cec9;
-  border-radius: 16px;
-  padding: 36px 20px;
+  border-radius: 14px;
+  padding: 32px 20px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .empty-icon-circle {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: #f0ece9;
+  color: #5C4E4E;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1903,25 +1870,25 @@ onMounted(() => {
 
 .empty-applications-state h4 {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1rem;
   color: #2A2421;
 }
 
 .empty-applications-state p {
   margin: 0;
-  font-size: 0.88rem;
-  color: #6b7280;
-  max-width: 420px;
+  font-size: 0.85rem;
+  color: #786b66;
+  max-width: 400px;
 }
 
-/* ── MODALS ── */
+/* ── MODALS (Homesweet Palette) ── */
 .rd-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(42, 36, 33, 0.45);
   backdrop-filter: blur(4px);
   z-index: 1000;
   display: flex;
@@ -1932,28 +1899,28 @@ onMounted(() => {
 
 .rd-modal-dialog {
   background: #ffffff;
-  border-radius: 20px;
+  border-radius: 18px;
   width: 100%;
-  max-width: 720px;
+  max-width: 700px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  animation: modalScale 0.2s ease-out;
+  box-shadow: 0 10px 40px rgba(42, 36, 33, 0.2);
+  animation: modalScale 0.18s ease-out;
 }
 
 .rd-modal-dialog.sm {
-  max-width: 520px;
+  max-width: 500px;
 }
 
 @keyframes modalScale {
-  from { opacity: 0; transform: scale(0.95); }
+  from { opacity: 0; transform: scale(0.96); }
   to { opacity: 1; transform: scale(1); }
 }
 
 .rd-modal-header {
-  padding: 20px 24px;
+  padding: 18px 22px;
   border-bottom: 1px solid #f0ece9;
   display: flex;
   align-items: flex-start;
@@ -1963,35 +1930,26 @@ onMounted(() => {
 .modal-header-titles {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .modal-header-titles h3 {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #2A2421;
   margin: 0;
 }
 
 .doc-pill {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  color: #059669;
-  background: #ecfdf5;
-  padding: 2px 8px;
-  border-radius: 12px;
+  color: #5C4E4E;
+  background: #FAF8F5;
+  border: 1px solid #e5e0dc;
+  padding: 2px 7px;
+  border-radius: 10px;
   display: inline-block;
   width: fit-content;
-}
-
-.doc-pill.maintenance-pill {
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-.doc-pill.done-pill {
-  background: #f5f3ff;
-  color: #7c3aed;
 }
 
 .rd-close-btn {
@@ -2000,57 +1958,57 @@ onMounted(() => {
   cursor: pointer;
   color: #888;
   padding: 4px;
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 .rd-close-btn:hover {
-  color: #111;
-  background: #f3f4f6;
+  color: #2A2421;
+  background: #FAF8F5;
 }
 
 .rd-modal-body {
-  padding: 24px;
+  padding: 22px;
   overflow-y: auto;
 }
 
 .rd-modal-footer {
-  padding: 16px 24px;
+  padding: 14px 22px;
   border-top: 1px solid #f0ece9;
   background: #FAF8F5;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 8px;
 }
 
 /* ── LEASE DOCUMENT PAPER ── */
 .lease-doc-paper {
   background: #ffffff;
   border: 1px solid #e5e0dc;
-  border-radius: 14px;
-  padding: 24px;
+  border-radius: 12px;
+  padding: 22px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 }
 
 .ld-hero-badge {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  padding: 10px 14px;
-  border-radius: 10px;
-  color: #065f46;
-  font-size: 0.85rem;
+  background: #FAF8F5;
+  border: 1px solid #e5e0dc;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: #2A2421;
+  font-size: 0.82rem;
   font-weight: 600;
 }
 
 .ld-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: 14px;
 }
 
 @media (max-width: 600px) {
@@ -2066,20 +2024,20 @@ onMounted(() => {
 }
 
 .ld-col label {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: #888;
   text-transform: uppercase;
   font-weight: 600;
 }
 
 .ld-col strong {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   color: #2A2421;
 }
 
 .ld-col span {
-  font-size: 0.8rem;
-  color: #6b7280;
+  font-size: 0.78rem;
+  color: #786b66;
 }
 
 .ld-divider {
@@ -2088,7 +2046,7 @@ onMounted(() => {
 }
 
 .ld-clause-title {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: #2A2421;
   margin: 0;
@@ -2097,18 +2055,18 @@ onMounted(() => {
 .ld-terms-table {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
 }
 
 .ld-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
 }
 
 .ld-row span {
-  color: #6b7280;
+  color: #786b66;
 }
 
 .ld-row strong {
@@ -2117,19 +2075,19 @@ onMounted(() => {
 
 .ld-rules-list {
   margin: 0;
-  padding-left: 20px;
-  font-size: 0.84rem;
+  padding-left: 18px;
+  font-size: 0.82rem;
   color: #4b5563;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .ld-signatures-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-top: 10px;
+  gap: 16px;
+  margin-top: 8px;
 }
 
 @media (max-width: 600px) {
@@ -2141,15 +2099,15 @@ onMounted(() => {
 .sig-box {
   background: #FAF8F5;
   border: 1px dashed #d5cec9;
-  border-radius: 10px;
-  padding: 12px 14px;
+  border-radius: 8px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .sig-label {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: #888;
   font-weight: 600;
   text-transform: uppercase;
@@ -2157,13 +2115,13 @@ onMounted(() => {
 
 .digital-signature {
   font-family: 'Brush Script MT', cursive, sans-serif;
-  font-size: 1.35rem;
-  color: #1e3a8a;
+  font-size: 1.3rem;
+  color: #2A2421;
 }
 
 .sig-date {
-  font-size: 0.72rem;
-  color: #059669;
+  font-size: 0.7rem;
+  color: #5C4E4E;
   font-weight: 600;
 }
 
@@ -2171,32 +2129,32 @@ onMounted(() => {
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 16px;
+  gap: 5px;
+  margin-bottom: 14px;
 }
 
 .form-label {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  color: #374151;
+  color: #2A2421;
 }
 
 .input-wrapper.with-icon {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   background: #FAF8F5;
   border: 1px solid #d5cec9;
-  border-radius: 10px;
-  padding: 0 12px;
+  border-radius: 8px;
+  padding: 0 10px;
 }
 
 .form-select {
   flex: 1;
   background: transparent;
   border: none;
-  height: 40px;
-  font-size: 0.9rem;
+  height: 38px;
+  font-size: 0.88rem;
   color: #2A2421;
   outline: none;
   font-family: inherit;
@@ -2204,24 +2162,24 @@ onMounted(() => {
 
 .urgency-chips {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 .chip-btn {
   flex: 1;
-  padding: 8px 12px;
+  padding: 7px 10px;
   border: 1px solid #d5cec9;
   background: #ffffff;
-  border-radius: 8px;
-  font-size: 0.84rem;
+  border-radius: 7px;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  color: #4b5563;
+  color: #5C4E4E;
   transition: all 0.16s ease;
 }
 
 .chip-btn:hover {
-  background: #f9fafb;
+  background: #FAF8F5;
 }
 
 .chip-btn.active {
@@ -2230,23 +2188,13 @@ onMounted(() => {
   border-color: #5C4E4E;
 }
 
-.chip-btn.urgent.active {
-  background: #d97706;
-  border-color: #d97706;
-}
-
-.chip-btn.emergency.active {
-  background: #dc2626;
-  border-color: #dc2626;
-}
-
 .form-textarea {
   width: 100%;
   border: 1px solid #d5cec9;
   background: #FAF8F5;
-  border-radius: 10px;
-  padding: 12px;
-  font-size: 0.9rem;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.88rem;
   color: #2A2421;
   font-family: inherit;
   outline: none;
@@ -2259,8 +2207,8 @@ onMounted(() => {
 }
 
 .maintenance-hint {
-  font-size: 0.8rem;
-  color: #6b7280;
+  font-size: 0.78rem;
+  color: #786b66;
   line-height: 1.4;
   margin: 0;
 }
@@ -2269,43 +2217,39 @@ onMounted(() => {
 .statement-summary-box {
   background: #ffffff;
   border: 1px solid #e5e0dc;
-  border-radius: 14px;
-  padding: 18px 20px;
+  border-radius: 12px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .ss-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.88rem;
+  font-size: 0.84rem;
 }
 
 .ss-row span {
-  color: #6b7280;
+  color: #786b66;
 }
 
 .ss-row strong {
   color: #2A2421;
 }
 
-.ss-row.highlight-green strong {
-  color: #059669;
-}
-
 .statement-verified-box {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  padding: 12px 14px;
-  border-radius: 10px;
-  color: #065f46;
-  font-size: 0.82rem;
+  gap: 8px;
+  background: #FAF8F5;
+  border: 1px solid #e5e0dc;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #2A2421;
+  font-size: 0.8rem;
   font-weight: 500;
-  margin-top: 14px;
+  margin-top: 12px;
 }
 </style>
