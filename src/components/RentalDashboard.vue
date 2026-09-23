@@ -30,7 +30,7 @@
     <div class="rd-kpi-grid">
       <div class="rd-kpi-card" :class="{ 'highlight': activeFilter === 'active' }" @click="activeFilter = 'active'">
         <div class="kpi-icon-wrap">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
             <polyline points="9 22 9 12 15 12 15 22"></polyline>
           </svg>
@@ -47,7 +47,7 @@
 
       <div class="rd-kpi-card" @click="activeFilter = 'active'">
         <div class="kpi-icon-wrap">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
             <line x1="1" y1="10" x2="23" y2="10"></line>
           </svg>
@@ -64,7 +64,7 @@
 
       <div class="rd-kpi-card" :class="{ 'highlight': activeFilter === 'history' }" @click="activeFilter = 'history'">
         <div class="kpi-icon-wrap">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12 6 12 12 14 14"></polyline>
           </svg>
@@ -81,7 +81,7 @@
 
       <div class="rd-kpi-card" :class="{ 'highlight': activeFilter === 'applications' }" @click="activeFilter = 'applications'">
         <div class="kpi-icon-wrap">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
             <polyline points="14 2 14 8 20 8"></polyline>
             <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -1003,17 +1003,20 @@ onMounted(() => {
 /* ── KPI METRICS CARDS (Homesweet Theme) ── */
 .rd-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
   .rd-kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 580px) {
   .rd-kpi-grid {
     grid-template-columns: 1fr;
   }
@@ -1023,13 +1026,16 @@ onMounted(() => {
   background: #ffffff;
   border: 1px solid #e5e0dc;
   border-radius: 14px;
-  padding: 16px 18px;
+  padding: 12px 14px;
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  align-items: center;
+  gap: 10px;
   box-shadow: 0 1px 4px rgba(42, 36, 33, 0.03);
   cursor: pointer;
   transition: all 0.18s ease;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .rd-kpi-card:hover {
@@ -1044,9 +1050,9 @@ onMounted(() => {
 }
 
 .kpi-icon-wrap {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1069,35 +1075,44 @@ onMounted(() => {
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+  flex: 1;
+  overflow: hidden;
 }
 
 .kpi-label {
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.3px;
   color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .kpi-value-row {
   display: flex;
   align-items: baseline;
   gap: 6px;
+  min-width: 0;
+  flex-wrap: nowrap;
 }
 
 .kpi-value {
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #2A2421;
+  line-height: 1.1;
 }
 
 .kpi-sub-period {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: #786b66;
+  white-space: nowrap;
 }
 
 .kpi-sub {
-  font-size: 0.76rem;
+  font-size: 0.74rem;
   color: #786b66;
   white-space: nowrap;
   overflow: hidden;
@@ -1106,13 +1121,14 @@ onMounted(() => {
 }
 
 .kpi-pill {
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 600;
   padding: 1px 7px;
   border-radius: 10px;
   background: #FAF8F5;
   color: #5C4E4E;
   border: 1px solid #e5e0dc;
+  white-space: nowrap;
 }
 
 /* ── FILTER PILLS ── */
@@ -1120,7 +1136,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  overflow-x: auto;
+  flex-wrap: wrap;
   padding-bottom: 2px;
 }
 
@@ -1231,12 +1247,17 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .arc-header {
   display: flex;
   gap: 20px;
   align-items: stretch;
+  min-width: 0;
 }
 
 @media (max-width: 768px) {
@@ -1295,6 +1316,7 @@ onMounted(() => {
   flex: 1;
   justify-content: space-between;
   gap: 6px;
+  min-width: 0;
 }
 
 .arc-top-meta {
@@ -1396,17 +1418,20 @@ onMounted(() => {
 /* ── 4-CELL INFO GRID ── */
 .arc-info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 14px;
   border-top: 1px solid #f0ece9;
   border-bottom: 1px solid #f0ece9;
   padding: 14px 0;
+  min-width: 0;
 }
 
 .info-cell {
   display: flex;
   flex-direction: column;
   gap: 3px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .cell-label {
@@ -1435,6 +1460,9 @@ onMounted(() => {
 .cell-sub {
   font-size: 0.76rem;
   color: #786b66;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .landlord-preview-row {
@@ -1609,8 +1637,10 @@ onMounted(() => {
 /* ── PAST RENTALS GRID ── */
 .past-rentals-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 16px;
+  width: 100%;
+  min-width: 0;
 }
 
 .past-rental-card {
@@ -1622,6 +1652,8 @@ onMounted(() => {
   flex-direction: column;
   box-shadow: 0 1px 6px rgba(42, 36, 33, 0.03);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .past-rental-card:hover {
@@ -1758,6 +1790,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  width: 100%;
+  min-width: 0;
 }
 
 .application-item-card {
@@ -1769,6 +1803,8 @@ onMounted(() => {
   align-items: center;
   gap: 16px;
   box-shadow: 0 1px 4px rgba(42, 36, 33, 0.03);
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 @media (max-width: 640px) {

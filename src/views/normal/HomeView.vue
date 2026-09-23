@@ -4104,12 +4104,14 @@ const filteredProperties = computed(() => {
 .content.settings-bg {
   background: #faf8f6 !important;
   padding-bottom: 40px !important;
+  overflow-x: hidden !important;
 }
 
 .settings-layout {
   display: flex;
   align-items: flex-start;
   width: 100%;
+  min-width: 0;
 }
 
 .settings-sidebar {
@@ -4274,13 +4276,15 @@ const filteredProperties = computed(() => {
 
 .settings-main {
   flex: 1;
-  padding: 36px 44px;
+  padding: 32px 36px;
   background: #ffffff;
   border-radius: 20px;
   border: 1px solid #EDE8E3;
   box-shadow: var(--shadow-elevation-2-specular, 0 6px 24px rgba(42, 36, 33, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.95));
-  margin-left: 36px;
-  max-width: 860px;
+  margin-left: 32px;
+  max-width: 1040px;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .main-title {
@@ -5258,7 +5262,13 @@ const filteredProperties = computed(() => {
   .sidebar-item.active svg {
     stroke: #fff;
   }
-  .settings-main { padding-left: 0; max-width: 100%; }
+  .settings-main { 
+    margin-left: 0 !important; 
+    padding: 24px 16px !important; 
+    max-width: 100% !important; 
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
   .form-grid { grid-template-columns: 1fr; gap: 12px; margin-bottom: 24px; }
   .bottom-nav {
     bottom: max(12px, env(safe-area-inset-bottom));
