@@ -4276,13 +4276,13 @@ const filteredProperties = computed(() => {
 
 .settings-main {
   flex: 1;
-  padding: 32px 36px;
+  padding: 36px 44px;
   background: #ffffff;
   border-radius: 20px;
   border: 1px solid #EDE8E3;
   box-shadow: var(--shadow-elevation-2-specular, 0 6px 24px rgba(42, 36, 33, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.95));
-  margin-left: 32px;
-  max-width: 1040px;
+  margin-left: 36px;
+  max-width: 860px;
   min-width: 0;
   box-sizing: border-box;
 }

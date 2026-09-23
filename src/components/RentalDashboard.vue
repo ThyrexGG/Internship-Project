@@ -961,7 +961,7 @@ onMounted(() => {
 .rental-dashboard {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 32px;
   width: 100%;
   animation: fadeIn 0.2s ease-out;
 }
@@ -983,13 +983,13 @@ onMounted(() => {
 .main-title {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #2A2421;
-  margin: 0 0 4px;
+  color: #111;
+  margin: 0 0 6px;
 }
 
 .rd-subtitle {
-  font-size: 0.92rem;
-  color: #786b66;
+  font-size: 0.95rem;
+  color: #666;
   margin: 0;
   line-height: 1.45;
 }
@@ -1000,25 +1000,19 @@ onMounted(() => {
   gap: 8px;
 }
 
-/* ── KPI METRICS CARDS (Homesweet Theme) ── */
+/* ── KPI METRICS CARDS (Matching Settings 2-Column Grid) ── */
 .rd-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 24px;
   width: 100%;
   min-width: 0;
 }
 
-@media (max-width: 1100px) {
-  .rd-kpi-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-}
-
-@media (max-width: 580px) {
+@media (max-width: 600px) {
   .rd-kpi-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 }
 
@@ -1026,16 +1020,15 @@ onMounted(() => {
   background: #ffffff;
   border: 1px solid #e5e0dc;
   border-radius: 14px;
-  padding: 12px 14px;
+  padding: 16px 18px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
   box-shadow: 0 1px 4px rgba(42, 36, 33, 0.03);
   cursor: pointer;
   transition: all 0.18s ease;
   min-width: 0;
   box-sizing: border-box;
-  overflow: hidden;
 }
 
 .rd-kpi-card:hover {
@@ -1050,9 +1043,9 @@ onMounted(() => {
 }
 
 .kpi-icon-wrap {
-  width: 36px;
-  height: 36px;
-  border-radius: 9px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1073,47 +1066,43 @@ onMounted(() => {
 .kpi-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   min-width: 0;
   flex: 1;
-  overflow: hidden;
 }
 
 .kpi-label {
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.35px;
   color: #888;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .kpi-value-row {
   display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 }
 
 .kpi-value {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 700;
-  color: #2A2421;
+  color: #111;
   line-height: 1.1;
 }
 
 .kpi-sub-period {
-  font-size: 0.78rem;
-  color: #786b66;
+  font-size: 0.8rem;
+  color: #666;
   white-space: nowrap;
 }
 
 .kpi-sub {
-  font-size: 0.74rem;
-  color: #786b66;
+  font-size: 0.78rem;
+  color: #666;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1121,9 +1110,9 @@ onMounted(() => {
 }
 
 .kpi-pill {
-  font-size: 0.66rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  padding: 1px 7px;
+  padding: 2px 8px;
   border-radius: 10px;
   background: #FAF8F5;
   color: #5C4E4E;
@@ -1180,7 +1169,7 @@ onMounted(() => {
 .rd-section {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 .section-title-wrap {
@@ -1193,9 +1182,9 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #2A2421;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #111;
   margin: 0;
 }
 
