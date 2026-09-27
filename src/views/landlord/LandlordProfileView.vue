@@ -270,7 +270,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import GlobalFooter from '../../components/GlobalFooter.vue'
 import { auth, db } from '../../firebase'
-import { doc, getDoc, collection, addDoc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore'
 import { onAuthStateChanged } from 'firebase/auth'
 import { properties } from '../../store'
 
@@ -415,65 +415,24 @@ const showSuccessToast = ref(false)
 const toastMessage = ref('')
 
 function messageLandlord() {
-  chatMessage.value = `Hi ${landlordInfo.value.firstName} ${landlordInfo.value.lastName}, I am interested in your property ${properties.value.find(p => p.id === parseInt(route.params.id))?.name || 'Green Village Condo'}. Is it still available for rent?`
-  showChatModal.value = true
-}
-
-async function sendDirectMessage() {
-  const text = chatMessage.value.trim()
-  if (!text) return
-  isSendingMessage.value = true
-  
   const landlordId = route.params.id ? `landlord_${route.params.id}` : 'landlord_skystar'
   const landlordName = `${landlordInfo.value.firstName} ${landlordInfo.value.lastName}`.trim() || 'Landlord'
-  
-  if (currentAuthUser.value) {
-    const chatId = [currentAuthUser.value.uid, landlordId].sort().join('_')
-    const msg = {
-      senderId: currentAuthUser.value.uid,
-      senderName: currentAuthUser.value.displayName || 'Resident',
-      text,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      timestamp: serverTimestamp(),
-      createdAt: serverTimestamp()
-    }
-    
-    try {
-      await addDoc(collection(db, 'chats', chatId, 'messages'), msg)
-      await setDoc(doc(db, 'chats', chatId), {
-        participants: [currentAuthUser.value.uid, landlordId],
-        participantNames: {
-          [currentAuthUser.value.uid]: currentAuthUser.value.displayName || 'Resident',
-          [landlordId]: landlordName
-        },
-        participantAvatars: {
-          [currentAuthUser.value.uid]: currentAuthUser.value.photoURL || '',
-          [landlordId]: landlordInfo.value.avatar || ''
-        },
-        lastMessage: text,
-        lastMessageTime: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      }, { merge: true })
-    } catch(e) {
-      console.warn("Notice sending message to landlord:", e)
-    }
-  }
-  
-  setTimeout(() => {
-    isSendingMessage.value = false
-    showChatModal.value = false
-    showSuccessToast.value = true
-    setTimeout(() => {
-      showSuccessToast.value = false
-      router.push({
-        path: '/chat',
-        query: {
-          landlordId,
-          contact: landlordName
-        }
-      })
-    }, 1200)
-  }, 800)
+
+  router.push({
+    path: '/chat',
+    query: { landlordId: landlordId, contact: landlordName }
+  })
+}
+
+function sendDirectMessage() {
+  showChatModal.value = false
+  const landlordId = route.params.id ? `landlord_${route.params.id}` : 'landlord_skystar'
+  const landlordName = `${landlordInfo.value.firstName} ${landlordInfo.value.lastName}`.trim() || 'Landlord'
+
+  router.push({
+    path: '/chat',
+    query: { landlordId: landlordId, contact: landlordName }
+  })
 }
 
 function shareProfile() {
