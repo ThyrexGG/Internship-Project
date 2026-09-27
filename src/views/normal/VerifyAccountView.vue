@@ -60,6 +60,20 @@
       <!-- Right Form Content Panel -->
       <main class="form-content-panel">
         <div class="form-card-container">
+          <!-- Back Button -->
+          <button
+            v-if="currentStep <= 4"
+            type="button"
+            class="verify-back-btn"
+            aria-label="Go back"
+            @click="goBack"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back
+          </button>
+
           <!-- Stepper Indicator Header -->
           <div class="stepper-indicator-row" v-if="currentStep <= 4">
             <div 
@@ -161,6 +175,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import * as faceapi from 'face-api.js'
 import { auth, db } from '../../firebase'
 import { onAuthStateChanged } from 'firebase/auth'
@@ -172,7 +187,16 @@ import FaceMatchStep from '../../components/verification/FaceMatchStep.vue'
 import LivenessScanStep from '../../components/verification/LivenessScanStep.vue'
 import SuccessStep from '../../components/verification/SuccessStep.vue'
 
+const router = useRouter()
 const currentStep = ref(1)
+
+function goBack() {
+  if (window.history.length > 1) {
+    router.back()
+  } else {
+    router.push('/home')
+  }
+}
 const isModelsLoaded = ref(false)
 
 const idPreview = ref(null)
@@ -502,6 +526,29 @@ async function handleLivenessComplete() {
   border: 1px solid rgba(220, 214, 205, 0.75);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 8px 32px -4px rgba(42, 36, 33, 0.08), 0 2px 6px -1px rgba(42, 36, 33, 0.04);
   padding: 36px 32px;
+}
+
+.verify-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  margin-bottom: 20px;
+  padding: 8px 14px 8px 10px;
+  background: #FAF8F5;
+  color: #5C4E4E;
+  border: 1px solid #EDE8E3;
+  border-radius: 9999px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.verify-back-btn:hover {
+  background: #F2EDE9;
+  border-color: #5C4E4E;
+  color: #2A2421;
 }
 
 /* Stepper Indicator Row */
