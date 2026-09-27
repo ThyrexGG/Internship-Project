@@ -896,7 +896,6 @@ const bookingForm = ref({
 })
 
 const durationOptions = [
-  { label: '1 Mo', value: '1m' },
   { label: '3 Mo', value: '3m' },
   { label: '6 Mo', value: '6m' },
   { label: '1 Yr', value: '1y' }
