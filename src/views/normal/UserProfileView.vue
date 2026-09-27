@@ -170,7 +170,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import GlobalFooter from '../../components/GlobalFooter.vue'
 import { auth, db } from '../../firebase'
-import { doc, getDoc, setDoc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, getDoc, setDoc, deleteDoc, updateDoc, serverTimestamp, collection, getDocs, query, where } from 'firebase/firestore'
 import { onAuthStateChanged } from 'firebase/auth'
 
 const route = useRoute()
@@ -209,22 +209,35 @@ async function checkFriendStatus() {
   if (!myUid || !targetId || myUid === targetId) return
 
   try {
-    const sentRef = doc(db, 'friend_requests', `${myUid}_${targetId}`)
-    const receivedRef = doc(db, 'friend_requests', `${targetId}_${myUid}`)
-    const [sentSnap, receivedSnap] = await Promise.all([getDoc(sentRef), getDoc(receivedRef)])
+    // Query instead of direct getDoc: a getDoc on a request that doesn't exist yet
+    // throws permission-denied (Firestore rules can't evaluate resource.data when
+    // there's no document), whereas a where-query on no matches just comes back empty.
+    const sentQuery = query(
+      collection(db, 'friend_requests'),
+      where('fromUid', '==', myUid),
+      where('toUid', '==', targetId)
+    )
+    const receivedQuery = query(
+      collection(db, 'friend_requests'),
+      where('fromUid', '==', targetId),
+      where('toUid', '==', myUid)
+    )
+    const [sentSnap, receivedSnap] = await Promise.all([getDocs(sentQuery), getDocs(receivedQuery)])
+    const sentDoc = sentSnap.docs[0]
+    const receivedDoc = receivedSnap.docs[0]
 
-    if (sentSnap.exists() && sentSnap.data().status === 'accepted') {
+    if (sentDoc && sentDoc.data().status === 'accepted') {
       friendStatus.value = 'friends'
-      friendRequestId.value = sentSnap.id
-    } else if (receivedSnap.exists() && receivedSnap.data().status === 'accepted') {
+      friendRequestId.value = sentDoc.id
+    } else if (receivedDoc && receivedDoc.data().status === 'accepted') {
       friendStatus.value = 'friends'
-      friendRequestId.value = receivedSnap.id
-    } else if (sentSnap.exists() && sentSnap.data().status === 'pending') {
+      friendRequestId.value = receivedDoc.id
+    } else if (sentDoc && sentDoc.data().status === 'pending') {
       friendStatus.value = 'pending_sent'
-      friendRequestId.value = sentSnap.id
-    } else if (receivedSnap.exists() && receivedSnap.data().status === 'pending') {
+      friendRequestId.value = sentDoc.id
+    } else if (receivedDoc && receivedDoc.data().status === 'pending') {
       friendStatus.value = 'pending_received'
-      friendRequestId.value = receivedSnap.id
+      friendRequestId.value = receivedDoc.id
     } else {
       friendStatus.value = 'none'
       friendRequestId.value = null
@@ -239,9 +252,10 @@ onMounted(async () => {
     currentUserAvatar.value = auth.currentUser.photoURL || defaultAvatar
   }
 
-  onAuthStateChanged(auth, (user) => {
+  const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
     currentUserAvatar.value = user?.photoURL || defaultAvatar
     checkFriendStatus()
+    unsubscribeAuth()
   })
 
   const id = route.params.id
