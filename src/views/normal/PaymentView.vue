@@ -568,8 +568,8 @@ onMounted(() => {
 .payment-flow-page {
   width: 100%;
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  color: #111827;
+  font-family: var(--font-body, 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  color: #2A2421;
   background: #ffffff;
   position: relative;
 }
@@ -593,7 +593,7 @@ onMounted(() => {
   color: #ffffff;
   position: relative;
   overflow: hidden;
-  background: radial-gradient(130% 120% at 100% 100%, #ec4899 0%, #c026d3 32%, #7c3aed 68%, #380b6b 100%);
+  background: radial-gradient(130% 120% at 100% 100%, #786B66 0%, #5C4E4E 32%, #3A2F2F 68%, #1A1512 100%);
 }
 
 /* Curved lighter gradient shape sweep */
@@ -605,7 +605,7 @@ onMounted(() => {
   right: -25%;
   bottom: -35%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(244, 63, 148, 0.45) 0%, rgba(192, 38, 211, 0.15) 50%, transparent 70%);
+  background: radial-gradient(circle, rgba(120, 107, 102, 0.45) 0%, rgba(92, 78, 78, 0.15) 50%, transparent 70%);
   pointer-events: none;
 }
 
@@ -737,7 +737,7 @@ onMounted(() => {
 
 .promo-apply-btn {
   background: #ffffff;
-  color: #7c3aed;
+  color: #5C4E4E;
   border: none;
   border-radius: 9999px;
   padding: 10px 18px;
@@ -812,7 +812,7 @@ onMounted(() => {
 .form-title {
   font-size: 1.35rem;
   font-weight: 700;
-  color: #111827;
+  color: #2A2421;
   margin-bottom: 14px;
   letter-spacing: -0.2px;
 }
@@ -828,14 +828,14 @@ onMounted(() => {
 
 .freq-sub {
   font-size: 0.82rem;
-  color: #6b7280;
+  color: #786B66;
   font-weight: 500;
 }
 
 .freq-amount {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #111827;
+  color: #2A2421;
   margin-top: 2px;
 }
 
@@ -866,9 +866,9 @@ onMounted(() => {
 }
 
 .method-btn.active {
-  border: 2px solid #7c3aed;
-  background: #faf5ff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 14px rgba(124, 58, 237, 0.2);
+  border: 2px solid #5C4E4E;
+  background: #FAF8F5;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 14px rgba(92, 78, 78, 0.2);
   transform: translateY(-1px);
 }
 
@@ -936,7 +936,7 @@ onMounted(() => {
 .input-lbl {
   font-size: 0.88rem;
   font-weight: 600;
-  color: #111827;
+  color: #2A2421;
   margin-bottom: 7px;
 }
 
@@ -944,10 +944,10 @@ onMounted(() => {
   width: 100%;
   height: 44px;
   padding: 0 14px;
-  border: 1.5px solid #E2E8F0;
+  border: 1.5px solid #e5e0dc;
   border-radius: 10px;
   font-size: 0.92rem;
-  color: #111827;
+  color: #2A2421;
   outline: none;
   background: #ffffff;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -959,7 +959,7 @@ onMounted(() => {
 }
 
 .txt-input::placeholder {
-  color: #9ca3af;
+  color: #8C7E7E;
   font-size: 0.9rem;
 }
 
@@ -1000,7 +1000,7 @@ onMounted(() => {
   margin-top: 14px;
   width: 100%;
   height: 48px;
-  background: #1d4ed8;
+  background: #5C4E4E;
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -1011,7 +1011,7 @@ onMounted(() => {
 }
 
 .checkout-submit-btn:hover {
-  background: #1e40af;
+  background: #473B3B;
   transform: translateY(-1px);
 }
 
@@ -1030,7 +1030,7 @@ onMounted(() => {
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  background: radial-gradient(130% 120% at 100% 100%, #ec4899 0%, #c026d3 32%, #7c3aed 68%, #380b6b 100%);
+  background: radial-gradient(130% 120% at 100% 100%, #786B66 0%, #5C4E4E 32%, #3A2F2F 68%, #1A1512 100%);
   color: #ffffff;
 }
 
@@ -1042,7 +1042,7 @@ onMounted(() => {
   right: -25%;
   bottom: -35%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(244, 63, 148, 0.45) 0%, rgba(192, 38, 211, 0.15) 50%, transparent 70%);
+  background: radial-gradient(circle, rgba(120, 107, 102, 0.45) 0%, rgba(92, 78, 78, 0.15) 50%, transparent 70%);
   pointer-events: none;
 }
 
@@ -1168,8 +1168,8 @@ onMounted(() => {
 .receipt-card-container {
   background: #ffffff;
   border-radius: 18px;
-  border: 2px solid #a855f7;
-  box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.35);
+  border: 1px solid #e5e0dc;
+  box-shadow: 0 25px 60px -10px rgba(42, 36, 33, 0.35);
   width: 100%;
   max-width: 640px;
   overflow: hidden;
@@ -1189,7 +1189,7 @@ onMounted(() => {
 
 /* Purple header banner */
 .receipt-header-banner {
-  background: #b01b92;
+  background: #5C4E4E;
   padding: 34px 24px 28px;
   display: flex;
   flex-direction: column;
@@ -1237,28 +1237,28 @@ onMounted(() => {
 
 .meta-label {
   font-size: 0.78rem;
-  color: #64748b;
+  color: #786B66;
   font-weight: 500;
 }
 
 .meta-val {
   font-size: 0.95rem;
-  color: #0f172a;
+  color: #2A2421;
   font-weight: 700;
 }
 
 .receipt-divider {
   height: 1px;
-  background: #e2e8f0;
+  background: #e5e0dc;
   margin-bottom: 20px;
 }
 
 /* Inner Gray Box */
 .room-summary-box {
-  background: #f1f5f9;
+  background: #FAF8F5;
   border-radius: 10px;
   padding: 18px 22px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e5e0dc;
 }
 
 .room-row {
@@ -1279,19 +1279,19 @@ onMounted(() => {
 
 .box-small-lbl {
   font-size: 0.76rem;
-  color: #64748b;
+  color: #786B66;
   font-weight: 500;
 }
 
 .box-main-val {
   font-size: 1rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #2A2421;
 }
 
 .box-inner-divider {
   height: 1px;
-  background: #cbd5e1;
+  background: #e5e0dc;
   margin: 16px 0 14px;
 }
 
@@ -1303,14 +1303,14 @@ onMounted(() => {
 
 .box-amount-lbl {
   font-size: 0.92rem;
-  color: #334155;
+  color: #5C4E4E;
   font-weight: 600;
 }
 
 .box-amount-val {
   font-size: 1.25rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #2A2421;
 }
 
 /* Receipt Actions */
@@ -1335,23 +1335,23 @@ onMounted(() => {
 }
 
 .receipt-btn.secondary {
-  background: #f1f5f9;
-  color: #334155;
-  border: 1px solid #cbd5e1;
+  background: #FAF8F5;
+  color: #2A2421;
+  border: 1px solid #e5e0dc;
 }
 
 .receipt-btn.secondary:hover {
-  background: #e2e8f0;
+  background: #f0ece9;
 }
 
 .receipt-btn.primary {
-  background: #1d4ed8;
+  background: #5C4E4E;
   color: #ffffff;
   border: none;
 }
 
 .receipt-btn.primary:hover {
-  background: #1e40af;
+  background: #473B3B;
 }
 
 /* ==========================================================================
