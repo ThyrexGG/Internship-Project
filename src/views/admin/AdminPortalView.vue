@@ -601,7 +601,7 @@
                     <button class="btn-view-detail" @click="$router.push(`/property/${prop.id}`)">
                       View detail
                     </button>
-                    <button class="btn-chat-icon" @click="$router.push('/chat')" title="Message Landlord">
+                    <button class="btn-chat-icon" @click="$router.push({ path: '/chat', query: { landlordId: `landlord_${prop.id}`, contact: `${prop.name} Host` } })" title="Message Landlord">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                       </svg>

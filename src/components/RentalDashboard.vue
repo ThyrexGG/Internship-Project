@@ -888,7 +888,7 @@ const handlePayRent = () => {
 }
 
 const handleContactLandlord = () => {
-  router.push('/chat')
+  router.push(`/chat?contact=${encodeURIComponent(activeRental.landlord.name)}`)
 }
 
 const viewPropertyDetails = (propId) => {
