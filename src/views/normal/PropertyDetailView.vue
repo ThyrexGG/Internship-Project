@@ -1010,7 +1010,7 @@ const reviews = [
 ══════════════════════════════════════════════════════════════ */
 .detail-nav-bar {
   position: sticky;
-  top: 0;
+  top: -1px;
   z-index: 40;
   background: rgba(255, 255, 255, 0.92);
   -webkit-backdrop-filter: blur(16px) saturate(180%);

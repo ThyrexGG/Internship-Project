@@ -403,7 +403,7 @@ function shareProfile() {
   border-bottom: none;
   background: #5C4E4E;
   position: sticky;
-  top: 0;
+  top: -1px;
   z-index: 100;
 }
 

@@ -1881,7 +1881,7 @@ function changePin() {
   background: #5C4E4E;
   box-shadow: var(--shadow-elevation-2-specular, 0 4px 16px rgba(42, 36, 33, 0.12));
   position: sticky;
-  top: 0;
+  top: -1px;
   z-index: 100;
 }
 

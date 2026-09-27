@@ -406,7 +406,7 @@ function handleFriendButtonClick() {
 .top-nav {
   display: flex; justify-content: space-between; align-items: center;
   padding: 16px 40px; background: #5C4E4E;
-  border-bottom: none; position: sticky; top: 0; z-index: 100;
+  border-bottom: none; position: sticky; top: -1px; z-index: 100;
 }
 .logo { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #ffffff; }
 .logo-icon {
