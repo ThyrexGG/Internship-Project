@@ -157,8 +157,11 @@
               </div>
             </div>
 
-            <!-- Centered Timestamp -->
-            <div v-if="msg.timestamp" class="centered-timestamp">
+            <!-- Centered Timestamp (only when it differs from the previous message's) -->
+            <div
+              v-if="msg.timestamp && msg.timestamp !== displayedMessages[i - 1]?.timestamp"
+              class="centered-timestamp"
+            >
               {{ msg.timestamp }}
             </div>
 
