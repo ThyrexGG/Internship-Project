@@ -31,10 +31,9 @@ service cloud.firestore {
     //   or arbitrarily set their verificationStatus to 'verified' without admin review
     match /users/{userId} {
       allow read: if isAuthenticated();
-      allow create: if isOwner(userId) && (
-        !request.resource.data.keys().hasAny(['role', 'verificationStatus']) ||
-        request.resource.data.verificationStatus != 'verified'
-      );
+      allow create: if isOwner(userId) &&
+        (!('role' in request.resource.data) || request.resource.data.role != 'admin') &&
+        (!('verificationStatus' in request.resource.data) || request.resource.data.verificationStatus != 'verified');
       allow update: if (isOwner(userId) && (
         !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'verificationStatus']) ||
         isAdmin()

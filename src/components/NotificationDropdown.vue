@@ -281,15 +281,37 @@ function navigateToInbox() {
 }
 
 // Fetch live notifications from Firestore
+// Note: security rules deny an unscoped collection scan for real accounts
+// (Firestore can't prove every doc in the collection is readable), so we
+// must query with a `where` clause that matches the rule instead.
 async function fetchLiveNotifications() {
+  const myUid = auth.currentUser?.uid
+  if (!myUid) return
   isLoading.value = true
   try {
-    const snap = await getDocs(collection(db, 'notifications'))
-    if (!snap.empty) {
-      const liveList = []
+    const ownSnap = await getDocs(query(collection(db, 'notifications'), where('userId', '==', myUid)))
+
+    // Only admins can read targetRole:'admin' notifications; a non-admin
+    // account gets a permission-denied here, which we treat as "no admin feed".
+    let adminSnap = null
+    try {
+      adminSnap = await getDocs(query(collection(db, 'notifications'), where('targetRole', '==', 'admin')))
+    } catch (adminErr) {
+      // Not an admin account; ignore.
+    }
+
+    const seenIds = new Set()
+    const liveList = []
+    ;[ownSnap, adminSnap].forEach(snap => {
+      if (!snap) return
       snap.forEach(d => {
+        if (seenIds.has(d.id)) return
+        seenIds.add(d.id)
         liveList.push({ id: d.id, _isFirestore: true, ...d.data() })
       })
+    })
+
+    if (liveList.length) {
       // Prepend live notifications
       notifications.value = [...liveList, ...notifications.value.filter(n => !n._isFirestore)]
     }
