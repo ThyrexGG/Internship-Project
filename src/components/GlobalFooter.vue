@@ -1,36 +1,54 @@
 <template>
   <footer class="site-footer">
-    <div class="footer-columns">
-      <div class="footer-col">
-        <h4>Support</h4>
-        <ul>
-          <li><a href="#">Help Center</a></li>
-          <li><a href="#">Safety information</a></li>
-          <li><a href="#">Cancellation options</a></li>
-          <li><a href="#">Report a concern</a></li>
-        </ul>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <div class="footer-logo-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 18 L16 18" />
+              <path d="M4 18 L4 12 L9 7 L16 14" />
+              <path d="M12 18 L12 4 L16 4 L16 18 Z" />
+              <path d="M12 14 L16 14" />
+            </svg>
+          </div>
+          <span class="footer-logo-text">HomeSweet</span>
+        </div>
+        <p class="footer-tagline">Find your next home, roommate, and rental — all in one place.</p>
       </div>
-      <div class="footer-col">
-        <h4>Hosting</h4>
-        <ul>
-          <li><a href="#">Nomad your home</a></li>
-          <li><a href="#">Hosting resources</a></li>
-          <li><a href="#">Community forum</a></li>
-          <li><a href="#">Hosting responsibly</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Nomad</h4>
-        <ul>
-          <li><a href="#">Newsroom</a></li>
-          <li><a href="#">Careers</a></li>
-          <li><a href="#">Investors</a></li>
-        </ul>
+
+      <div class="footer-columns">
+        <div class="footer-col">
+          <h4>Support</h4>
+          <ul>
+            <li><a href="#">Help Center</a></li>
+            <li><a href="#">Safety Information</a></li>
+            <li><a href="#">Cancellation Options</a></li>
+            <li><a href="#">Report a Concern</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>For Landlords</h4>
+          <ul>
+            <li><a href="#">Become a Host</a></li>
+            <li><a href="#">Hosting Resources</a></li>
+            <li><a href="#">Community Forum</a></li>
+            <li><a href="#">Hosting Responsibly</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#">About HomeSweet</a></li>
+            <li><a href="#">Newsroom</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Investors</a></li>
+          </ul>
+        </div>
       </div>
     </div>
     <div class="footer-bottom">
       <div class="footer-legal">
-        © 2026 Nomad, Inc. · <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Your Privacy Choices</a>
+        © 2026 HomeSweet, Inc. · <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Your Privacy Choices</a>
       </div>
       <div class="footer-social">
         <span class="language">
@@ -54,13 +72,46 @@
   color: #000000;
 }
 
+.footer-top {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  border-bottom: 1px solid #D1D0D0;
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+}
+
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-logo-icon {
+  display: flex;
+  align-items: center;
+  color: #5C4E4E;
+}
+
+.footer-logo-text {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #2A2421;
+  letter-spacing: -0.3px;
+}
+
+.footer-tagline {
+  margin: 10px 0 0;
+  font-size: 0.88rem;
+  color: #5C4E4E;
+  max-width: 360px;
+  line-height: 1.5;
+}
+
 .footer-columns {
   display: grid;
   grid-template-columns: 1fr; /* Single column on mobile */
   gap: 24px;
-  border-bottom: 1px solid #D1D0D0;
-  padding-bottom: 24px;
-  margin-bottom: 24px;
 }
 
 .footer-col h4 {
@@ -127,8 +178,20 @@
   .site-footer {
     padding: 48px 40px 24px;
   }
+  .footer-top {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 40px;
+  }
+  .footer-brand {
+    flex-shrink: 0;
+    max-width: 280px;
+  }
   .footer-columns {
     grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    flex: 1;
+    max-width: 560px;
   }
   .footer-bottom {
     flex-direction: row;
