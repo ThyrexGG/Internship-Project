@@ -144,6 +144,20 @@
             </svg>
             <span>Show all {{ propertyImages.length }} photos</span>
           </button>
+
+          <!-- 360° Virtual Tour Trigger -->
+          <button
+            v-if="property.panoramaUrl"
+            class="btn-all-photos btn-360-tour"
+            type="button"
+            @click="show360Modal = true"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+            <span>360&deg; Virtual Tour</span>
+          </button>
         </div>
 
         <!-- Mobile Swipeable Hero -->
@@ -178,6 +192,19 @@
             <div class="mobile-photo-counter">
               {{ activeMobileImage + 1 }} / {{ propertyImages.length }}
             </div>
+
+            <button
+              v-if="property.panoramaUrl"
+              class="mobile-360-badge"
+              type="button"
+              @click="show360Modal = true"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+              <span>360&deg;</span>
+            </button>
           </div>
         </div>
       </section>
@@ -695,6 +722,36 @@
     </div>
 
     <!-- ══════════════════════════════════════════════════════════════
+         360° VIRTUAL TOUR MODAL
+    ══════════════════════════════════════════════════════════════ -->
+    <div
+      v-if="show360Modal"
+      class="tour-360-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-label="360 degree virtual tour"
+      @click.self="show360Modal = false"
+    >
+      <div class="tour-360-header">
+        <span class="tour-360-title">{{ property.name }} &middot; 360&deg; Virtual Tour</span>
+        <button
+          class="lightbox-close-btn"
+          type="button"
+          aria-label="Close virtual tour"
+          @click="show360Modal = false"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="tour-360-stage">
+        <Panorama360Viewer :image-url="property.panoramaUrl" />
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
          6. MOBILE FIXED BOTTOM ACTION BAR
     ══════════════════════════════════════════════════════════════ -->
     <div class="mobile-sticky-bottom-bar mobile-only">
@@ -718,6 +775,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { properties } from '../../store.js'
 import GlobalFooter from '../../components/GlobalFooter.vue'
+import Panorama360Viewer from '../../components/Panorama360Viewer.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -741,6 +799,9 @@ const secondaryImages = computed(() => {
 
 // Active Mobile Hero Index
 const activeMobileImage = ref(0)
+
+// ── 360° Virtual Tour ──
+const show360Modal = ref(false)
 
 // ── Lightbox State & Controls ──
 const lightboxOpen = ref(false)
@@ -1268,6 +1329,35 @@ const reviews = [
   background: #ffffff;
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+.btn-360-tour {
+  bottom: 68px;
+  background: rgba(42, 36, 33, 0.85);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.btn-360-tour:hover {
+  background: #2A2421;
+}
+
+.mobile-360-badge {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(42, 36, 33, 0.72);
+  color: #ffffff;
+  border: none;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 5px 11px;
+  border-radius: 50px;
+  backdrop-filter: blur(4px);
+  cursor: pointer;
 }
 
 /* Mobile Hero Carousel */
@@ -2375,6 +2465,42 @@ const reviews = [
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   7. 360° VIRTUAL TOUR MODAL
+══════════════════════════════════════════════════════════════ */
+.tour-360-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(12, 10, 9, 0.94);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.tour-360-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px;
+  color: #ffffff;
+}
+
+.tour-360-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.tour-360-stage {
+  flex: 1;
+  min-height: 0;
+  padding: 0 32px 32px;
 }
 
 /* ══════════════════════════════════════════════════════════════

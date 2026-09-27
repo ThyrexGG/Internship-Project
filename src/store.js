@@ -8,6 +8,7 @@ export const properties = ref([
     liked: false, activeSlide: 0,
     rating: 4.9, period: 'Long-term',
     amenities: ['wifi', 'kitchen', 'ac', 'pool', 'parking'],
+    panoramaUrl: 'https://pannellum.org/images/alma.jpg',
     images: [
       '/homesweet/c02ffd00-ccf6-448e-a21c-6202e14a9340.jpeg',
       '/homesweet/b389fd58-2a76-4d56-8190-cb65043ffea1.jpeg',
