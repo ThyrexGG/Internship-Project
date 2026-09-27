@@ -1,7 +1,7 @@
 # HomeSweet — Project State & Architectural Blueprint
-> **Document Version:** 1.1.0  
+> **Document Version:** 1.2.0  
 > **Status:** Production-Ready MVP & Premium UX Enhanced  
-> **Last Verified Date:** September 14, 2026  
+> **Last Verified Date:** September 27, 2026  
 > **Target Repository:** `ThyrexGG/Internship-Project` (Branch: `main`)  
 > **Primary Authors & Maintainers:** HomeSweet Core Engineering Team
 
@@ -18,6 +18,7 @@
    - 5.3 [Landlord & Host Operations Portal](#53-landlord--host-operations-portal)
    - 5.4 [Administrative Management Console](#54-administrative-management-console)
    - 5.5 [Shared Components & Cross-Cutting Services](#55-shared-components--cross-cutting-services)
+   - 5.6 [360° Virtual Tour Subsystem](#56-360-virtual-tour-subsystem)
 6. [Data Architecture & Firestore Schema Dictionary](#6-data-architecture--firestore-schema-dictionary)
 7. [Security Architecture & Access Control Policies](#7-security-architecture--access-control-policies)
 8. [Design System, Typography & CSS Architecture](#8-design-system-typography--css-architecture)
@@ -96,6 +97,7 @@ Internship-Project-main/
 ├── .gitignore                        # Git ignore specifications (node_modules, dist, .env)
 ├── babel.config.js                   # Babel transpilation preset config
 ├── cors.json                         # Firebase Storage CORS configuration for web uploads
+├── .firebaserc                       # Default Firebase CLI project alias (internship-project-e6db4)
 ├── firebase.json                     # Firebase deployment manifest linking rules
 ├── firestore.indexes.json            # Firestore composite index declarations
 ├── firestore.rules                   # Production Cloud Firestore security & authorization rules
@@ -131,7 +133,8 @@ Internship-Project-main/
 │   │
 │   ├── components/                   # Reusable UI components
 │   │   ├── GlobalFooter.vue          # Universal application footer with legal & site navigation
-│   │   ├── NotificationDropdown.vue  # Real-time bell dropdown with category filters & unread badges
+│   │   ├── NotificationDropdown.vue  # Real-time bell dropdown with category filters, unread badges & inline friend-request accept/decline
+│   │   ├── Panorama360Viewer.vue     # Pannellum-based equirectangular 360° panorama viewer (drag to look, scroll to zoom)
 │   │   ├── PropertyImage.vue         # Unified image component with shimmer skeleton & fallback
 │   │   └── verification/             # Identity verification multi-step wizard components
 │   │       ├── ProfileStep.vue       # Step 1: Personal profile, occupation & lifestyle habits
@@ -154,8 +157,8 @@ Internship-Project-main/
 │       │   ├── RentalApplicationView.vue # 4-step rental application wizard with Firestore persistence
 │       │   ├── PaymentView.vue       # Payment checkout, ABA Bakong KHQR, invoice & PDF receipts
 │       │   ├── ChatView.vue          # Two-column real-time Firestore messaging & attachments
-│       │   ├── VerifyAccountView.vue # KYC stepper container with split hero & dev bypass bar
-│       │   ├── UserProfileView.vue   # Resident profile, friend connection & messaging entry
+│       │   ├── VerifyAccountView.vue # KYC stepper container with back navigation, split hero & dev bypass bar
+│       │   ├── UserProfileView.vue   # Resident profile, friend request (send/accept/decline) & messaging entry
 │       │   ├── FindRoommateView.vue  # Property-specific roommate application & split calculator
 │       │   └── RoommateMatchView.vue # Swipeable roommate deck with compatibility metrics
 │       │
@@ -251,6 +254,7 @@ To access the administrative console discreetly from any screen in the applicati
   - Darkened frosted backdrop (`rgba(12, 10, 9, 0.94)` with `backdrop-filter: blur(16px)`).
   - Photo counter indicator, close button (`✕`), Next/Prev buttons, and bottom thumbnail carousel strip.
   - Keyboard navigation listener (`ArrowLeft`, `ArrowRight`, `Escape`).
+- **360° Virtual Tour:** When `property.panoramaUrl` is set, a dark pill button ("360° Virtual Tour") renders stacked directly above the "Show all photos" button on both desktop mosaic and mobile hero layouts. Clicking it opens a fullscreen modal hosting `Panorama360Viewer.vue` (see [5.6](#56-360-virtual-tour-subsystem)). Listings without a `panoramaUrl` simply don't render the trigger.
 - **Two-Column Marketplace Layout:**
   - **Left Column:**
     - *Host Intro Card:* Verified landlord avatar, checkmark, response rate badge, and quick "Chat Host" button.
@@ -261,7 +265,7 @@ To access the administrative console discreetly from any screen in the applicati
     - *Direct Channels:* Facebook, Telegram, and hotline pills.
   - **Right Column — Sticky Booking Card (`position: sticky; top: 90px`):**
     - Floating card with `var(--shadow-elevation-3-specular)`.
-    - Move-in date picker, lease duration selector pills (`1 Mo`, `3 Mo`, `6 Mo`, `1 Yr`), and occupant counter.
+    - Move-in date picker, lease duration selector pills (`3 Mo`, `6 Mo`, `1 Yr` — the `1 Mo` option was deliberately removed to steer bookings toward longer, more stable leases), and occupant counter.
     - Live pricing breakdown (Rent, Refundable Deposit, Utilities, Total due at signing).
     - Primary CTA: **"Rent House / Apply"** (`/property/:id/apply`).
     - Secondary CTAs: **"Pay Deposit Now"** (`/property/:id/payment`) and **"Find Roommate to Split"** (`/property/:id/roommate`).
@@ -289,9 +293,18 @@ To access the administrative console discreetly from any screen in the applicati
 #### 6. `ChatView.vue` (Real-Time Communication Hub)
 - **Interface:** Split two-column layout matching modern messaging platforms (Telegram / WhatsApp).
 - **Conversation List:** Real-time list of active chat threads with unread message badges, avatar status rings, and timestamp formatting.
+- **New Conversation Search:** Search field over the `users` collection to start a chat with someone not yet in the thread list; selecting a result opens (or creates) a deterministic chat doc keyed `[uidA, uidB].sort().join('_')`.
 - **Live Synchronization:** Listens to Firestore `messages` and `chats/{chatId}/messages` using `onSnapshot()` for instant bidirectional communication.
 - **Media & Document Sharing:** Integrated file inputs supporting image attachments (JPEG, PNG) and PDF document transfers.
 - **In-Chat Search:** Instant client-side text filtering to search through conversation message history.
+- **Timestamp Dividers:** A time divider renders above a message only when its timestamp differs from the previous message's — consecutive messages sent in the same minute no longer each repeat their own divider.
+- **Known Gap:** Guest-mode browsing never calls Firebase Auth, so chat writes from a guest session silently fail the `isAuthenticated()` rule check; chat requires a real signed-in account.
+
+#### 7. `UserProfileView.vue` (Resident Public Profile & Friend Connections)
+- Public profile page for a resident, reachable from chat, search results, and roommate matching.
+- **Friend Request Flow (not a one-click toggle):** The primary action button reflects one of four states — `friendStatus`: `'none'` ("Add Friend"), `'pending_sent'` ("Request Sent" / cancel), `'pending_received'` ("Accept" / "Decline"), or `'friends'` ("Friends"). Sending a request creates a `friend_requests/{fromUid}_{toUid}` document with `status: 'pending'`; accepting flips it to `'accepted'`; declining or cancelling deletes it.
+- `checkFriendStatus()` resolves state via `where('fromUid', ...)` / `where('toUid', ...)` queries rather than a direct `getDoc` on a possibly-nonexistent document, because Firestore rules throw `permission-denied` (not "not found") when `resource.data` is read off a doc that doesn't exist yet.
+- The one-time `onAuthStateChanged` listener unsubscribes itself after its first fire to avoid a stale re-check clobbering the button back to "Add Friend" right after a successful send.
 
 ---
 
@@ -396,6 +409,8 @@ The identity verification pipeline (`src/views/normal/VerifyAccountView.vue` and
   - Real-time unread count pill badge (`99+` formatting).
   - Single-click **"Mark all read"** action updating both local state and Firestore documents.
   - Keyboard accessible (`Escape` to close) and click-outside dismissal.
+  - **Inline Friend Requests:** `fetchFriendRequests()` queries `friend_requests` for `where('toUid', '==', myUid) && where('status', '==', 'pending')` and renders each as a card with Accept/Decline buttons (`.fr-accept` / `.fr-decline`) that write directly to the `friend_requests` doc; these cards short-circuit the normal item-click navigation handler.
+  - `fetchLiveNotifications()` queries `notifications` scoped to `where('userId', '==', myUid)`, plus a best-effort `where('targetRole', '==', 'admin')` query for admin accounts — **not** an unscoped `collection()` scan, which Firestore's security rules deny outright for any account (a query is only allowed to execute if the rules can prove every possible matching document is readable, which an unfiltered scan over a per-user collection can never satisfy).
 
 #### 2. `PropertyImage.vue`
 - Standardized image display component applied across all property cards and detail views.
@@ -419,6 +434,16 @@ The identity verification pipeline (`src/views/normal/VerifyAccountView.vue` and
   2. Attempts reverse geocoding via Google Maps Geocoder if initialized.
   3. Falls back to **OpenStreetMap Nominatim** API with strict 4-second timeout.
   4. Falls back to **Offline Centroid Distance Matching** against known Phnom Penh district coordinates (Chroy Chongva, BKK1, Tonle Bassac, Sen Sok, Toul Kork, Chamkarmon, Daun Penh).
+
+---
+
+### 5.6 360° Virtual Tour Subsystem
+
+#### `Panorama360Viewer.vue`
+- Thin wrapper around **Pannellum** (`pannellum` npm package, v2.5.7), imported as a side-effect (`pannellum/build/pannellum.js` + `.css`) so the global `window.pannellum` API is available.
+- **Props:** `imageUrl` (required, `String`) — a single equirectangular (2:1 aspect ratio) panorama image URL.
+- **Lifecycle:** builds the viewer via `window.pannellum.viewer(el, { type: 'equirectangular', panorama, autoRotate: -2, mouseZoom: true, draggable: true, hfov: 100, ... })` on mount, rebuilds on `imageUrl` change, and calls `.destroy()` on unmount to avoid leaking WebGL contexts.
+- **Integration:** consumed by `PropertyDetailView.vue`'s 360° modal (see [5.1 §3](#3-propertydetailview-vue-marketplace-showcase--booking-engine)). A property opts in by setting `panoramaUrl` on its `properties/{id}` document — there is no dedicated upload UI yet (see [§10 Roadmap](#10-known-technical-limitations-edge-cases--roadmap)); the field is populated directly in Firestore or via seed data today.
 
 ---
 
@@ -593,8 +618,22 @@ interface NotificationDocument {
   createdAt: string | Timestamp;     // ISO timestamp
 }
 ```
+> **Known Data Gap:** `NotificationDropdown.vue` now correctly *reads* only `userId == me` / `targetRole == 'admin'` docs (see [5.5](#55-shared-components--cross-cutting-services)), but several *write* sites — `RentalDashboard.vue` (maintenance tickets), `PaymentView.vue` (payment received), `FindRoommateView.vue` (roommate applications), `RentalApplicationView.vue` (booking requests) — do not currently set `userId` (the landlord's UID) on the documents they create. Until those writers are updated to target the right recipient, those specific notification types won't appear in the recipient's live bell feed. Not fixed in this pass; flagged for follow-up.
 
-### 6.8 Collection: `messages` & `chats/{chatId}/messages`
+### 6.8 Collection: `friend_requests`
+Directional connection requests between residents. Document ID convention: `{fromUid}_{toUid}` (not sorted — direction is meaningful).
+```typescript
+interface FriendRequestDocument {
+  fromUid: string;                   // Requester UID (must match request.auth.uid on create)
+  toUid: string;                     // Recipient UID
+  fromName?: string;                 // Requester display name (denormalized for notification cards)
+  fromAvatar?: string;                // Requester avatar URL (denormalized)
+  status: 'pending' | 'accepted';    // Declining/cancelling deletes the document rather than storing a 'declined' state
+  createdAt: string | Timestamp;
+}
+```
+
+### 6.9 Collection: `messages` & `chats/{chatId}/messages`
 Bidirectional communication channels.
 ```typescript
 interface MessageDocument {
@@ -618,15 +657,18 @@ The application adheres to a zero-trust model implemented directly inside `fires
 - **Authentication Check (`isAuthenticated()`):** Rejects all unauthenticated attempts to read or mutate non-public collections.
 - **Admin Privileges (`isAdmin()`):** Evaluates whether the request token contains `admin == true`, matches official admin emails (`admin@homesweet.com`, `thyrexgg@gmail.com`), or possesses a verified `role == 'admin'` in `users/{uid}`.
 - **Privilege Escalation Prevention:**
-  - Standard users are strictly blocked from writing `role: 'admin'` or setting `verificationStatus: 'verified'`. Only administrative roles can approve KYC transitions.
+  - Standard users are strictly blocked from writing `role: 'admin'` or setting `verificationStatus: 'verified'` on their own `users/{uid}` doc, on both create and update. Only administrative roles can approve KYC transitions.
+  - **Rule-writing gotcha (fixed Sep 2026):** the `users` create rule originally used `request.resource.data.keys().hasAny([...]) || request.resource.data.verificationStatus != 'verified'`. Directly dot-accessing a field that doesn't exist on the incoming write (`request.resource.data.verificationStatus`) *throws* rather than evaluating falsy, which silently denied every signup (signup only writes `role`, never `verificationStatus`). The fix uses the safe membership check `'verificationStatus' in request.resource.data` instead of `hasAny` + direct access. Apply the same `'field' in map` pattern for any future optional-field rule condition, on both `request.resource.data` and `resource.data`.
 - **Ownership Verification:**
   - Property listings can only be updated or deleted by their registered `ownerId` / `userId` or a platform admin.
   - Users can only read and mutate their own profile documents (`isOwner(userId)`).
+- **Friend Requests (`friend_requests/{fromUid}_{toUid}`):** only the sender can create (and only addressed to someone else, with `status == 'pending'`); only the two participants (or an admin) can read, update (accept), or delete (cancel/decline) a given request.
 - **Communication Privacy:**
   - Direct and threaded messages are strictly restricted to the conversation participants. Unrelated users cannot read or inject messages.
 - **Application & Payment Immutability:**
   - Rental applications can only be created by the applicant.
   - Payment records can be created by authenticated users for their own transactions, but can only be modified or deleted by administrators for reconciliation.
+- **List-query gotcha:** Firestore denies an entire collection query outright — not just the unreadable documents — if its security rule can't be proven true for *every* potential matching document. Any client code that lists a per-user collection (e.g. `notifications`) must add a `where()` clause matching the rule's ownership field (e.g. `where('userId', '==', uid)`); an unscoped `collection()` scan will get `permission-denied` for any non-admin account. See [`NotificationDropdown.vue`](#55-shared-components--cross-cutting-services).
 
 ### 7.2 Cloud Storage Security Rules (`storage.rules`)
 - **Profile Avatars (`/users/{userId}/*`):** Publicly readable; writable only by the account owner; max file size 5MB; image MIME type enforced.
@@ -792,6 +834,10 @@ npm.cmd run build
 4. **Admin Portal Authentication:**
    - *Current State:* PIN gate (`123456` or `admin@homesweet.com`) validated in frontend UI, coupled with email checks in `firestore.rules`.
    - *Recommended Future Enhancement:* Implement Firebase Custom Claims via Cloud Functions (`admin: true`) for enterprise-tier token claims.
+5. **Guest-Mode Chat:** Browsing as a guest never calls Firebase Auth, so `isAuthenticated()` fails on every chat write from a guest session. Chat (and any other authenticated-write feature) requires a real signed-in account; there is currently no guest-friendly messaging fallback.
+6. **Notification Recipient Targeting:** Several notification-creating call sites (maintenance tickets, payment confirmations, roommate applications, booking requests) don't set the `userId` field of the recipient, so — now that `NotificationDropdown.vue` correctly scopes its read query (see [§7](#7-security-architecture--access-control-policies)) — those notification types won't reach the intended landlord's live bell feed until the writers are updated to target the right UID.
+7. **360° Tour Upload Pipeline:** `Panorama360Viewer.vue` and the property-detail viewing experience are fully built and verified, but there is no landlord-facing UI yet to upload/attach a panorama image to a listing — `panoramaUrl` must be set directly on the `properties/{id}` document today.
+8. **Verify-Account Dev QA Toolbar:** `VerifyAccountView.vue` renders an unconditional "⚙️ Step Bypass" toolbar at the bottom of the screen for jumping between KYC steps during testing. This is intentionally left in place (not gated behind an env flag) per product decision — be aware it's visible in production if you're auditing that screen.
 
 ---
 
@@ -807,6 +853,20 @@ npm.cmd run build
    - Format: `<type>(<scope>): <short summary>`
    - Types: `feat`, `fix`, `refactor`, `style`, `docs`, `chore`, `perf`.
    - Example: `feat(verification): add liveness head turn challenge to kyc flow`
+
+### 11.2 Multi-Agent / Parallel Development Workflow
+When two engineers (or AI agents) work the codebase simultaneously, the repo uses **git worktrees** rather than long-lived feature branches:
+- `Internship-Project-main` (branch `main`) is the integration workspace — treat it as the mainline that gets pushed to `origin/main`, which auto-deploys to production (homesweet.site).
+- `Internship-Project-dev2` (branch `dev2`) is a second worktree checked out from the same repo for parallel work.
+- **Golden rule:** never edit the same file in both worktrees at the same time — pick a clean split (e.g. by feature/view) before starting.
+- **Sync protocol:** after every push to `main`, run `git merge main --ff-only` inside the `dev2` worktree so it never drifts. Completed work in `dev2` is merged back into `main` the same way once it's reviewed.
+
+### 11.3 Deploying Firestore/Storage Rule Changes
+Rule changes in `firestore.rules` / `storage.rules` are **not** picked up by the site until explicitly deployed:
+```powershell
+npx firebase-tools deploy --only firestore:rules
+```
+This requires an authenticated Firebase CLI session (`npx firebase-tools login`) and a `.firebaserc` pointing at the target project (`internship-project-e6db4`). Always test a rule change against a real signed-in account (not just lint/compile) before considering it done — several bugs in this codebase's history (see [§7](#7-security-architecture--access-control-policies)) only surfaced under live multi-account testing, not code review.
 
 ---
 *HomeSweet Platform Architecture & State Documentation — Maintained by the Core Team.*
