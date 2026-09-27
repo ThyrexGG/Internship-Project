@@ -839,6 +839,33 @@ npm.cmd run build
 7. **360° Tour Upload Pipeline:** `Panorama360Viewer.vue` and the property-detail viewing experience are fully built and verified, but there is no landlord-facing UI yet to upload/attach a panorama image to a listing — `panoramaUrl` must be set directly on the `properties/{id}` document today.
 8. **Verify-Account Dev QA Toolbar:** `VerifyAccountView.vue` renders an unconditional "⚙️ Step Bypass" toolbar at the bottom of the screen for jumping between KYC steps during testing. This is intentionally left in place (not gated behind an env flag) per product decision — be aware it's visible in production if you're auditing that screen.
 
+### 10.2 Planned: Web Scraping & Elasticsearch Search (Not Started)
+The app is currently 100% client-side Vue talking directly to Firebase — no backend server exists. This feature needs one, so it's a bigger lift than a normal fix. Not yet built; captured here as the agreed plan for when it's picked up.
+
+**What it's for:**
+- **Scraper:** a scheduled job that pulls listings from other rental sites into a `scraped_listings` staging collection (`status: 'pending_review'`); an admin reviews and approves before anything copies into the live `properties` collection.
+- **Search:** Elasticsearch/OpenSearch mirrors `properties` to power real full-text + geo + faceted search, replacing the client-side array filtering currently done in `SearchResultsView.vue` / `store.js`.
+
+**Architecture:**
+```
+Scheduled scrape job → scraped_listings (Firestore, staging) → Admin approves → properties (Firestore, live)
+                                                                                      │
+                                                                  Firestore onWrite trigger (auto-sync)
+                                                                                      ▼
+                                                                              Elasticsearch index
+                                                                                      ▲
+                                                                        search query (HTTP function)
+                                                                                      │
+                                                                            SearchResultsView.vue
+```
+
+**What's needed before starting:**
+1. Upgrade the Firebase project from the free **Spark** plan to pay-as-you-go **Blaze** — Cloud Functions (for the scraper schedule, the Firestore→ES sync trigger, and the search endpoint) require it.
+2. A managed Elasticsearch/OpenSearch instance (e.g. Elastic Cloud or Bonsai) — recurring cost, avoids self-hosting/patching a server.
+3. Pick which external rental sites to scrape, and confirm scraping their listings is compliant with each site's ToS/robots.txt (most listing platforms restrict scraping; some offer an official API/feed as an alternative worth checking first).
+
+**Recommended build order:** search sync first (useful standalone, testable without any scraping), scraper second, feeding into the same reviewed-then-synced pipeline.
+
 ---
 
 ## 11. Workflow Guidelines & Engineering SOPs
