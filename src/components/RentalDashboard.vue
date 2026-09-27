@@ -4,9 +4,7 @@
     <header class="rd-header">
       <div class="rd-header-text">
         <h1 class="main-title">Rentals</h1>
-        <p class="rd-subtitle">
-          Manage your active tenancies, review lease terms, and explore your rental history.
-        </p>
+        <p class="rd-subtitle">Your active lease, rental history, and applications.</p>
       </div>
       <div class="rd-header-actions">
         <button class="rd-btn-outline" @click="$emit('browse-listings')" type="button">
@@ -75,7 +73,6 @@
             <span class="kpi-value">{{ pastRentals.length }}</span>
             <span class="kpi-pill">Completed</span>
           </div>
-          <span class="kpi-sub">All deposits refunded</span>
         </div>
       </div>
 
@@ -226,7 +223,6 @@
               </svg>
               Paid for {{ activeRental.currentMonth }}
             </span>
-            <span class="cell-sub">Next due: {{ activeRental.nextDue }}</span>
           </div>
 
           <div class="info-cell">
@@ -286,7 +282,6 @@
               Security Deposit
             </span>
             <span class="cell-val">${{ activeRental.deposit }} USD</span>
-            <span class="cell-sub">Held safely in escrow</span>
           </div>
         </div>
 
@@ -961,7 +956,7 @@ onMounted(() => {
 .rental-dashboard {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 40px;
   width: 100%;
   animation: fadeIn 0.2s ease-out;
 }
@@ -988,7 +983,7 @@ onMounted(() => {
 }
 
 .rd-subtitle {
-  font-size: 0.95rem;
+  font-size: 0.86rem;
   color: #666;
   margin: 0;
   line-height: 1.45;
@@ -1020,10 +1015,10 @@ onMounted(() => {
   background: #ffffff;
   border: 1px solid #e5e0dc;
   border-radius: 14px;
-  padding: 16px 18px;
+  padding: 20px 22px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   box-shadow: 0 1px 4px rgba(42, 36, 33, 0.03);
   cursor: pointer;
   transition: all 0.18s ease;
@@ -1088,20 +1083,20 @@ onMounted(() => {
 }
 
 .kpi-value {
-  font-size: 1.35rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #111;
   line-height: 1.1;
 }
 
 .kpi-sub-period {
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   color: #666;
   white-space: nowrap;
 }
 
 .kpi-sub {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   color: #666;
   white-space: nowrap;
   overflow: hidden;
@@ -1169,7 +1164,7 @@ onMounted(() => {
 .rd-section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .section-title-wrap {
@@ -1182,7 +1177,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 600;
   color: #111;
   margin: 0;
@@ -1231,11 +1226,11 @@ onMounted(() => {
   background: #ffffff;
   border: 1px solid #e5e0dc;
   border-radius: 18px;
-  padding: 22px;
+  padding: 28px;
   box-shadow: 0 2px 12px rgba(42, 36, 33, 0.04);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
@@ -1244,7 +1239,7 @@ onMounted(() => {
 
 .arc-header {
   display: flex;
-  gap: 20px;
+  gap: 24px;
   align-items: stretch;
   min-width: 0;
 }
@@ -1316,7 +1311,7 @@ onMounted(() => {
 }
 
 .arc-type-tag {
-  font-size: 0.8rem;
+  font-size: 0.74rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.4px;
@@ -1324,17 +1319,17 @@ onMounted(() => {
 }
 
 .arc-rent-tag {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #2A2421;
 }
 
 .arc-rent-tag strong {
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   color: #2A2421;
 }
 
 .arc-title {
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: #2A2421;
   margin: 0;
@@ -1349,7 +1344,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   color: #786b66;
 }
 
@@ -1358,11 +1353,11 @@ onMounted(() => {
   background: #FAF8F5;
   border: 1px solid #e5e0dc;
   border-radius: 10px;
-  padding: 10px 12px;
-  margin-top: 6px;
+  padding: 14px 16px;
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 8px;
 }
 
 .lpb-header {
@@ -1408,17 +1403,17 @@ onMounted(() => {
 .arc-info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 14px;
+  gap: 20px;
   border-top: 1px solid #f0ece9;
   border-bottom: 1px solid #f0ece9;
-  padding: 14px 0;
+  padding: 20px 0;
   min-width: 0;
 }
 
 .info-cell {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 5px;
   min-width: 0;
   overflow: hidden;
 }
@@ -1434,7 +1429,7 @@ onMounted(() => {
 }
 
 .cell-val {
-  font-size: 0.94rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: #2A2421;
 }
@@ -1508,20 +1503,20 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
 }
 
 .arc-actions-left {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
 .arc-actions-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 /* ── BUTTON STYLES (Homesweet Theme) ── */
@@ -1627,7 +1622,7 @@ onMounted(() => {
 .past-rentals-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
+  gap: 20px;
   width: 100%;
   min-width: 0;
 }
@@ -1680,10 +1675,10 @@ onMounted(() => {
 }
 
 .prc-body {
-  padding: 16px 18px;
+  padding: 20px 22px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   flex: 1;
 }
 
@@ -1700,13 +1695,13 @@ onMounted(() => {
 }
 
 .prc-price {
-  font-size: 0.94rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: #2A2421;
 }
 
 .prc-title {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #2A2421;
   margin: 0;
@@ -1721,7 +1716,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: #786b66;
   margin: 0;
 }
@@ -1730,11 +1725,11 @@ onMounted(() => {
   background: #FAF8F5;
   border: 1px solid #f0ece9;
   border-radius: 8px;
-  padding: 9px 12px;
+  padding: 11px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
 }
 
 .pm-item {
@@ -1778,7 +1773,7 @@ onMounted(() => {
 .applications-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
   width: 100%;
   min-width: 0;
 }
@@ -1787,10 +1782,10 @@ onMounted(() => {
   background: #ffffff;
   border: 1px solid #e5e0dc;
   border-radius: 12px;
-  padding: 12px 16px;
+  padding: 16px 20px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
   box-shadow: 0 1px 4px rgba(42, 36, 33, 0.03);
   min-width: 0;
   box-sizing: border-box;
@@ -1848,7 +1843,7 @@ onMounted(() => {
 }
 
 .aic-title {
-  font-size: 0.96rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: #2A2421;
   margin: 0;
