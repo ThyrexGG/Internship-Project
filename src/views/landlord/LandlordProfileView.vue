@@ -202,64 +202,13 @@
     </main>
     <GlobalFooter />
 
-    <!-- Direct Messaging Popup Modal -->
-    <transition name="modal-fade">
-      <div v-if="showChatModal" class="chat-modal-overlay" @click.self="showChatModal = false">
-        <div class="chat-modal-box">
-          <header class="chat-modal-header">
-            <div class="chat-modal-title-row">
-              <div class="chat-avatar-wrapper">
-                <img :src="landlordInfo.avatar" alt="Landlord Avatar" class="chat-avatar-img" />
-              </div>
-              <div class="chat-landlord-info">
-                <h3>{{ landlordInfo.firstName }} {{ landlordInfo.lastName }}</h3>
-                <span class="chat-verified-badge">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#5C4E4E" stroke="#fff" stroke-width="2">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                    <polyline points="22 4 12 14.01 9 11.01" />
-                  </svg>
-                  <span>Verified Landlord</span>
-                </span>
-              </div>
-            </div>
-            <button class="chat-close-btn" @click="showChatModal = false" aria-label="Close message window">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          </header>
-
-          <div class="chat-modal-body">
-            <label class="chat-label">Type your message to landlord:</label>
-            <textarea 
-              v-model="chatMessage" 
-              class="chat-textarea" 
-              placeholder="Write your message here..."
-              rows="5"
-              :disabled="isSendingMessage"
-            ></textarea>
-            <p class="chat-hint">This landlord usually replies within an hour.</p>
-          </div>
-
-          <footer class="chat-modal-footer">
-            <button class="chat-cancel-btn" @click="showChatModal = false" :disabled="isSendingMessage">Cancel</button>
-            <button class="chat-send-btn" @click="sendDirectMessage" :disabled="isSendingMessage || !chatMessage.trim()">
-              <span v-if="isSendingMessage" class="chat-spinner"></span>
-              <span v-else>Send Message</span>
-            </button>
-          </footer>
-        </div>
-      </div>
-    </transition>
-
-    <!-- Success Toast -->
+    <!-- Success Toast (used by Share Profile, etc.) -->
     <transition name="toast-fade">
       <div v-if="showSuccessToast" class="chat-success-toast">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="toast-check-icon">
           <polyline points="20 6 9 17 4 12"></polyline>
         </svg>
-        <span>{{ toastMessage || `Message sent successfully to ${landlordInfo.firstName}!` }}</span>
+        <span>{{ toastMessage }}</span>
       </div>
     </transition>
   </div>
@@ -408,24 +357,10 @@ function goBack() {
   }
 }
 
-const showChatModal = ref(false)
-const chatMessage = ref('')
-const isSendingMessage = ref(false)
 const showSuccessToast = ref(false)
 const toastMessage = ref('')
 
 function messageLandlord() {
-  const landlordId = route.params.id ? `landlord_${route.params.id}` : 'landlord_skystar'
-  const landlordName = `${landlordInfo.value.firstName} ${landlordInfo.value.lastName}`.trim() || 'Landlord'
-
-  router.push({
-    path: '/chat',
-    query: { landlordId: landlordId, contact: landlordName }
-  })
-}
-
-function sendDirectMessage() {
-  showChatModal.value = false
   const landlordId = route.params.id ? `landlord_${route.params.id}` : 'landlord_skystar'
   const landlordName = `${landlordInfo.value.firstName} ${landlordInfo.value.lastName}`.trim() || 'Landlord'
 
