@@ -579,14 +579,16 @@ onMounted(() => {
    ========================================================================== */
 .split-checkout-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
   width: 100%;
+  overflow: hidden;
 }
 
 /* ------------------- Left Hero Panel ------------------- */
 .left-hero {
   flex: 0 0 50%;
-  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
   padding: 40px 48px 60px;
   display: flex;
   flex-direction: column;
@@ -794,7 +796,7 @@ onMounted(() => {
 /* ------------------- Right Form Panel ------------------- */
 .right-form-panel {
   flex: 0 0 50%;
-  min-height: 100vh;
+  height: 100vh;
   padding: 40px 64px 60px;
   background: #ffffff;
   overflow-y: auto;
@@ -1360,11 +1362,14 @@ onMounted(() => {
 @media (max-width: 900px) {
   .split-checkout-layout {
     flex-direction: column;
+    height: auto;
+    overflow: visible;
   }
   .left-hero, .right-form-panel {
     flex: 1 0 auto;
     width: 100%;
-    min-height: auto;
+    height: auto;
+    overflow-y: visible;
     padding: 30px 24px;
   }
   .plan-price {
