@@ -8,7 +8,7 @@ export const properties = ref([
     liked: false, activeSlide: 0,
     rating: 4.9, period: 'Long-term',
     amenities: ['wifi', 'kitchen', 'ac', 'pool', 'parking'],
-    panoramaUrl: 'https://pannellum.org/images/alma.jpg',
+    panoramaUrl: 'https://upload.wikimedia.org/wikipedia/commons/b/be/Biblioteca_P%C3%BAblica_de_%C3%89vora_-_Sala_de_exposi%C3%A7%C3%B5es_%28360_panorama%29.jpg',
     images: [
       '/homesweet/c02ffd00-ccf6-448e-a21c-6202e14a9340.jpeg',
       '/homesweet/b389fd58-2a76-4d56-8190-cb65043ffea1.jpeg',
