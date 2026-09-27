@@ -30,10 +30,30 @@
           <h1 class="sidebar-title">Messages</h1>
         </div>
 
+        <!-- Find / Search Users -->
+        <div class="sidebar-search-wrap">
+          <svg class="sidebar-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8C7E7E" stroke-width="2">
+            <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16" y2="16" />
+          </svg>
+          <input
+            type="text"
+            v-model="userSearchQuery"
+            placeholder="Find or start a new conversation..."
+            class="sidebar-search-input"
+          />
+          <button
+            v-if="userSearchQuery"
+            type="button"
+            class="sidebar-search-clear"
+            aria-label="Clear search"
+            @click="userSearchQuery = ''"
+          >&times;</button>
+        </div>
+
         <!-- Conversations Scroll List -->
         <div class="conversations-list">
-          <div 
-            v-for="(conv, index) in conversations" 
+          <div
+            v-for="(conv, index) in filteredConversations"
             :key="index"
             class="conversation-item"
             :class="{ active: selectedContact.id === conv.id }"
@@ -47,6 +67,32 @@
               <span class="conv-preview">{{ conv.preview }}</span>
             </div>
             <span class="conv-time">{{ conv.time }}</span>
+          </div>
+
+          <!-- New People Found (not yet in conversations) -->
+          <template v-if="userSearchQuery && searchedNewUsers.length > 0">
+            <div class="conversations-section-label">Start a new conversation</div>
+            <div
+              v-for="user in searchedNewUsers"
+              :key="user.id"
+              class="conversation-item"
+              @click="startNewConversation(user)"
+            >
+              <div class="conv-avatar-wrap">
+                <img :src="user.avatar" :alt="user.name" class="conv-avatar" />
+              </div>
+              <div class="conv-details">
+                <span class="conv-name">{{ user.name }}</span>
+                <span class="conv-preview">HomeSweet member</span>
+              </div>
+            </div>
+          </template>
+
+          <div
+            v-if="userSearchQuery && filteredConversations.length === 0 && searchedNewUsers.length === 0 && !isLoadingUsers"
+            class="conversations-empty-state"
+          >
+            No one found matching "{{ userSearchQuery }}"
           </div>
         </div>
       </aside>
@@ -487,15 +533,16 @@
 import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { db, auth } from '../../firebase'
-import { 
-  collection, 
-  addDoc, 
-  query, 
-  where, 
-  onSnapshot, 
-  serverTimestamp, 
-  doc, 
-  setDoc 
+import {
+  collection,
+  addDoc,
+  query,
+  where,
+  onSnapshot,
+  serverTimestamp,
+  doc,
+  setDoc,
+  getDocs
 } from 'firebase/firestore'
 import { onAuthStateChanged } from 'firebase/auth'
 
@@ -587,6 +634,63 @@ const conversations = ref([...defaultContacts])
 
 // Currently selected contact
 const selectedContact = ref(conversations.value[0])
+
+// ── Find / Search Users ──
+const userSearchQuery = ref('')
+const allPlatformUsers = ref([])
+const isLoadingUsers = ref(false)
+
+async function loadPlatformUsers() {
+  isLoadingUsers.value = true
+  try {
+    const snap = await getDocs(collection(db, 'users'))
+    const list = []
+    snap.forEach(docSnap => {
+      if (docSnap.id === currentUserId.value) return
+      const data = docSnap.data()
+      const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim()
+      if (!fullName) return
+      list.push({
+        id: docSnap.id,
+        targetId: docSnap.id,
+        name: fullName,
+        avatar: data.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80',
+        email: data.email || '',
+        phone: data.profile?.phone || ''
+      })
+    })
+    allPlatformUsers.value = list
+  } catch (err) {
+    console.warn('Notice loading platform users:', err)
+  } finally {
+    isLoadingUsers.value = false
+  }
+}
+
+const filteredConversations = computed(() => {
+  const q = userSearchQuery.value.trim().toLowerCase()
+  if (!q) return conversations.value
+  return conversations.value.filter(c => c.name.toLowerCase().includes(q))
+})
+
+const searchedNewUsers = computed(() => {
+  const q = userSearchQuery.value.trim().toLowerCase()
+  if (!q) return []
+  const existingIds = new Set(conversations.value.map(c => c.targetId || c.id))
+  return allPlatformUsers.value.filter(u =>
+    u.name.toLowerCase().includes(q) && !existingIds.has(u.id)
+  )
+})
+
+function startNewConversation(user) {
+  conversations.value.unshift({
+    ...user,
+    preview: 'Start a new conversation',
+    time: 'Just now'
+  })
+  userSearchQuery.value = ''
+  selectContact(user)
+}
 
 // Helper: deterministic room ID between two users
 function getDeterministicChatId(uidA, uidB) {
@@ -1008,6 +1112,7 @@ onMounted(() => {
   onAuthStateChanged(auth, (user) => {
     currentAuthUser.value = user
     listenToUserChats()
+    loadPlatformUsers()
   })
 
   // Deep-link query parameters
@@ -1159,6 +1264,73 @@ onUnmounted(() => {
   font-weight: 700;
   color: #2A2421;
   letter-spacing: -0.3px;
+}
+
+.sidebar-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 0 24px 14px;
+  padding: 0 12px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid #EDE8E3;
+  background: #FAF8F5;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.sidebar-search-wrap:focus-within {
+  border-color: #5C4E4E;
+  background: #ffffff;
+}
+
+.sidebar-search-icon {
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
+.sidebar-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.86rem;
+  font-family: inherit;
+  color: #2A2421;
+}
+
+.sidebar-search-input::placeholder {
+  color: #8C7E7E;
+}
+
+.sidebar-search-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #8C7E7E;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 2px 4px;
+}
+
+.sidebar-search-clear:hover {
+  color: #2A2421;
+}
+
+.conversations-section-label {
+  padding: 10px 24px 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #8C7E7E;
+}
+
+.conversations-empty-state {
+  padding: 24px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #8C7E7E;
 }
 
 .conversations-list {
