@@ -86,7 +86,8 @@
             @click="handleItemClick(item)"
           >
             <div class="item-icon-col">
-              <div class="item-icon-badge" :class="item.type || 'system'">
+              <img v-if="item._isFriendRequest && item.avatar" :src="item.avatar" alt="" class="item-avatar-img" />
+              <div v-else class="item-icon-badge" :class="item.type || 'system'">
                 <!-- Booking Icon -->
                 <svg v-if="item.type === 'booking'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/>
@@ -96,6 +97,13 @@
                 <svg v-else-if="item.type === 'payment'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="2" y="5" width="20" height="14" rx="2"/>
                   <line x1="2" y1="10" x2="22" y2="10"/>
+                </svg>
+                <!-- Friend Request Icon -->
+                <svg v-else-if="item.type === 'friend_request'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="8.5" cy="7" r="4"></circle>
+                  <line x1="20" y1="8" x2="20" y2="14"></line>
+                  <line x1="23" y1="11" x2="17" y2="11"></line>
                 </svg>
                 <!-- Default / System Icon -->
                 <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -113,6 +121,10 @@
               <div v-if="item.roomName || item.amount" class="item-meta-tag">
                 <span v-if="item.roomName" class="tag-prop">{{ item.roomName }}</span>
                 <span v-if="item.amount" class="tag-price">{{ item.amount }}</span>
+              </div>
+              <div v-if="item._isFriendRequest" class="friend-request-actions">
+                <button type="button" class="fr-btn fr-accept" @click.stop="acceptFriendRequest(item)">Accept</button>
+                <button type="button" class="fr-btn fr-decline" @click.stop="declineFriendRequest(item)">Decline</button>
               </div>
             </div>
 
@@ -148,8 +160,9 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { db } from '../firebase'
-import { collection, getDocs, doc, updateDoc } from 'firebase/firestore'
+import { db, auth } from '../firebase'
+import { collection, getDocs, doc, updateDoc, deleteDoc, query, where, serverTimestamp } from 'firebase/firestore'
+import { onAuthStateChanged } from 'firebase/auth'
 
 const router = useRouter()
 const dropdownRef = ref(null)
@@ -244,6 +257,7 @@ async function markAllAsRead() {
 }
 
 async function handleItemClick(item) {
+  if (item._isFriendRequest) return
   item.unread = false
   try {
     if (item._isFirestore) {
@@ -286,10 +300,66 @@ async function fetchLiveNotifications() {
   }
 }
 
+// Fetch pending friend requests addressed to the current user
+async function fetchFriendRequests() {
+  const myUid = auth.currentUser?.uid
+  if (!myUid) return
+  try {
+    const q = query(
+      collection(db, 'friend_requests'),
+      where('toUid', '==', myUid),
+      where('status', '==', 'pending')
+    )
+    const snap = await getDocs(q)
+    const requestItems = []
+    snap.forEach(d => {
+      const data = d.data()
+      requestItems.push({
+        id: d.id,
+        type: 'friend_request',
+        _isFriendRequest: true,
+        title: 'New Friend Request',
+        desc: `${data.fromName || 'A HomeSweet member'} wants to add you as a friend.`,
+        avatar: data.fromAvatar,
+        fromUid: data.fromUid,
+        time: 'Just now',
+        unread: true
+      })
+    })
+    notifications.value = [...requestItems, ...notifications.value.filter(n => n.type !== 'friend_request')]
+  } catch (err) {
+    console.warn('Notice loading friend requests:', err)
+  }
+}
+
+async function acceptFriendRequest(item) {
+  try {
+    await updateDoc(doc(db, 'friend_requests', item.id), {
+      status: 'accepted',
+      respondedAt: serverTimestamp()
+    })
+    notifications.value = notifications.value.filter(n => n.id !== item.id)
+  } catch (err) {
+    console.warn('Notice accepting friend request:', err)
+  }
+}
+
+async function declineFriendRequest(item) {
+  try {
+    await deleteDoc(doc(db, 'friend_requests', item.id))
+    notifications.value = notifications.value.filter(n => n.id !== item.id)
+  } catch (err) {
+    console.warn('Notice declining friend request:', err)
+  }
+}
+
 onMounted(() => {
   document.addEventListener('click', handleOutsideClick)
   document.addEventListener('keydown', handleKeyDown)
   fetchLiveNotifications()
+  onAuthStateChanged(auth, (user) => {
+    if (user) fetchFriendRequests()
+  })
 })
 
 onUnmounted(() => {
@@ -484,6 +554,55 @@ onUnmounted(() => {
 .item-icon-badge.system {
   background: var(--color-info-bg, #EFF6FF);
   color: var(--color-info, #3B82F6);
+}
+
+.item-icon-badge.friend_request {
+  background: var(--color-primary-light, #F2EDE9);
+  color: var(--color-primary, #5C4E4E);
+}
+
+.item-avatar-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.friend-request-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.fr-btn {
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: var(--radius-pill, 50px);
+  cursor: pointer;
+  transition: all var(--transition-fast, 0.15s ease);
+}
+
+.fr-btn.fr-accept {
+  background: var(--color-primary, #5C4E4E);
+  color: #ffffff;
+  border: 1px solid #4a3e3e;
+}
+
+.fr-btn.fr-accept:hover {
+  background: var(--color-primary-hover, #473B3B);
+}
+
+.fr-btn.fr-decline {
+  background: #ffffff;
+  color: var(--color-text-muted, #8C7E7E);
+  border: 1px solid var(--color-border, #ede8e3);
+}
+
+.fr-btn.fr-decline:hover {
+  background: #FDF2F2;
+  color: #DC2626;
+  border-color: rgba(220, 38, 38, 0.3);
 }
 
 .item-body {

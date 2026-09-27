@@ -55,19 +55,66 @@
             Message
           </button>
           
-          <button class="action-btn" @click="toggleFriend" :class="{ 'friend-added': isFriend }">
-            <svg v-if="!isFriend" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- No relationship yet: Add Friend -->
+          <button
+            v-if="friendStatus === 'none'"
+            class="action-btn"
+            :disabled="isFriendActionBusy"
+            @click="handleFriendButtonClick"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="8.5" cy="7" r="4"></circle>
               <line x1="20" y1="8" x2="20" y2="14"></line>
               <line x1="23" y1="11" x2="17" y2="11"></line>
             </svg>
-            <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            Add Friend
+          </button>
+
+          <!-- I sent a request, waiting on them -->
+          <button
+            v-else-if="friendStatus === 'pending_sent'"
+            class="action-btn friend-pending"
+            :disabled="isFriendActionBusy"
+            title="Click to cancel your request"
+            @click="handleFriendButtonClick"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            Request Sent
+          </button>
+
+          <!-- They sent me a request: Accept / Decline -->
+          <template v-else-if="friendStatus === 'pending_received'">
+            <button
+              class="action-btn friend-accept"
+              :disabled="isFriendActionBusy"
+              @click="acceptFriendRequest"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Accept
+            </button>
+            <button
+              class="action-btn friend-decline"
+              :disabled="isFriendActionBusy"
+              @click="declineFriendRequest"
+            >
+              Decline
+            </button>
+          </template>
+
+          <!-- Already friends -->
+          <button v-else class="action-btn friend-added" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="8.5" cy="7" r="4"></circle>
               <polyline points="17 11 19 13 23 9"></polyline>
             </svg>
-            {{ isFriend ? 'Friends' : 'Add Friend' }}
+            Friends
           </button>
         </div>
       </div>
@@ -123,7 +170,8 @@ import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import GlobalFooter from '../../components/GlobalFooter.vue'
 import { auth, db } from '../../firebase'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
+import { onAuthStateChanged } from 'firebase/auth'
 
 const route = useRoute()
 const router = useRouter()
@@ -136,7 +184,11 @@ const goToProfile = () => {
 const defaultAvatar = 'https://ui-avatars.com/api/?name=User&background=random'
 const currentUserAvatar = ref('')
 const activeTab = ref('info')
-const isFriend = ref(false)
+
+// Friend relationship state: 'none' | 'pending_sent' | 'pending_received' | 'friends'
+const friendStatus = ref('none')
+const friendRequestId = ref(null)
+const isFriendActionBusy = ref(false)
 
 const userInfo = ref({
   firstName: 'Loading',
@@ -151,10 +203,46 @@ const userDetails = ref([
   { label: 'Bio', value: 'Looking for a quiet place to stay near the university.' }
 ])
 
+async function checkFriendStatus() {
+  const myUid = auth.currentUser?.uid
+  const targetId = route.params.id
+  if (!myUid || !targetId || myUid === targetId) return
+
+  try {
+    const sentRef = doc(db, 'friend_requests', `${myUid}_${targetId}`)
+    const receivedRef = doc(db, 'friend_requests', `${targetId}_${myUid}`)
+    const [sentSnap, receivedSnap] = await Promise.all([getDoc(sentRef), getDoc(receivedRef)])
+
+    if (sentSnap.exists() && sentSnap.data().status === 'accepted') {
+      friendStatus.value = 'friends'
+      friendRequestId.value = sentSnap.id
+    } else if (receivedSnap.exists() && receivedSnap.data().status === 'accepted') {
+      friendStatus.value = 'friends'
+      friendRequestId.value = receivedSnap.id
+    } else if (sentSnap.exists() && sentSnap.data().status === 'pending') {
+      friendStatus.value = 'pending_sent'
+      friendRequestId.value = sentSnap.id
+    } else if (receivedSnap.exists() && receivedSnap.data().status === 'pending') {
+      friendStatus.value = 'pending_received'
+      friendRequestId.value = receivedSnap.id
+    } else {
+      friendStatus.value = 'none'
+      friendRequestId.value = null
+    }
+  } catch (e) {
+    console.warn('Friend status lookup notice:', e)
+  }
+}
+
 onMounted(async () => {
   if (auth.currentUser) {
     currentUserAvatar.value = auth.currentUser.photoURL || defaultAvatar
   }
+
+  onAuthStateChanged(auth, (user) => {
+    currentUserAvatar.value = user?.photoURL || defaultAvatar
+    checkFriendStatus()
+  })
 
   const id = route.params.id
 
@@ -214,20 +302,79 @@ const messageUser = () => {
   router.push({ path: '/chat', query: { userId: route.params.id, contact: fullName } })
 }
 
-const toggleFriend = async () => {
-  isFriend.value = !isFriend.value
-  if (auth.currentUser) {
-    try {
-      const userRef = doc(db, 'users', auth.currentUser.uid)
-      await setDoc(userRef, {
-        friends: {
-          [route.params.id]: isFriend.value
-        }
-      }, { merge: true })
-    } catch (e) {
-      console.warn('Friend connection Firestore notice:', e)
-    }
+async function sendFriendRequest() {
+  const myUid = auth.currentUser?.uid
+  const targetId = route.params.id
+  if (!myUid || !targetId || isFriendActionBusy.value) return
+
+  isFriendActionBusy.value = true
+  const requestId = `${myUid}_${targetId}`
+  try {
+    await setDoc(doc(db, 'friend_requests', requestId), {
+      fromUid: myUid,
+      toUid: targetId,
+      fromName: auth.currentUser.displayName || 'A HomeSweet member',
+      fromAvatar: auth.currentUser.photoURL || '',
+      status: 'pending',
+      createdAt: serverTimestamp()
+    })
+    friendStatus.value = 'pending_sent'
+    friendRequestId.value = requestId
+  } catch (e) {
+    console.warn('Friend request send notice:', e)
+  } finally {
+    isFriendActionBusy.value = false
   }
+}
+
+async function cancelFriendRequest() {
+  if (!friendRequestId.value || isFriendActionBusy.value) return
+  isFriendActionBusy.value = true
+  try {
+    await deleteDoc(doc(db, 'friend_requests', friendRequestId.value))
+    friendStatus.value = 'none'
+    friendRequestId.value = null
+  } catch (e) {
+    console.warn('Friend request cancel notice:', e)
+  } finally {
+    isFriendActionBusy.value = false
+  }
+}
+
+async function acceptFriendRequest() {
+  if (!friendRequestId.value || isFriendActionBusy.value) return
+  isFriendActionBusy.value = true
+  try {
+    await updateDoc(doc(db, 'friend_requests', friendRequestId.value), {
+      status: 'accepted',
+      respondedAt: serverTimestamp()
+    })
+    friendStatus.value = 'friends'
+  } catch (e) {
+    console.warn('Friend request accept notice:', e)
+  } finally {
+    isFriendActionBusy.value = false
+  }
+}
+
+async function declineFriendRequest() {
+  if (!friendRequestId.value || isFriendActionBusy.value) return
+  isFriendActionBusy.value = true
+  try {
+    await deleteDoc(doc(db, 'friend_requests', friendRequestId.value))
+    friendStatus.value = 'none'
+    friendRequestId.value = null
+  } catch (e) {
+    console.warn('Friend request decline notice:', e)
+  } finally {
+    isFriendActionBusy.value = false
+  }
+}
+
+function handleFriendButtonClick() {
+  if (friendStatus.value === 'none') sendFriendRequest()
+  else if (friendStatus.value === 'pending_sent') cancelFriendRequest()
+  else if (friendStatus.value === 'friends') { /* no-op: already friends */ }
 }
 </script>
 
@@ -305,7 +452,14 @@ const toggleFriend = async () => {
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .action-btn:hover { background: #FAF8F5; transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 12px rgba(92, 78, 78, 0.12); }
+.action-btn:disabled { cursor: default; }
 .action-btn.friend-added { background: #5C4E4E; color: #fff; border-color: #4a3e3e; }
+.action-btn.friend-added:hover { transform: none; }
+.action-btn.friend-pending { background: #FAF8F5; color: #8C7E7E; border-color: #EDE8E3; }
+.action-btn.friend-accept { background: #5C4E4E; color: #fff; border-color: #4a3e3e; }
+.action-btn.friend-accept:hover { background: #473B3B; }
+.action-btn.friend-decline { color: #8C7E7E; }
+.action-btn.friend-decline:hover { background: #FDF2F2; color: #DC2626; border-color: rgba(220, 38, 38, 0.3); }
 
 /* Tabs */
 .profile-tabs-section {

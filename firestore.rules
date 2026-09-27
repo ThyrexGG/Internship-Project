@@ -43,6 +43,36 @@ service cloud.firestore {
     }
 
     // ==========================================
+    // Friend Requests Collection
+    // ==========================================
+    // Doc id convention: {fromUid}_{toUid}
+    // - Only the sender can create a pending request addressed to someone else
+    // - Only the two participants can read it
+    // - Either participant can update (accept/decline) or delete (cancel/remove) it
+    match /friend_requests/{requestId} {
+      allow read: if isAuthenticated() && (
+        request.auth.uid == resource.data.fromUid ||
+        request.auth.uid == resource.data.toUid ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated() &&
+        request.auth.uid == request.resource.data.fromUid &&
+        request.resource.data.fromUid != request.resource.data.toUid &&
+        request.resource.data.status == 'pending';
+      allow update: if isAuthenticated() && (
+        request.auth.uid == resource.data.fromUid ||
+        request.auth.uid == resource.data.toUid
+      ) &&
+        request.resource.data.fromUid == resource.data.fromUid &&
+        request.resource.data.toUid == resource.data.toUid;
+      allow delete: if isAuthenticated() && (
+        request.auth.uid == resource.data.fromUid ||
+        request.auth.uid == resource.data.toUid ||
+        isAdmin()
+      );
+    }
+
+    // ==========================================
     // Properties Collection
     // ==========================================
     // - Public read for listings
