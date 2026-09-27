@@ -2069,12 +2069,14 @@ const savedHomeTab = sessionStorage.getItem('homeActiveTab')
 const activeTab   = ref(savedHomeTab && savedHomeTab !== 'noti' ? savedHomeTab : 'home')
 const activeSettingsTab = ref('profile')
 
+const validHomeTabs = ['home', 'favorite', 'feeds', 'messages', 'settings']
+
 watch(() => route.query, (q) => {
-  if (q && q.tab === 'settings') {
-    activeTab.value = 'settings'
-    if (q.subtab) {
-      activeSettingsTab.value = q.subtab
-    }
+  if (!q || !q.tab) return
+  if (!validHomeTabs.includes(q.tab)) return
+  activeTab.value = q.tab
+  if (q.tab === 'settings' && q.subtab) {
+    activeSettingsTab.value = q.subtab
   }
 }, { immediate: true })
 

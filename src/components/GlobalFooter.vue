@@ -20,35 +20,23 @@
         <div class="footer-col">
           <h4>Support</h4>
           <ul>
-            <li><a href="#">Help Center</a></li>
-            <li><a href="#">Safety Information</a></li>
-            <li><a href="#">Cancellation Options</a></li>
-            <li><a href="#">Report a Concern</a></li>
+            <li><a href="/home?tab=settings&subtab=help" @click.prevent="goTo('/home?tab=settings&subtab=help')">Help Center</a></li>
+            <li><a href="/home?tab=settings&subtab=help" @click.prevent="goTo('/home?tab=settings&subtab=help')">Safety Information</a></li>
+            <li><a href="/home?tab=settings&subtab=help" @click.prevent="goTo('/home?tab=settings&subtab=help')">Report a Concern</a></li>
           </ul>
         </div>
         <div class="footer-col">
           <h4>For Landlords</h4>
           <ul>
-            <li><a href="#">Become a Host</a></li>
-            <li><a href="#">Hosting Resources</a></li>
-            <li><a href="#">Community Forum</a></li>
-            <li><a href="#">Hosting Responsibly</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>Company</h4>
-          <ul>
-            <li><a href="#">About HomeSweet</a></li>
-            <li><a href="#">Newsroom</a></li>
-            <li><a href="#">Careers</a></li>
-            <li><a href="#">Investors</a></li>
+            <li><a href="/home?tab=settings&subtab=upgrade" @click.prevent="goTo('/home?tab=settings&subtab=upgrade')">Become a Host</a></li>
+            <li><a href="/home?tab=feeds" @click.prevent="goTo('/home?tab=feeds')">Community Forum</a></li>
           </ul>
         </div>
       </div>
     </div>
     <div class="footer-bottom">
       <div class="footer-legal">
-        © 2026 HomeSweet, Inc. · <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Your Privacy Choices</a>
+        © 2026 HomeSweet, Inc.
       </div>
       <div class="footer-social">
         <span class="language">
@@ -60,6 +48,16 @@
     </div>
   </footer>
 </template>
+
+<script setup>
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+function goTo(path) {
+  router.push(path)
+}
+</script>
 
 <style scoped>
 /* Footer Styles */
@@ -151,17 +149,6 @@
   color: #5C4E4E;
 }
 
-.footer-legal a {
-  text-decoration: none;
-  color: #5C4E4E;
-  margin: 0 4px;
-}
-
-.footer-legal a:hover {
-  text-decoration: underline;
-  color: #000000;
-}
-
 .footer-social {
   display: flex;
   align-items: center;
@@ -188,10 +175,10 @@
     max-width: 280px;
   }
   .footer-columns {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 40px;
     flex: 1;
-    max-width: 560px;
+    max-width: 360px;
   }
   .footer-bottom {
     flex-direction: row;
