@@ -2358,6 +2358,28 @@ onMounted(() => {
   font-family: inherit;
 }
 
+.btn-refresh-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #EDE8E3;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #5C4E4E;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.btn-refresh-pill:hover {
+  border-color: #5C4E4E;
+  color: #2A2421;
+}
+
 .btn-primary-action {
   background: #5C4E4E;
   color: #ffffff;
