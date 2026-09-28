@@ -3178,7 +3178,7 @@ onMounted(() => {
   background: none;
   border: none;
   font-size: 1.2rem;
-  color: #8C7E7E;
+  color: #5C4E4E;
   cursor: pointer;
 }
 
@@ -3855,7 +3855,7 @@ onMounted(() => {
 
 .text-success { color: #10B981; }
 .text-warning { color: #F59E0B; }
-.text-muted { color: #8C7E7E; font-weight: 600; }
+.text-muted { color: #6B5D5D; font-weight: 600; }
 
 .verification-methodology-box {
   background: #FAF8F5;
@@ -3904,7 +3904,7 @@ onMounted(() => {
   margin: 0;
   padding-top: 8px;
   border-top: 1px solid #EDE8E3;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .dossier-actions {
