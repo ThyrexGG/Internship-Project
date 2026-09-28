@@ -219,7 +219,7 @@ async function analyzeLiveness() {
 function handleCompleteAndGoToAccount() {
   isCompleting.value = true
   stopCamera()
-  emit('complete')
+  emit('complete', { livenessPassed: true })
 }
 </script>
 

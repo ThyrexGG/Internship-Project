@@ -1165,7 +1165,7 @@
               <div class="doc-media-card">
                 <div class="doc-media-header">
                   <span>Biometric Selfie Capture</span>
-                  <span class="score-pill">{{ selectedVerification.faceMatchScore || 98.4 }}% Match</span>
+                  <span class="score-pill">{{ selectedVerification.faceMatchScore != null ? `${selectedVerification.faceMatchScore}% Match` : 'Not Auto-Scored' }}</span>
                 </div>
                 <div class="doc-media-img-wrap">
                   <img :src="selectedVerification.selfieUrl || '/examples/selfie_good.png'" alt="Selfie" class="doc-media-img" />
@@ -1177,16 +1177,30 @@
             <div class="ai-scorecard">
               <div class="scorecard-item">
                 <span class="score-lbl">Face Match Confidence</span>
-                <span class="score-stat text-success">{{ selectedVerification.faceMatchScore ? `${selectedVerification.faceMatchScore}%` : '98.4%' }}</span>
+                <span
+                  class="score-stat"
+                  :class="selectedVerification.faceMatchScore == null ? 'text-muted' : (selectedVerification.faceMatchScore >= 70 ? 'text-success' : 'text-warning')"
+                >{{ selectedVerification.faceMatchScore != null ? `${selectedVerification.faceMatchScore}%` : 'Not auto-scored — manual override used' }}</span>
               </div>
               <div class="scorecard-item">
                 <span class="score-lbl">Interactive Liveness</span>
-                <span class="score-stat text-success">{{ selectedVerification.livenessPassed !== false ? 'PASSED (Anti-Spoofing)' : 'FAILED' }}</span>
+                <span class="score-stat" :class="selectedVerification.livenessPassed !== false ? 'text-success' : 'text-warning'">{{ selectedVerification.livenessPassed !== false ? 'Passed (head-turn challenge)' : 'Failed' }}</span>
               </div>
               <div class="scorecard-item">
-                <span class="score-lbl">Document Legitimacy</span>
-                <span class="score-stat text-success">OCR Validated</span>
+                <span class="score-lbl">Document Review</span>
+                <span class="score-stat text-muted">Manually Reviewed</span>
               </div>
+            </div>
+
+            <!-- Verification Methodology & Limitations -->
+            <div class="verification-methodology-box">
+              <h5>How This Verification Works</h5>
+              <ul>
+                <li><strong>Facial Match:</strong> a descriptor-distance comparison between the submitted ID photo and the live selfie (on-device, via face-api.js) — not a lookup against any external database.</li>
+                <li><strong>Liveness:</strong> an interactive head-turn challenge, intended to catch a static photo or screen replay.</li>
+                <li><strong>Document Review:</strong> an admin visually confirms the ID photo is legible and the name/DOB match — there is no automated document legitimacy check.</li>
+              </ul>
+              <p class="methodology-limitation">Cambodia has no open government ID-verification API available to third parties. HomeSweet combines client-side biometrics with human admin review — the standard approach for private marketplaces operating in this environment.</p>
             </div>
           </div>
         </div>
@@ -3832,6 +3846,38 @@ onMounted(() => {
 }
 
 .text-success { color: #10B981; }
+.text-warning { color: #F59E0B; }
+.text-muted { color: #8C7E7E; font-weight: 600; }
+
+.verification-methodology-box {
+  background: #FAF8F5;
+  border: 1px solid #EDE8E3;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-top: 12px;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: #5C4E4E;
+}
+
+.verification-methodology-box h5 {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #2A2421;
+  margin-bottom: 8px;
+}
+
+.verification-methodology-box ul {
+  margin: 0 0 10px 18px;
+  padding: 0;
+}
+
+.verification-methodology-box .methodology-limitation {
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid #EDE8E3;
+  color: #8C7E7E;
+}
 
 .dossier-actions {
   display: flex;

@@ -322,18 +322,20 @@ async function matchFace() {
         const distance = faceapi.euclideanDistance(idDetection.descriptor, selfieDetection.descriptor)
         if (distance < 0.6) {
           faceMatchStatus.value = 'success'
-          setTimeout(() => emit('complete'), 1000)
+          const score = Math.round(Math.max(0, 1 - distance / 0.6) * 100)
+          setTimeout(() => emit('complete', { faceMatchScore: score, matchMethod: 'biometric' }), 1000)
           return
         }
       }
     }
-    // Default / graceful pass for testing
+    // No usable face detection (missing ID preview, no face found in one of the
+    // images, etc.) -- let the user proceed, but don't fabricate a score for it.
     faceMatchStatus.value = 'success'
-    setTimeout(() => emit('complete'), 1000)
+    setTimeout(() => emit('complete', { faceMatchScore: null, matchMethod: 'manual_override' }), 1000)
   } catch (err) {
     console.warn("Face matching fallback:", err)
     faceMatchStatus.value = 'success'
-    setTimeout(() => emit('complete'), 1000)
+    setTimeout(() => emit('complete', { faceMatchScore: null, matchMethod: 'manual_override' }), 1000)
   } finally {
     isMatchingFace.value = false
   }
@@ -341,7 +343,7 @@ async function matchFace() {
 
 function proceedAnyway() {
   faceMatchStatus.value = 'success'
-  emit('complete')
+  emit('complete', { faceMatchScore: null, matchMethod: 'manual_override' })
 }
 </script>
 

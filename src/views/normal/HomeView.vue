@@ -1132,24 +1132,30 @@
               <div style="background: linear-gradient(145deg, #5C4E4E, #473B3B); color: white; border-radius: 20px; padding: 40px 32px; text-align: center; max-width: 500px; margin: 20px 0;">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" style="margin-bottom: 16px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                 <h1 style="font-size: 1.8rem; margin-bottom: 12px; font-weight: 700;">Become a Landlord</h1>
-                <p style="font-size: 1rem; color: #ddd; margin-bottom: 32px; line-height: 1.5;">List your properties, find reliable roommates, and earn money with zero upfront listing fees.</p>
-                
-                <div style="text-align: left; margin-bottom: 32px; font-size: 0.95rem; color: #ddd; display: flex; flex-direction: column; gap: 12px;">
-                  <div style="display: flex; align-items: center; gap: 12px;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                    <span>Verified Landlord Badge</span>
+                <p style="font-size: 1rem; color: #ddd; margin-bottom: 32px; line-height: 1.5;">List your properties and manage tenants on HomeSweet. Here's what's required before you can start:</p>
+
+                <div style="text-align: left; margin-bottom: 32px; font-size: 0.95rem; color: #ddd; display: flex; flex-direction: column; gap: 16px;">
+                  <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <svg v-if="userProfile.verificationStatus === 'verified'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><path d="M20 6L9 17l-5-5"/></svg>
+                    <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <div>
+                      <div style="font-weight: 700; color: #fff;">Identity Verification</div>
+                      <div style="font-size: 0.85rem; margin-top: 2px;">
+                        <span v-if="userProfile.verificationStatus === 'verified'">Your account is verified.</span>
+                        <span v-else>Requires a verified HomeSweet account (valid Cambodian ID). <a href="#" @click.prevent="activeSettingsTab = 'status'" style="color: #fff; text-decoration: underline;">Verify Now</a></span>
+                      </div>
+                    </div>
                   </div>
-                  <div style="display: flex; align-items: center; gap: 12px;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                    <span>Priority Listing Placement</span>
-                  </div>
-                  <div style="display: flex; align-items: center; gap: 12px;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                    <span>Premium Dashboard Analytics</span>
+                  <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <div>
+                      <div style="font-weight: 700; color: #fff;">Proof of Ownership or Management</div>
+                      <div style="font-size: 0.85rem; margin-top: 2px;">A property title deed (hard/soft title) or a signed management agreement is required before a listing can go live.</div>
+                    </div>
                   </div>
                 </div>
 
-                <button @click="$router.push('/login?role=landlord')" style="background: #fff; color: #111; border: none; width: 100%; padding: 14px; font-size: 1.05rem; font-weight: 700; border-radius: 12px; cursor: pointer;">Start Earning Today</button>
+                <button @click="$router.push('/login?role=landlord')" style="background: #fff; color: #111; border: none; width: 100%; padding: 14px; font-size: 1.05rem; font-weight: 700; border-radius: 12px; cursor: pointer;">Get Started</button>
               </div>
             </template>
 

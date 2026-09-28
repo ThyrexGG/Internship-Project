@@ -201,6 +201,8 @@ const isModelsLoaded = ref(false)
 
 const idPreview = ref(null)
 const idParsedData = ref(null)
+const faceMatchResult = ref(null)
+const livenessResult = ref(null)
 
 onMounted(async () => {
   document.body.style.overflow = 'initial'
@@ -245,11 +247,13 @@ function handleIdComplete(payload) {
   currentStep.value = 3
 }
 
-function handleFaceMatchComplete() {
+function handleFaceMatchComplete(payload) {
+  faceMatchResult.value = payload || null
   currentStep.value = 4
 }
 
-async function handleLivenessComplete() {
+async function handleLivenessComplete(payload) {
+  livenessResult.value = payload || null
   try {
     const uid = auth.currentUser?.uid || 'guest_' + Date.now()
     const userName = auth.currentUser?.displayName || 'Resident Applicant'
@@ -264,8 +268,9 @@ async function handleLivenessComplete() {
       idNumber: idParsedData.value?.idNumber || '0102938475',
       idPreviewUrl: idPreview.value || '/examples/id_good.png',
       selfieUrl: '/examples/selfie_good.png',
-      faceMatchScore: 98.6,
-      livenessPassed: true,
+      faceMatchScore: faceMatchResult.value?.faceMatchScore ?? null,
+      matchMethod: faceMatchResult.value?.matchMethod ?? 'manual_override',
+      livenessPassed: livenessResult.value?.livenessPassed ?? true,
       status: 'pending',
       submittedAt: new Date().toISOString(),
       nationality: idParsedData.value?.nationality || 'Cambodian',
