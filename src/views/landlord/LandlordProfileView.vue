@@ -168,7 +168,7 @@
           <div class="overall-rating">
             <span class="rating-num">4.9</span>
             <div class="rating-stars">
-              <svg v-for="s in 5" :key="s" width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg v-for="s in 5" :key="s" width="16" height="16" viewBox="0 0 24 24" fill="#B45309" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             </div>
             <span class="rating-count">Based on 142 reviews</span>
           </div>
@@ -193,7 +193,7 @@
                 <span class="review-date">{{ rev.date }}</span>
               </div>
               <div class="reviewer-stars">
-                <svg v-for="s in rev.rating" :key="s" width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg v-for="s in rev.rating" :key="s" width="12" height="12" viewBox="0 0 24 24" fill="#B45309" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
               </div>
             </div>
             <p class="review-text">{{ rev.text }}</p>
@@ -524,7 +524,7 @@ function shareProfile() {
   border-radius: 50%;
   border: 5px solid #ffffff;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 8px 24px rgba(42, 36, 33, 0.12);
   background: #f7f9fa;
   flex-shrink: 0;
 }
@@ -615,7 +615,7 @@ function shareProfile() {
   padding: 16px 0;
   font-size: 0.98rem;
   font-weight: 600;
-  color: #8C7E7E;
+  color: #6B5D5D;
   cursor: pointer;
   position: relative;
   transition: color 0.2s ease;
@@ -717,7 +717,7 @@ function shareProfile() {
 
 .info-label {
   font-weight: 500;
-  color: #8C7E7E;
+  color: #6B5D5D;
   min-width: 140px;
 }
 
@@ -943,7 +943,7 @@ function shareProfile() {
 
 .rating-bar-fill {
   height: 100%;
-  background: #f59e0b;
+  background: #B45309;
   border-radius: 3px;
 }
 
@@ -1118,9 +1118,10 @@ function shareProfile() {
 .chat-modal-box {
   width: 90%;
   max-width: 500px;
-  background: #e0e0e0;
+  background: #ffffff;
+  border: 1px solid rgba(220, 214, 205, 0.85);
   border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-elevation-4-specular, 0 20px 40px rgba(42, 36, 33, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.95));
   overflow: hidden;
   animation: modalScaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
@@ -1317,7 +1318,7 @@ function shareProfile() {
   color: #ffffff;
   padding: 12px 24px;
   border-radius: 30px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-elevation-4, 0 10px 25px rgba(42, 36, 33, 0.25));
   display: flex;
   align-items: center;
   gap: 10px;

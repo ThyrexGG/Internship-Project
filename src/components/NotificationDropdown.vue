@@ -428,7 +428,7 @@ onUnmounted(() => {
   height: 18px;
   padding: 0 4px;
   border-radius: var(--radius-pill, 50px);
-  background: #EF4444;
+  background: #B91C1C;
   color: #ffffff;
   font-size: 0.68rem;
   font-weight: 700;
@@ -450,7 +450,7 @@ onUnmounted(() => {
   background: var(--color-bg-surface, #ffffff);
   border: 1px solid var(--color-border, #ede8e3);
   border-radius: var(--radius-xl, 18px);
-  box-shadow: var(--shadow-dropdown, 0 12px 36px rgba(42, 36, 33, 0.12));
+  box-shadow: var(--shadow-elevation-4-specular, 0 16px 36px rgba(42, 36, 33, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.95));
   display: flex;
   flex-direction: column;
   z-index: 1100;
@@ -570,12 +570,12 @@ onUnmounted(() => {
 
 .item-icon-badge.payment {
   background: var(--color-success-bg, #ECFDF5);
-  color: var(--color-success, #10B981);
+  color: var(--color-success, #047857);
 }
 
 .item-icon-badge.system {
   background: var(--color-info-bg, #EFF6FF);
-  color: var(--color-info, #3B82F6);
+  color: var(--color-info, #1D4ED8);
 }
 
 .item-icon-badge.friend_request {
@@ -683,7 +683,7 @@ onUnmounted(() => {
 
 .tag-price {
   background: var(--color-success-bg, #ECFDF5);
-  color: var(--color-success, #10B981);
+  color: var(--color-success, #047857);
   padding: 1px 6px;
   border-radius: 4px;
   font-weight: 700;

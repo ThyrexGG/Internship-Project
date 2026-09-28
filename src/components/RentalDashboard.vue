@@ -1013,15 +1013,15 @@ onMounted(() => {
 
 .rd-kpi-card {
   background: #ffffff;
-  border: 1px solid #e5e0dc;
+  border: 1px solid #EDE8E3;
   border-radius: 14px;
   padding: 20px 22px;
   display: flex;
   align-items: center;
   gap: 16px;
-  box-shadow: 0 1px 4px rgba(42, 36, 33, 0.03);
+  box-shadow: var(--shadow-elevation-1-specular, 0 1px 3px rgba(42, 36, 33, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.95));
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   min-width: 0;
   box-sizing: border-box;
 }
@@ -1029,7 +1029,7 @@ onMounted(() => {
 .rd-kpi-card:hover {
   transform: translateY(-2px);
   border-color: #5C4E4E;
-  box-shadow: 0 4px 12px rgba(42, 36, 33, 0.06);
+  box-shadow: var(--shadow-elevation-2-specular, 0 6px 18px rgba(42, 36, 33, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95));
 }
 
 .rd-kpi-card.highlight {
@@ -1224,10 +1224,10 @@ onMounted(() => {
 /* ── ACTIVE HERO CARD ── */
 .active-rental-card {
   background: #ffffff;
-  border: 1px solid #e5e0dc;
+  border: 1px solid #EDE8E3;
   border-radius: 18px;
   padding: 28px;
-  box-shadow: 0 2px 12px rgba(42, 36, 33, 0.04);
+  box-shadow: var(--shadow-elevation-2-specular, 0 6px 24px rgba(42, 36, 33, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.95));
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -1532,11 +1532,14 @@ onMounted(() => {
   font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.16s ease;
+  box-shadow: var(--shadow-elevation-1, 0 2px 6px rgba(92, 78, 78, 0.2));
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .rd-btn-primary:hover {
-  background: #2A2421;
+  background: #473B3B;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-elevation-2, 0 4px 12px rgba(92, 78, 78, 0.28));
 }
 
 .rd-btn-primary.sm {
@@ -1551,18 +1554,21 @@ onMounted(() => {
   gap: 7px;
   background: #ffffff;
   color: #2A2421;
-  border: 1px solid #d5cec9;
+  border: 1px solid #EDE8E3;
   border-radius: 10px;
   padding: 8px 14px;
   font-size: 0.86rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.16s ease;
+  box-shadow: var(--shadow-elevation-1-specular, 0 1px 3px rgba(42, 36, 33, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.95));
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .rd-btn-outline:hover {
   background: #FAF8F5;
   border-color: #5C4E4E;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-elevation-2-specular, 0 4px 10px rgba(42, 36, 33, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95));
 }
 
 .rd-btn-outline.sm {
@@ -1629,20 +1635,20 @@ onMounted(() => {
 
 .past-rental-card {
   background: #ffffff;
-  border: 1px solid #e5e0dc;
+  border: 1px solid #EDE8E3;
   border-radius: 14px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 1px 6px rgba(42, 36, 33, 0.03);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: var(--shadow-elevation-1-specular, 0 2px 8px rgba(42, 36, 33, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.95));
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   min-width: 0;
   box-sizing: border-box;
 }
 
 .past-rental-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(42, 36, 33, 0.06);
+  box-shadow: var(--shadow-elevation-2-specular, 0 8px 20px rgba(42, 36, 33, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95));
 }
 
 .prc-img-wrap {
@@ -1780,15 +1786,21 @@ onMounted(() => {
 
 .application-item-card {
   background: #ffffff;
-  border: 1px solid #e5e0dc;
-  border-radius: 12px;
+  border: 1px solid #EDE8E3;
+  border-radius: 14px;
   padding: 16px 20px;
   display: flex;
   align-items: center;
   gap: 18px;
-  box-shadow: 0 1px 4px rgba(42, 36, 33, 0.03);
+  box-shadow: var(--shadow-elevation-1-specular, 0 2px 8px rgba(42, 36, 33, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.95));
   min-width: 0;
   box-sizing: border-box;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.application-item-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-elevation-2-specular, 0 6px 16px rgba(42, 36, 33, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.95));
 }
 
 @media (max-width: 640px) {
@@ -1926,7 +1938,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 10px 40px rgba(42, 36, 33, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: var(--shadow-elevation-4-specular, 0 16px 40px rgba(42, 36, 33, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.95));
   animation: modalScale 0.18s ease-out;
 }
 

@@ -57,7 +57,7 @@
       <!-- Top Header Bar matching mockups -->
       <header class="admin-top-bar">
         <div class="top-bar-left">
-          <button class="brand-logo" @click="activeTab = 'dashboard'">
+          <button class="brand-logo" @click="switchTab('verifications')">
             <div class="brand-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <path d="M4 18 L16 18" />
@@ -1317,7 +1317,7 @@ const isVerifying = ref(false)
 const adminUserAvatar = ref('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&q=80')
 
 // Navigation State
-const activeTab = ref('dashboard')
+const activeTab = ref('verifications')
 const showLandlordForm = ref(false)
 const showTenantForm = ref(false)
 
@@ -1981,7 +1981,9 @@ async function loadFirestoreData() {
 }
 
 onMounted(() => {
-  if (route.path === '/admin/verifications' || route.name === 'AdminVerifications') {
+  if (route.query.tab) {
+    activeTab.value = route.query.tab
+  } else {
     activeTab.value = 'verifications'
   }
   if (sessionStorage.getItem('homesweet_admin_auth') === 'true') {
@@ -2055,7 +2057,7 @@ onMounted(() => {
 
 .admin-login-header p {
   font-size: 0.88rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   line-height: 1.5;
   margin-bottom: 24px;
 }
@@ -2105,7 +2107,7 @@ onMounted(() => {
   padding: 10px 12px;
   border-radius: 8px;
   font-size: 0.78rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   margin-bottom: 24px;
   text-align: left;
 }
@@ -2276,7 +2278,7 @@ onMounted(() => {
 .section-label {
   font-size: 0.78rem;
   font-weight: 600;
-  color: #8C7E7E;
+  color: #6B5D5D;
   margin-bottom: 8px;
   padding-left: 8px;
   text-transform: uppercase;
@@ -2467,20 +2469,20 @@ onMounted(() => {
 
 .agreement-sub {
   font-size: 0.75rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   margin: 1px 0;
 }
 
 .agreement-duration {
   display: inline-block;
   font-size: 0.72rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   margin-top: 4px;
 }
 
 .agreement-date {
   font-size: 0.72rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   align-self: flex-end;
   margin-bottom: 4px;
 }
@@ -2491,7 +2493,7 @@ onMounted(() => {
   border-radius: 14px;
   padding: 32px;
   text-align: center;
-  color: #8C7E7E;
+  color: #6B5D5D;
   font-size: 0.9rem;
   box-shadow: var(--shadow-elevation-1-specular);
 }
@@ -2611,7 +2613,7 @@ onMounted(() => {
 }
 
 .log-id {
-  color: #8C7E7E;
+  color: #6B5D5D;
   text-align: right;
   font-weight: 500;
 }
@@ -2868,7 +2870,7 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   font-size: 0.78rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   margin-bottom: 16px;
 }
 
@@ -3081,12 +3083,12 @@ onMounted(() => {
 
 .doc-domain {
   font-size: 0.8rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .doc-contact-info {
   font-size: 0.76rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   text-align: right;
   line-height: 1.4;
 }
@@ -3131,7 +3133,7 @@ onMounted(() => {
 
 .contract-sign-notice {
   font-size: 0.8rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   margin-bottom: 24px;
   display: block;
 }
@@ -3167,7 +3169,7 @@ onMounted(() => {
 
 .sig-role {
   font-size: 0.75rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .doc-footer-link {
@@ -3252,7 +3254,7 @@ onMounted(() => {
 
 .dropzone-sub {
   font-size: 0.78rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .or-divider {
@@ -3270,7 +3272,7 @@ onMounted(() => {
 
 .or-text {
   font-size: 0.8rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .url-section-title {
@@ -3360,7 +3362,7 @@ onMounted(() => {
    VERIFICATIONS DASHBOARD & PROPERTY FILTERING STYLES
 ══════════════════════════════════════════════════════════════ */
 .nav-badge-pill {
-  background: #EF4444;
+  background: #B91C1C;
   color: #fff;
   font-size: 0.7rem;
   font-weight: 700;
@@ -3405,8 +3407,8 @@ onMounted(() => {
 }
 
 .kpi-icon-bubble.pending { background: #FEF3C7; color: #D97706; }
-.kpi-icon-bubble.approved { background: #ECFDF5; color: #10B981; }
-.kpi-icon-bubble.rejected { background: #FEE2E2; color: #EF4444; }
+.kpi-icon-bubble.approved { background: #ECFDF5; color: #047857; }
+.kpi-icon-bubble.rejected { background: #FEE2E2; color: #B91C1C; }
 .kpi-icon-bubble.total { background: #F4EDEA; color: #5C4E4E; }
 
 .kpi-meta {
@@ -3417,7 +3419,7 @@ onMounted(() => {
 .kpi-label {
   font-size: 0.78rem;
   font-weight: 500;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .kpi-value {
@@ -3462,7 +3464,7 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   font-size: 0.8rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .verif-sort-select {
@@ -3486,7 +3488,7 @@ onMounted(() => {
   padding: 12px 16px;
   font-size: 0.78rem;
   font-weight: 700;
-  color: #8C7E7E;
+  color: #6B5D5D;
   border-bottom: 1px solid #EDE8E3;
   background: #FAF8F5;
 }
@@ -3527,7 +3529,7 @@ onMounted(() => {
 
 .applicant-email {
   font-size: 0.75rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .doc-cell {
@@ -3542,7 +3544,7 @@ onMounted(() => {
 
 .doc-id-num {
   font-size: 0.75rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .match-cell {
@@ -3562,12 +3564,12 @@ onMounted(() => {
 
 .match-pill.match-high {
   background: #ECFDF5;
-  color: #10B981;
+  color: #047857;
 }
 
 .match-pill.match-low {
   background: #FEE2E2;
-  color: #EF4444;
+  color: #B91C1C;
 }
 
 .liveness-badge {
@@ -3575,8 +3577,8 @@ onMounted(() => {
   font-weight: 600;
 }
 
-.liveness-badge.passed { color: #10B981; }
-.liveness-badge.warning { color: #F59E0B; }
+.liveness-badge.passed { color: #047857; }
+.liveness-badge.warning { color: #B45309; }
 
 .status-badge {
   font-size: 0.75rem;
@@ -3587,8 +3589,8 @@ onMounted(() => {
 }
 
 .status-badge.pending { background: #FEF3C7; color: #D97706; }
-.status-badge.approved { background: #ECFDF5; color: #10B981; }
-.status-badge.rejected { background: #FEE2E2; color: #EF4444; }
+.status-badge.approved { background: #ECFDF5; color: #047857; }
+.status-badge.rejected { background: #FEE2E2; color: #B91C1C; }
 
 .btn-review-inspect {
   padding: 6px 14px;
@@ -3632,7 +3634,7 @@ onMounted(() => {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .filter-select {
@@ -3652,7 +3654,7 @@ onMounted(() => {
   background: none;
   border: 1px dashed #8C7E7E;
   border-radius: 8px;
-  color: #8C7E7E;
+  color: #6B5D5D;
   cursor: pointer;
   margin-top: 16px;
 }
@@ -3671,7 +3673,7 @@ onMounted(() => {
 
 .results-count-text {
   font-size: 0.8rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .prop-type-badge {
@@ -3689,7 +3691,7 @@ onMounted(() => {
 
 .prop-specs-line {
   font-size: 0.78rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   margin-bottom: 6px;
 }
 
@@ -3750,7 +3752,7 @@ onMounted(() => {
 
 .dossier-user-phone {
   font-size: 0.78rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .meta-section-title {
@@ -3771,7 +3773,7 @@ onMounted(() => {
 }
 
 .meta-data-label {
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .meta-data-val {
@@ -3877,8 +3879,8 @@ onMounted(() => {
   font-weight: 700;
 }
 
-.text-success { color: #10B981; }
-.text-warning { color: #F59E0B; }
+.text-success { color: #047857; }
+.text-warning { color: #B45309; }
 .text-muted { color: #6B5D5D; font-weight: 600; }
 
 .verification-methodology-box {
@@ -3943,9 +3945,9 @@ onMounted(() => {
 .btn-reject-action {
   padding: 10px 18px;
   border-radius: 8px;
-  border: 1px solid #EF4444;
+  border: 1px solid #B91C1C;
   background: #ffffff;
-  color: #EF4444;
+  color: #B91C1C;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
@@ -3953,7 +3955,7 @@ onMounted(() => {
 }
 
 .btn-reject-action:hover {
-  background: #EF4444;
+  background: #B91C1C;
   color: #ffffff;
 }
 
@@ -3961,7 +3963,7 @@ onMounted(() => {
   padding: 10px 22px;
   border-radius: 8px;
   border: none;
-  background: #10B981;
+  background: #047857;
   color: #ffffff;
   font-size: 0.85rem;
   font-weight: 700;
@@ -3970,7 +3972,7 @@ onMounted(() => {
 }
 
 .btn-approve-action:hover:not(:disabled) {
-  background: #059669;
+  background: #047857;
 }
 
 .btn-approve-action:disabled {
@@ -4041,7 +4043,7 @@ onMounted(() => {
   padding: 10px 18px;
   border-radius: 8px;
   border: none;
-  background: #EF4444;
+  background: #B91C1C;
   color: #ffffff;
   font-size: 0.85rem;
   font-weight: 700;

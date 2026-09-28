@@ -25,7 +25,7 @@
             {{ photoPreview ? 'Change Photo' : 'Upload Photo' }}
           </button>
           <span v-if="!fileErrorMsg" class="avatar-hint">JPG, PNG or WebP. Max 10MB.</span>
-          <span v-else class="avatar-hint" style="color: #ef4444; font-weight: 600;">{{ fileErrorMsg }}</span>
+          <span v-else class="avatar-hint" style="color: #B91C1C; font-weight: 600;">{{ fileErrorMsg }}</span>
         </div>
         <input
           ref="fileInputRef"
@@ -53,7 +53,7 @@
         <div class="field-item">
           <label class="field-label">Gender</label>
           <div class="select-wrapper">
-            <select v-model="profile.gender" class="custom-select">
+            <select v-model="profile.gender" class="custom-select" aria-label="Gender">
               <option value="">Select Gender</option>
               <option value="Male">Male</option>
               <option value="Female">Female</option>
@@ -85,7 +85,7 @@
         <div class="field-item">
           <label class="field-label">Status</label>
           <div class="select-wrapper">
-            <select v-model="profile.status" class="custom-select">
+            <select v-model="profile.status" class="custom-select" aria-label="Status">
               <option value="">Select Status</option>
               <option value="Student">Student</option>
               <option value="Professional">Professional</option>
@@ -608,7 +608,7 @@ async function handleSaveAndContinue() {
 
 .step-subtitle {
   font-size: 0.92rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   line-height: 1.5;
   max-width: 440px;
   margin: 0 auto;
@@ -689,7 +689,7 @@ async function handleSaveAndContinue() {
 
 .avatar-hint {
   font-size: 0.74rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .hidden-file-input {
@@ -748,7 +748,7 @@ async function handleSaveAndContinue() {
 }
 
 .custom-input::placeholder {
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 /* Custom Select */
@@ -785,7 +785,7 @@ async function handleSaveAndContinue() {
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
-  color: #8C7E7E;
+  color: #6B5D5D;
   display: flex;
   align-items: center;
 }
@@ -831,13 +831,13 @@ async function handleSaveAndContinue() {
   font-size: 0.95rem;
   font-family: inherit;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(92, 78, 78, 0.15);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-elevation-2, 0 4px 12px rgba(92, 78, 78, 0.2));
 }
 
 .btn-save-continue:hover:not(:disabled) {
   background: #473B3B;
-  box-shadow: 0 6px 16px rgba(92, 78, 78, 0.25);
+  box-shadow: var(--shadow-elevation-3, 0 6px 18px rgba(92, 78, 78, 0.28));
   transform: translateY(-1px);
 }
 
@@ -869,7 +869,7 @@ async function handleSaveAndContinue() {
   width: 100%;
   max-width: 400px;
   padding: 20px;
-  box-shadow: 0 20px 25px -5px rgba(42, 36, 33, 0.2);
+  box-shadow: var(--shadow-elevation-4-specular, 0 20px 25px -5px rgba(42, 36, 33, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.95));
 }
 
 .crop-modal-header {
@@ -890,7 +890,7 @@ async function handleSaveAndContinue() {
   border: none;
   font-size: 1.2rem;
   cursor: pointer;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .crop-done-btn {

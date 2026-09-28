@@ -374,7 +374,7 @@ function proceedAnyway() {
 
 .step-subtitle {
   font-size: 0.92rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   line-height: 1.5;
   max-width: 440px;
   margin: 0 auto;
@@ -423,7 +423,7 @@ function proceedAnyway() {
 .selfie-text {
   font-size: 0.95rem;
   font-weight: 500;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 /* Active Camera View */

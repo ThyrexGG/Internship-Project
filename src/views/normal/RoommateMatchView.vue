@@ -6,7 +6,7 @@
       
       <!-- Top Action -->
       <div class="top-nav">
-        <button class="back-btn" @click="$router.go(-1)">
+        <button class="back-btn" @click="$router.go(-1)" aria-label="Go back">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
       </div>
@@ -22,12 +22,12 @@
           
           <div class="form-grid">
             <div class="form-group">
-              <label>First Name</label>
-              <input type="text" :value="currentProfile.firstName" readonly />
+              <label for="roommate-first-name">First Name</label>
+              <input id="roommate-first-name" type="text" :value="currentProfile.firstName" readonly />
             </div>
             <div class="form-group">
-              <label>Last Name</label>
-              <input type="text" :value="currentProfile.lastName" readonly />
+              <label for="roommate-last-name">Last Name</label>
+              <input id="roommate-last-name" type="text" :value="currentProfile.lastName" readonly />
             </div>
           </div>
 
@@ -427,7 +427,7 @@ const requestRoommate = async () => {
   gap: 10px;
   font-size: 0.92rem;
   font-weight: 600;
-  box-shadow: 0 10px 25px rgba(42, 36, 33, 0.3);
+  box-shadow: var(--shadow-elevation-4, 0 10px 25px rgba(42, 36, 33, 0.3));
   z-index: 99999;
   animation: fadeInToast 0.25s ease-out;
 }

@@ -213,7 +213,7 @@
                   :class="{ error: errors.password }"
                   autocomplete="current-password"
                 />
-                <button type="button" class="toggle-pw" @click="showPassword = !showPassword">
+                <button type="button" class="toggle-pw" @click="showPassword = !showPassword" :aria-label="showPassword ? 'Hide password' : 'Show password'">
                   <svg v-if="!showPassword" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                   </svg>
@@ -476,7 +476,7 @@
                   :class="{ error: errors.newPassword }"
                   autocomplete="new-password"
                 />
-                <button type="button" class="toggle-pw" @click="showNewPassword = !showNewPassword">
+                <button type="button" class="toggle-pw" @click="showNewPassword = !showNewPassword" :aria-label="showNewPassword ? 'Hide password' : 'Show password'">
                   <svg v-if="!showNewPassword" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                   </svg>
@@ -503,7 +503,7 @@
                   :class="{ error: errors.confirmPassword }"
                   autocomplete="new-password"
                 />
-                <button type="button" class="toggle-pw" @click="showConfirmPassword = !showConfirmPassword">
+                <button type="button" class="toggle-pw" @click="showConfirmPassword = !showConfirmPassword" :aria-label="showConfirmPassword ? 'Hide password' : 'Show password'">
                   <svg v-if="!showConfirmPassword" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                   </svg>
@@ -1108,7 +1108,7 @@ function handleGuest() { router.push('/home') }
   padding: 38px 36px;
   border-radius: 22px;
   border: 1px solid rgba(220, 214, 205, 0.75);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 8px 32px -4px rgba(42, 36, 33, 0.08), 0 2px 6px -1px rgba(42, 36, 33, 0.04);
+  box-shadow: var(--shadow-elevation-3-specular, inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 8px 32px -4px rgba(42, 36, 33, 0.08), 0 2px 6px -1px rgba(42, 36, 33, 0.04));
 }
 
 .mobile-logo {
@@ -1140,7 +1140,7 @@ function handleGuest() { router.push('/home') }
   padding: 9px 16px;
   border: none;
   background: transparent;
-  color: #8C7E7E;
+  color: #6B5D5D;
   font-family: 'DM Sans', sans-serif;
   font-size: 0.86rem;
   font-weight: 600;
@@ -1183,7 +1183,7 @@ function handleGuest() { router.push('/home') }
   font-family: 'DM Sans', sans-serif;
   font-size: 0.88rem;
   font-weight: 600;
-  color: #8C7E7E;
+  color: #6B5D5D;
   cursor: pointer;
   transition: all 0.22s;
 }
@@ -1249,7 +1249,7 @@ function handleGuest() { router.push('/home') }
   line-height: 1.15;
 }
 
-.form-subtitle { font-size: 0.82rem; color: #888; line-height: 1.5; }
+.form-subtitle { font-size: 0.82rem; color: #6B5D5D; line-height: 1.5; }
 
 /* Forms */
 .auth-form { display: flex; flex-direction: column; gap: 14px; margin-bottom: 16px; }
@@ -1308,7 +1308,7 @@ function handleGuest() { router.push('/home') }
 .toggle-pw {
   position: absolute; right: 14px;
   background: none; border: none; cursor: pointer;
-  color: #8C7E7E; display: flex; align-items: center; transition: color 0.2s;
+  color: #6B5D5D; display: flex; align-items: center; transition: color 0.2s;
 }
 .toggle-pw:hover { color: #2A2421; }
 
@@ -1345,14 +1345,14 @@ function handleGuest() { router.push('/home') }
   font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex; align-items: center; justify-content: center; gap: 8px;
   letter-spacing: 0.01em;
-  box-shadow: 0 4px 12px rgba(92, 78, 78, 0.15);
+  box-shadow: var(--shadow-elevation-2, 0 4px 12px rgba(92, 78, 78, 0.2));
 }
 .btn-primary:hover:not(:disabled) { 
   background: #473B3B; 
-  box-shadow: 0 6px 16px rgba(92, 78, 78, 0.25);
+  box-shadow: var(--shadow-elevation-3, 0 6px 18px rgba(92, 78, 78, 0.28));
   transform: translateY(-1px);
 }
 .btn-primary:active:not(:disabled) { transform: scale(0.99); }
@@ -1371,7 +1371,7 @@ function handleGuest() { router.push('/home') }
   display: flex; align-items: center; gap: 10px; margin: 16px 0;
 }
 .divider-line { flex: 1; height: 1px; background: #ececec; }
-.divider-text { font-size: 0.72rem; color: #bbb; font-weight: 500; white-space: nowrap; }
+.divider-text { font-size: 0.72rem; color: #6B5D5D; font-weight: 500; white-space: nowrap; }
 
 /* Social — horizontal row */
 .social-buttons { display: flex; gap: 8px; margin-bottom: 16px; }
@@ -1380,17 +1380,23 @@ function handleGuest() { router.push('/home') }
   flex: 1;
   padding: 10px 6px;
   background: #fff;
-  border: 1.5px solid #e8e8e8;
-  border-radius: 11px;
+  border: 1.5px solid #EDE8E3;
+  border-radius: 12px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: #333;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #2A2421;
   cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-  transition: border-color 0.2s, background 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: var(--shadow-elevation-1-specular, 0 1px 3px rgba(42, 36, 33, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.95));
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.btn-social:hover { border-color: #bbb; background: #f6f6f6; }
+.btn-social:hover {
+  border-color: #5C4E4E;
+  background: #FAF8F5;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-elevation-2-specular, 0 4px 10px rgba(42, 36, 33, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95));
+}
 
 /* Guest */
 .guest-link { 
@@ -1404,9 +1410,9 @@ function handleGuest() { router.push('/home') }
 .btn-guest {
   background: none; border: none;
   font-family: 'DM Sans', sans-serif; font-size: 0.78rem;
-  color: #bbb; cursor: pointer; transition: color 0.2s;
+  color: #6B5D5D; cursor: pointer; transition: color 0.2s;
 }
-.btn-guest:hover { color: #555; }
+.btn-guest:hover { color: #2A2421; }
 
 /* Back to Log In & OTP Footer Links */
 .back-to-login, .otp-footer {
@@ -1620,7 +1626,7 @@ function handleGuest() { router.push('/home') }
   font-family: 'DM Sans', sans-serif;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #777;
+  color: #5C4E4E;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1630,7 +1636,7 @@ function handleGuest() { router.push('/home') }
 }
 
 .role-btn:hover {
-  color: #333;
+  color: #2A2421;
 }
 
 .role-btn.active {

@@ -125,7 +125,7 @@ const router = useRouter()
 
 .success-subtitle {
   font-size: 0.95rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   margin-bottom: 28px;
   max-width: 380px;
   line-height: 1.5;
@@ -133,12 +133,12 @@ const router = useRouter()
 
 .verification-details-box {
   width: 100%;
-  background: #FAF8F5;
+  background: #ffffff;
   border: 1px solid #EDE8E3;
   border-radius: 16px;
   padding: 24px;
   margin-bottom: 24px;
-  box-shadow: 0 2px 8px rgba(92, 78, 78, 0.03);
+  box-shadow: var(--shadow-elevation-1-specular, 0 1px 3px rgba(42, 36, 33, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.95));
 }
 
 .review-status-pill {
@@ -164,7 +164,7 @@ const router = useRouter()
 
 .trust-notice-text {
   font-size: 0.84rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   line-height: 1.6;
   margin-bottom: 28px;
   max-width: 440px;
@@ -218,7 +218,7 @@ const router = useRouter()
   padding-top: 16px;
   border-top: 1px solid #EDE8E3;
   font-size: 0.8rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .shield-icon {
@@ -243,13 +243,13 @@ const router = useRouter()
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(92, 78, 78, 0.15);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-elevation-2, 0 4px 12px rgba(92, 78, 78, 0.2));
 }
 
 .btn-primary:hover {
   background: #473B3B;
-  box-shadow: 0 6px 16px rgba(92, 78, 78, 0.25);
+  box-shadow: var(--shadow-elevation-3, 0 6px 18px rgba(92, 78, 78, 0.28));
   transform: translateY(-1px);
 }
 </style>

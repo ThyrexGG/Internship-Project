@@ -34,20 +34,20 @@ onUnmounted(() => {
   --color-primary-light: #F2EDE9;
   --color-text-primary: #2A2421;
   --color-text-secondary: #5C4E4E;
-  --color-text-muted: #8C7E7E;
+  --color-text-muted: #6B5D5D;
   --color-bg-canvas: #faf8f5;
   --color-bg-surface: #ffffff;
   --color-border: #ede8e3;
   --color-border-subtle: #f2eee9;
   
   /* Status Colors */
-  --color-success: #10B981;
+  --color-success: #047857;
   --color-success-bg: #ECFDF5;
-  --color-warning: #F59E0B;
+  --color-warning: #B45309;
   --color-warning-bg: #FEF3C7;
-  --color-error: #EF4444;
+  --color-error: #B91C1C;
   --color-error-bg: #FEE2E2;
-  --color-info: #3B82F6;
+  --color-info: #1D4ED8;
   --color-info-bg: #EFF6FF;
   --color-favorite: #E11D48;
   --color-favorite-hover: #BE123C;

@@ -2054,7 +2054,7 @@ watch(filteredProperties, () => {
 }
 
 .standards-link {
-  color: #c58632;
+  color: #B45309;
   font-weight: 600;
   text-decoration: underline;
   margin-left: 4px;
@@ -2075,12 +2075,12 @@ watch(filteredProperties, () => {
   overflow: hidden;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 3px rgba(42, 36, 33, 0.04), 0 4px 14px rgba(42, 36, 33, 0.03);
+  box-shadow: var(--shadow-elevation-1-specular, inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 3px rgba(42, 36, 33, 0.04), 0 4px 14px rgba(42, 36, 33, 0.03));
 }
 
 .plum-property-card:hover {
   transform: translateY(-3px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 2px 6px -1px rgba(42, 36, 33, 0.05), 0 12px 28px -4px rgba(42, 36, 33, 0.09);
+  box-shadow: var(--shadow-elevation-2-specular, inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 2px 6px -1px rgba(42, 36, 33, 0.05), 0 12px 28px -4px rgba(42, 36, 33, 0.09));
   border-color: #cfc7bc;
 }
 
@@ -2107,7 +2107,7 @@ watch(filteredProperties, () => {
 }
 
 .plum-property-card:hover .plum-card-cover-img {
-  transform: scale(1.03);
+  transform: scale(1.04);
 }
 
 .plum-heart-btn {
@@ -2194,7 +2194,7 @@ watch(filteredProperties, () => {
 .plum-property-rating {
   font-size: 0.84rem;
   font-weight: 700;
-  color: #d97706;
+  color: #B45309;
 }
 
 .plum-property-location {
@@ -2568,7 +2568,7 @@ watch(filteredProperties, () => {
 }
 
 .origin-icon-badge.user-origin-badge {
-  background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+  background: linear-gradient(135deg, #1D4ED8 0%, #1D4ED8 100%);
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.32);
 }
 
@@ -2597,11 +2597,11 @@ watch(filteredProperties, () => {
 }
 
 .origin-gps-tag.active {
-  color: #10B981;
+  color: #047857;
 }
 
 .origin-gps-tag.locating {
-  color: #3B82F6;
+  color: #1D4ED8;
   animation: pulse 1s infinite;
 }
 
@@ -2830,8 +2830,8 @@ watch(filteredProperties, () => {
   font-weight: 600;
 }
 
-.tag-campus { background: #ecfdf5; color: #059669; }
-.tag-quiet { background: #fffbeb; color: #d97706; }
+.tag-campus { background: #ecfdf5; color: #047857; }
+.tag-quiet { background: #fffbeb; color: #B45309; }
 .tag-nightlife { background: #eff6ff; color: #2563eb; }
 .tag-more { background: #f1f5f9; color: #64748b; }
 
@@ -2954,9 +2954,9 @@ watch(filteredProperties, () => {
   width: 320px;
   background: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  border: 1px solid rgba(220, 214, 205, 0.85);
+  box-shadow: var(--shadow-elevation-4-specular, 0 16px 36px rgba(42, 36, 33, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.95));
   padding: 20px;
-  border: 1px solid #e2e8f0;
 }
 
 .popover-header {
@@ -3340,8 +3340,8 @@ watch(filteredProperties, () => {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #10B981;
-  box-shadow: 0 0 8px #10B981;
+  background: #047857;
+  box-shadow: 0 0 8px #047857;
   animation: pulse 1.6s infinite;
 }
 
@@ -3519,8 +3519,8 @@ watch(filteredProperties, () => {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #3B82F6;
-  box-shadow: 0 0 12px #3B82F6;
+  background: #1D4ED8;
+  box-shadow: 0 0 12px #1D4ED8;
   animation: pulse 1s infinite;
 }
 
@@ -3647,8 +3647,8 @@ watch(filteredProperties, () => {
 }
 
 .loc-indicator-dot.gps {
-  background: #10B981;
-  box-shadow: 0 0 8px #10B981;
+  background: #047857;
+  box-shadow: 0 0 8px #047857;
 }
 
 .loc-indicator-dot.manual {
@@ -3694,7 +3694,7 @@ watch(filteredProperties, () => {
 }
 
 .btn-loc-action:hover {
-  border-color: #3B82F6;
+  border-color: #1D4ED8;
   background: #F8FAFC;
 }
 

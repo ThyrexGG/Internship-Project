@@ -68,7 +68,7 @@
             <h1 class="property-main-title">{{ property.name }}</h1>
             <div class="header-badges">
               <span class="verified-partner-badge">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="#10B981" stroke="none">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#047857" stroke="none">
                   <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                 </svg>
                 HomeSweet Verified
@@ -79,7 +79,7 @@
 
           <div class="property-sub-meta">
             <div class="meta-rating">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="#F59E0B" stroke="#F59E0B" stroke-width="1">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="#B45309" stroke="#B45309" stroke-width="1">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
               </svg>
               <span class="rating-num">{{ property.rating || 4.9 }}</span>
@@ -439,7 +439,7 @@
               <div class="score-box">
                 <span class="big-score">{{ property.rating || 4.9 }}</span>
                 <div class="score-stars">
-                  <svg v-for="s in 5" :key="s" width="16" height="16" viewBox="0 0 24 24" fill="#F59E0B" stroke="#F59E0B" stroke-width="1">
+                  <svg v-for="s in 5" :key="s" width="16" height="16" viewBox="0 0 24 24" fill="#B45309" stroke="#B45309" stroke-width="1">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                   </svg>
                 </div>
@@ -462,7 +462,7 @@
                   </div>
                 </div>
                 <div class="review-stars">
-                  <svg v-for="s in 5" :key="s" width="13" height="13" viewBox="0 0 24 24" fill="#F59E0B" stroke="#F59E0B" stroke-width="1">
+                  <svg v-for="s in 5" :key="s" width="13" height="13" viewBox="0 0 24 24" fill="#B45309" stroke="#B45309" stroke-width="1">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                   </svg>
                 </div>
@@ -552,7 +552,7 @@
               <!-- Guests Selection -->
               <div class="booking-input-row">
                 <label class="input-label">Occupants / Guests</label>
-                <select v-model="bookingForm.guests" class="booking-select-field">
+                <select v-model="bookingForm.guests" class="booking-select-field" aria-label="Occupants / Guests">
                   <option :value="1">1 Resident</option>
                   <option :value="2">2 Residents</option>
                   <option :value="3">3 Residents</option>
@@ -634,7 +634,7 @@
 
             <!-- Trust & Guarantee Footer -->
             <div class="booking-trust-footer">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               </svg>
               <span>100% Protected by HomeSweet Tenant Guarantee</span>
@@ -1061,7 +1061,7 @@ const reviews = [
   align-items: center;
   gap: 8px;
   font-size: 0.85rem;
-  color: var(--color-text-muted, #8C7E7E);
+  color: var(--color-text-muted, #6B5D5D);
 }
 
 .crumb-link {
@@ -1202,7 +1202,7 @@ const reviews = [
 }
 
 .rating-count {
-  color: var(--color-text-muted, #8C7E7E);
+  color: var(--color-text-muted, #6B5D5D);
   font-size: 0.88rem;
 }
 
@@ -1215,7 +1215,7 @@ const reviews = [
 }
 
 .meta-dot {
-  color: var(--color-text-muted, #8C7E7E);
+  color: var(--color-text-muted, #6B5D5D);
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -1468,7 +1468,7 @@ const reviews = [
   right: -2px;
   width: 18px;
   height: 18px;
-  background: #10B981;
+  background: #047857;
   color: #ffffff;
   border-radius: 50%;
   font-size: 0.68rem;
@@ -1493,7 +1493,7 @@ const reviews = [
 
 .host-subtext {
   font-size: 0.85rem;
-  color: var(--color-text-muted, #8C7E7E);
+  color: var(--color-text-muted, #6B5D5D);
   margin: 0;
 }
 
@@ -1581,7 +1581,7 @@ const reviews = [
 
 .bento-label {
   font-size: 0.85rem;
-  color: var(--color-text-muted, #8C7E7E);
+  color: var(--color-text-muted, #6B5D5D);
   line-height: 1.4;
 }
 
@@ -1636,7 +1636,7 @@ const reviews = [
 
 .neighborhood-intro {
   font-size: 0.95rem;
-  color: var(--color-text-muted, #8C7E7E);
+  color: var(--color-text-muted, #6B5D5D);
   margin-bottom: 20px;
 }
 
@@ -1691,7 +1691,7 @@ const reviews = [
 
 .place-category {
   font-size: 0.76rem;
-  color: var(--color-text-muted, #8C7E7E);
+  color: var(--color-text-muted, #6B5D5D);
 }
 
 .place-distance {
@@ -1779,7 +1779,7 @@ const reviews = [
 }
 
 .map-label-chip span {
-  color: #8C7E7E;
+  color: #6B5D5D;
   font-size: 0.75rem;
 }
 
@@ -1791,7 +1791,7 @@ const reviews = [
   align-items: center;
   justify-content: space-between;
   font-size: 0.82rem;
-  color: var(--color-text-muted, #8C7E7E);
+  color: var(--color-text-muted, #6B5D5D);
 }
 
 .btn-open-maps {
@@ -1816,7 +1816,7 @@ const reviews = [
 
 .renters-subtext {
   font-size: 0.92rem;
-  color: var(--color-text-muted, #8C7E7E);
+  color: var(--color-text-muted, #6B5D5D);
   margin-top: -12px;
   margin-bottom: 18px;
 }
@@ -1859,7 +1859,7 @@ const reviews = [
 .renter-tag {
   font-size: 0.72rem;
   font-weight: 600;
-  color: #059669;
+  color: #047857;
 }
 
 /* ── RATINGS & REVIEWS ── */
@@ -1914,7 +1914,7 @@ const reviews = [
 
 .review-total-label {
   font-size: 0.85rem;
-  color: var(--color-text-muted, #8C7E7E);
+  color: var(--color-text-muted, #6B5D5D);
 }
 
 .reviews-list {
@@ -1965,7 +1965,7 @@ const reviews = [
 
 .review-date {
   font-size: 0.78rem;
-  color: var(--color-text-muted, #8C7E7E);
+  color: var(--color-text-muted, #6B5D5D);
 }
 
 .review-stars {
@@ -2015,9 +2015,9 @@ const reviews = [
   flex-shrink: 0;
 }
 
-.channel-pill.fb .c-icon-badge { background: #1877F2; color: #ffffff; }
-.channel-pill.tg .c-icon-badge { background: #2AABEE; color: #ffffff; }
-.channel-pill.ph .c-icon-badge { background: #10B981; color: #ffffff; }
+.channel-pill.fb .c-icon-badge { background: #0A5DC2; color: #ffffff; }
+.channel-pill.tg .c-icon-badge { background: #106090; color: #ffffff; }
+.channel-pill.ph .c-icon-badge { background: #047857; color: #ffffff; }
 
 .c-info {
   display: flex;
@@ -2027,7 +2027,7 @@ const reviews = [
 
 .c-label {
   font-size: 0.75rem;
-  color: var(--color-text-muted, #8C7E7E);
+  color: var(--color-text-muted, #6B5D5D);
 }
 
 .c-val {
@@ -2085,7 +2085,7 @@ const reviews = [
 .price-freq {
   font-size: 0.95rem;
   font-weight: 600;
-  color: var(--color-text-muted, #8C7E7E);
+  color: var(--color-text-muted, #6B5D5D);
   margin-left: 4px;
 }
 
@@ -2093,7 +2093,7 @@ const reviews = [
   font-size: 0.75rem;
   font-weight: 700;
   background: #ECFDF5;
-  color: #059669;
+  color: #047857;
   border: 1px solid #A7F3D0;
   padding: 4px 10px;
   border-radius: var(--radius-pill, 50px);
@@ -2324,7 +2324,7 @@ const reviews = [
   gap: 8px;
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--color-text-muted, #8C7E7E);
+  color: var(--color-text-muted, #6B5D5D);
   text-align: center;
 }
 
@@ -2537,7 +2537,7 @@ const reviews = [
 .m-period {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .m-btn-apply {

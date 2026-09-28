@@ -446,7 +446,7 @@ function proceedAnyway() {
 
 .step-subtitle {
   font-size: 0.92rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   line-height: 1.5;
   max-width: 440px;
   margin: 0 auto;
@@ -471,7 +471,7 @@ function proceedAnyway() {
   padding: 10px 20px;
   border: none;
   background: transparent;
-  color: #8C7E7E;
+  color: #6B5D5D;
   font-weight: 600;
   font-size: 0.92rem;
   font-family: inherit;

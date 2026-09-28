@@ -586,7 +586,7 @@ async function handleLivenessComplete(payload) {
   height: 34px;
   border-radius: 50%;
   background: #ffffff;
-  color: #8C7E7E;
+  color: #6B5D5D;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -607,15 +607,15 @@ async function handleLivenessComplete(payload) {
 
 .stepper-node.completed .node-circle {
   background: #ecfdf5;
-  border-color: #10B981;
-  color: #10B981;
+  border-color: #047857;
+  color: #047857;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 2px 6px rgba(16, 185, 129, 0.2);
 }
 
 .node-label {
   font-size: 0.78rem;
   font-weight: 600;
-  color: #8C7E7E;
+  color: #6B5D5D;
   white-space: nowrap;
   letter-spacing: -0.01em;
   transition: color 0.2s ease;
@@ -667,7 +667,7 @@ async function handleLivenessComplete(payload) {
 
 .loading-text {
   font-size: 0.9rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   font-weight: 500;
 }
 

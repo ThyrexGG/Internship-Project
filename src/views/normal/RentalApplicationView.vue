@@ -130,8 +130,8 @@
 
           <div class="field-row">
             <div class="field-group">
-              <label class="field-label">Preferred move-in date</label>
-              <input class="field-input" type="date" v-model="form.moveInDate" />
+              <label class="field-label" for="move-in-date">Preferred move-in date</label>
+              <input id="move-in-date" class="field-input" type="date" v-model="form.moveInDate" />
               <p class="field-hint">This is your preferred lease length. The landlord may counter-propose a different term.</p>
             </div>
             <div class="field-group">
@@ -577,14 +577,14 @@ const handleBack = () => {
 .back-btn {
   width: 36px; height: 36px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.85);
-  border: none;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(255, 255, 255, 0.7);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-  transition: background 0.2s;
+  box-shadow: var(--shadow-elevation-1-specular, 0 1px 3px rgba(42, 36, 33, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95));
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s;
 }
-.back-btn:hover { background: #fff; }
+.back-btn:hover { background: #fff; transform: scale(1.06); }
 .hero-img-wrap {
   position: relative;
   width: 100%; height: 200px;
@@ -644,7 +644,7 @@ const handleBack = () => {
   border: 1.5px solid rgba(220, 214, 205, 0.85);
   background: #fff;
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.78rem; font-weight: 700; color: #8C7E7E;
+  font-size: 0.78rem; font-weight: 700; color: #6B5D5D;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 1px 3px rgba(42, 36, 33, 0.04);
   transition: all 0.25s;
   position: relative;
@@ -659,7 +659,7 @@ const handleBack = () => {
 }
 .step-label {
   font-size: 0.68rem; font-weight: 600;
-  color: #aaa; margin-top: 6px;
+  color: #6B5D5D; margin-top: 6px;
   text-align: center; line-height: 1.3;
   white-space: nowrap;
 }
@@ -679,7 +679,7 @@ const handleBack = () => {
 /* ── HOUSE INFO ── */
 .section { margin-bottom: 24px; }
 .section-heading { font-size: 1.25rem; font-weight: 700; color: #1e1b18; margin: 0 0 6px; letter-spacing: -0.3px; }
-.sub-heading { font-size: 0.9rem; font-weight: 600; color: #64748b; margin: 0 0 14px; }
+.sub-heading { font-size: 0.9rem; font-weight: 600; color: #56626e; margin: 0 0 14px; }
 .icons-row { 
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -837,7 +837,7 @@ const handleBack = () => {
 .message-val { text-align: left; line-height: 1.5; color: #333; font-weight: 400; }
 .uploaded-tag { color: #22c55e; }
 .decl-yes { color: #22c55e; }
-.decl-no { color: #ef4444; }
+.decl-no { color: #B91C1C; }
 
 /* ── COSTS ── */
 .cost-title { font-size: 0.95rem; font-weight: 700; margin: 0 0 12px; }

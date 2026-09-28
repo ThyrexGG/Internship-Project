@@ -1978,7 +1978,7 @@ function changePin() {
 .nav-group-label {
   font-size: 0.7rem;
   font-weight: 600;
-  color: #8C7E7E;
+  color: #6B5D5D;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   padding: 10px 8px 4px;
@@ -2494,7 +2494,7 @@ function changePin() {
 .amount-label {
   font-size: 0.72rem;
   font-weight: 600;
-  color: #8C7E7E;
+  color: #6B5D5D;
   letter-spacing: 0.05em;
 }
 
@@ -2530,7 +2530,7 @@ function changePin() {
 
 .donut-month {
   font-size: 0.8rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   font-weight: 500;
 }
 
@@ -2543,7 +2543,7 @@ function changePin() {
 
 .donut-sublabel {
   font-size: 0.7rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   font-weight: 500;
 }
 
@@ -2572,7 +2572,7 @@ function changePin() {
 
 .stat-label {
   font-size: 0.75rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   font-weight: 500;
 }
 
@@ -2618,9 +2618,9 @@ function changePin() {
 }
 
 .kpi-properties { background: #F4EDEA; color: #5C4E4E; }
-.kpi-revenue { background: #ECFDF5; color: #10B981; }
+.kpi-revenue { background: #ECFDF5; color: #047857; }
 .kpi-tenants { background: #FEF3C7; color: #D97706; }
-.kpi-maintenance { background: #FEE2E2; color: #EF4444; }
+.kpi-maintenance { background: #FEE2E2; color: #B91C1C; }
 
 .kpi-copy {
   display: flex;
@@ -2631,7 +2631,7 @@ function changePin() {
 .kpi-title {
   font-size: 0.72rem;
   font-weight: 600;
-  color: #8C7E7E;
+  color: #6B5D5D;
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
@@ -3153,7 +3153,7 @@ function changePin() {
   margin-top: 4px;
 }
 .location-hint-msg.info { color: #5C4E4E; }
-.location-hint-msg.success { color: #10B981; font-weight: 600; }
+.location-hint-msg.success { color: #047857; font-weight: 600; }
 .location-hint-msg.warning { color: #D97706; }
 .amenities-pills {
   display: flex;

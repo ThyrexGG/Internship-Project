@@ -485,10 +485,10 @@ function handleFriendButtonClick() {
 .action-btn:disabled { cursor: default; }
 .action-btn.friend-added { background: #5C4E4E; color: #fff; border-color: #4a3e3e; }
 .action-btn.friend-added:hover { transform: none; }
-.action-btn.friend-pending { background: #FAF8F5; color: #8C7E7E; border-color: #EDE8E3; }
+.action-btn.friend-pending { background: #FAF8F5; color: #6B5D5D; border-color: #EDE8E3; }
 .action-btn.friend-accept { background: #5C4E4E; color: #fff; border-color: #4a3e3e; }
 .action-btn.friend-accept:hover { background: #473B3B; }
-.action-btn.friend-decline { color: #8C7E7E; }
+.action-btn.friend-decline { color: #6B5D5D; }
 .action-btn.friend-decline:hover { background: #FDF2F2; color: #DC2626; border-color: rgba(220, 38, 38, 0.3); }
 
 /* Tabs */
@@ -500,7 +500,7 @@ function handleFriendButtonClick() {
 .tab-buttons { display: flex; gap: 32px; }
 .tab-btn {
   padding: 0 0 14px; background: none; border: none; border-bottom: 3px solid transparent;
-  font-size: 1rem; font-weight: 600; color: #8C7E7E; cursor: pointer;
+  font-size: 1rem; font-weight: 600; color: #6B5D5D; cursor: pointer;
   transition: all 0.2s; font-family: 'DM Sans', sans-serif;
 }
 .tab-btn:hover { color: #2A2421; }
@@ -519,12 +519,13 @@ function handleFriendButtonClick() {
 }
 .info-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #EDE8E3; padding-bottom: 16px; }
 .info-row:last-child { border-bottom: none; padding-bottom: 0; }
-.info-label { font-size: 0.95rem; color: #8C7E7E; font-weight: 500; }
+.info-label { font-size: 0.95rem; color: #6B5D5D; font-weight: 500; }
 .info-value { font-size: 1rem; color: #2A2421; font-weight: 600; text-align: right; }
 
 .empty-state {
-  background: #FAF8F5; border-radius: 20px; padding: 60px 32px; border: 1px solid #EDE8E3; box-shadow: 0 4px 20px rgba(0,0,0,0.02);
-  text-align: center; color: #8C7E7E; font-size: 1rem; max-width: 640px; margin: 0 auto;
+  background: #ffffff; border-radius: 20px; padding: 60px 32px; border: 1px solid #EDE8E3;
+  box-shadow: var(--shadow-elevation-1-specular, 0 1px 3px rgba(42, 36, 33, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.95));
+  text-align: center; color: #6B5D5D; font-size: 1rem; max-width: 640px; margin: 0 auto;
 }
 
 @media (max-width: 900px) {

@@ -127,7 +127,7 @@
               <button type="button" @click="startAudioCall"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Audio Call</button>
               <button type="button" @click="startVideoCall"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg> Video Call</button>
               <button type="button" @click="toggleMuteContact"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg> {{ isContactMuted ? 'Unmute' : 'Mute Notifications' }}</button>
-              <button type="button" class="text-danger" @click="confirmDeleteChat"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Clear Chat</button>
+              <button type="button" class="text-danger" @click="confirmDeleteChat"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Clear Chat</button>
             </div>
           </div>
         </header>
@@ -380,7 +380,7 @@
         <!-- Delete Chat Danger Action -->
         <div class="delete-chat-footer">
           <button class="delete-chat-btn" type="button" @click="confirmDeleteChat">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
               <line x1="10" y1="11" x2="10" y2="17"></line>
@@ -1303,14 +1303,14 @@ onUnmounted(() => {
 }
 
 .sidebar-search-input::placeholder {
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .sidebar-search-clear {
   background: none;
   border: none;
   cursor: pointer;
-  color: #8C7E7E;
+  color: #6B5D5D;
   font-size: 1.1rem;
   line-height: 1;
   padding: 2px 4px;
@@ -1326,14 +1326,14 @@ onUnmounted(() => {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.4px;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .conversations-empty-state {
   padding: 24px;
   text-align: center;
   font-size: 0.85rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .conversations-list {
@@ -1346,20 +1346,24 @@ onUnmounted(() => {
 .conversation-item {
   display: flex;
   align-items: center;
-  padding: 12px 24px;
+  padding: 12px 20px;
+  margin: 2px 8px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   gap: 14px;
   border-left: 3px solid transparent;
 }
 
 .conversation-item:hover {
   background: #FAF8F5;
+  transform: translateY(-1px);
 }
 
 .conversation-item.active {
-  background: #FAF8F5;
+  background: #ffffff;
   border-left-color: #5C4E4E;
+  box-shadow: var(--shadow-elevation-1-specular, 0 1px 3px rgba(42, 36, 33, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.95));
 }
 
 .conv-avatar-wrap {
@@ -1397,7 +1401,7 @@ onUnmounted(() => {
 
 .conv-preview {
   font-size: 0.8rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1405,7 +1409,7 @@ onUnmounted(() => {
 
 .conv-time {
   font-size: 0.78rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   flex-shrink: 0;
   font-weight: 500;
 }
@@ -1461,7 +1465,7 @@ onUnmounted(() => {
 
 .recipient-email {
   font-size: 0.8rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .header-more-btn {
@@ -1561,7 +1565,7 @@ onUnmounted(() => {
 
 .message-status {
   font-size: 0.72rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   margin-top: 4px;
   margin-right: 4px;
 }
@@ -1570,7 +1574,7 @@ onUnmounted(() => {
   align-self: center;
   font-size: 0.75rem;
   font-weight: 500;
-  color: #8C7E7E;
+  color: #6B5D5D;
   margin: 12px 0;
 }
 
@@ -1621,7 +1625,7 @@ onUnmounted(() => {
 }
 
 .message-input-field::placeholder {
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .emoji-btn {
@@ -1683,7 +1687,7 @@ onUnmounted(() => {
 
 .send-message-btn:disabled {
   background: #EAE6E2;
-  color: #8C7E7E;
+  color: #6B5D5D;
   cursor: not-allowed;
   transform: none;
 }
@@ -1735,7 +1739,7 @@ onUnmounted(() => {
 .contact-phone {
   margin-top: 4px;
   font-size: 0.88rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   font-weight: 500;
 }
 
@@ -1822,12 +1826,12 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 .count-badge {
   font-size: 0.82rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 
 /* Delete chat */
@@ -1981,7 +1985,7 @@ onUnmounted(() => {
   background: none;
   border: none;
   font-size: 1.2rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   cursor: pointer;
 }
 
@@ -2095,7 +2099,7 @@ onUnmounted(() => {
 }
 .call-status {
   font-size: 0.9rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   margin-bottom: 28px;
 }
 .call-controls {
@@ -2193,7 +2197,7 @@ onUnmounted(() => {
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
   cursor: pointer;
 }
 .shared-media-tabs {
@@ -2203,7 +2207,7 @@ onUnmounted(() => {
   padding-bottom: 8px;
   margin-bottom: 16px;
   font-size: 0.9rem;
-  color: #8C7E7E;
+  color: #6B5D5D;
 }
 .shared-media-tabs .active-tab {
   color: #5C4E4E;
@@ -2252,7 +2256,7 @@ onUnmounted(() => {
   border-radius: 50%;
 }
 .theme-circle.default { background: #5C4E4E; }
-.theme-circle.emerald { background: #10b981; }
+.theme-circle.emerald { background: #047857; }
 .theme-circle.indigo { background: #4f46e5; }
 .theme-circle.rose { background: #e11d48; }
 

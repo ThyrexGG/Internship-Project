@@ -512,9 +512,12 @@
             </div>
 
             <div class="active-now-section">
-              <div 
+              <div
                 class="active-users-scroller"
                 ref="activeUsersScrollerRef"
+                tabindex="0"
+                role="region"
+                aria-label="Active roommates and friends"
                 @mousedown="startDragActiveUsers"
                 @mousemove="onDragActiveUsers"
                 @mouseup="stopDragActiveUsers"
@@ -537,7 +540,7 @@
               </div>
             </div>
 
-            <div class="recent-messages-section">
+            <div class="recent-messages-section" tabindex="0" role="region" aria-label="Recent messages">
               <div class="chat-list">
                 <div v-for="message in filteredMessages" :key="message.name" class="chat-row" :class="{ 'active-chat': selectedChatRecipient === message.name }" @click="openChat(message.name)">
                   <img class="chat-avatar" :src="message.avatar" :alt="message.name" />
@@ -676,7 +679,7 @@
       <template v-else-if="activeTab === 'settings'">
         <div class="settings-layout">
           <!-- Sidebar -->
-          <aside class="settings-sidebar">
+          <aside class="settings-sidebar" tabindex="0">
             <h2 class="settings-title">Settings</h2>
             <div class="search-filter" style="max-width: 100%; margin-bottom: 24px;">
               <div class="search-box">
@@ -798,59 +801,59 @@
               <h2 class="sub-title">Personal Details</h2>
               <div class="form-grid">
                 <div class="form-group">
-                  <label class="form-label">First Name</label>
+                  <label class="form-label" for="profile-first-name">First Name</label>
                   <div class="input-wrapper with-icon" :class="{'editing-mode': isEditingProfile}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    <input type="text" v-model="userProfile.firstName" :readonly="!isEditingProfile" />
+                    <input id="profile-first-name" type="text" v-model="userProfile.firstName" :readonly="!isEditingProfile" />
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Last Name</label>
+                  <label class="form-label" for="profile-last-name">Last Name</label>
                   <div class="input-wrapper with-icon" :class="{'editing-mode': isEditingProfile}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    <input type="text" v-model="userProfile.lastName" :readonly="!isEditingProfile" />
+                    <input id="profile-last-name" type="text" v-model="userProfile.lastName" :readonly="!isEditingProfile" />
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Date of Birth</label>
+                  <label class="form-label" for="profile-dob">Date of Birth</label>
                   <div class="input-wrapper with-icon" :class="{'editing-mode': isEditingProfile}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    <input type="text" v-model="userProfile.dob" :readonly="!isEditingProfile" />
+                    <input id="profile-dob" type="text" v-model="userProfile.dob" :readonly="!isEditingProfile" />
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Gender</label>
+                  <label class="form-label" for="profile-gender">Gender</label>
                   <div class="input-wrapper with-icon" :class="{'editing-mode': isEditingProfile}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                    <input type="text" v-model="userProfile.gender" :readonly="!isEditingProfile" />
+                    <input id="profile-gender" type="text" v-model="userProfile.gender" :readonly="!isEditingProfile" />
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Phone Number</label>
+                  <label class="form-label" for="profile-phone">Phone Number</label>
                   <div class="input-wrapper with-icon" :class="{'editing-mode': isEditingProfile}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                    <input type="text" v-model="userProfile.phone" :readonly="!isEditingProfile" />
+                    <input id="profile-phone" type="text" v-model="userProfile.phone" :readonly="!isEditingProfile" />
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Relationship Status</label>
+                  <label class="form-label" for="profile-status">Relationship Status</label>
                   <div class="input-wrapper with-icon" :class="{'editing-mode': isEditingProfile}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
-                    <input type="text" v-model="userProfile.status" :readonly="!isEditingProfile" />
+                    <input id="profile-status" type="text" v-model="userProfile.status" :readonly="!isEditingProfile" />
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">University</label>
+                  <label class="form-label" for="profile-university">University</label>
                   <div class="input-wrapper with-icon" :class="{'editing-mode': isEditingProfile}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-                    <input type="text" v-model="userProfile.university" :readonly="!isEditingProfile" />
+                    <input id="profile-university" type="text" v-model="userProfile.university" :readonly="!isEditingProfile" />
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Occupation</label>
+                  <label class="form-label" for="profile-job">Occupation</label>
                   <div class="input-wrapper with-icon" :class="{'editing-mode': isEditingProfile}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-                    <input type="text" v-model="userProfile.job" :readonly="!isEditingProfile" />
+                    <input id="profile-job" type="text" v-model="userProfile.job" :readonly="!isEditingProfile" />
                   </div>
                 </div>
               </div>
@@ -858,31 +861,31 @@
               <h2 class="sub-title" style="margin-top: 24px;">Hobbies</h2>
               <div class="form-grid">
                 <div class="form-group">
-                  <label class="form-label">Music</label>
+                  <label class="form-label" for="profile-hobby-music">Music</label>
                   <div class="input-wrapper with-icon" :class="{'editing-mode': isEditingProfile}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-                    <input type="text" v-model="userProfile.hobbies.music" :readonly="!isEditingProfile" />
+                    <input id="profile-hobby-music" type="text" v-model="userProfile.hobbies.music" :readonly="!isEditingProfile" />
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Gaming</label>
+                  <label class="form-label" for="profile-hobby-games">Gaming</label>
                   <div class="input-wrapper with-icon" :class="{'editing-mode': isEditingProfile}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="16" cy="12" r="1"/><circle cx="18" cy="12" r="1"/><path d="M6 12h4M8 10v4"/></svg>
-                    <input type="text" v-model="userProfile.hobbies.games" :readonly="!isEditingProfile" />
+                    <input id="profile-hobby-games" type="text" v-model="userProfile.hobbies.games" :readonly="!isEditingProfile" />
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Sports</label>
+                  <label class="form-label" for="profile-hobby-sports">Sports</label>
                   <div class="input-wrapper with-icon" :class="{'editing-mode': isEditingProfile}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20M2 12a14.5 14.5 0 0 0 20 0M12 2a14.5 14.5 0 0 1 0 20M2 12a14.5 14.5 0 0 1 20 0"/></svg>
-                    <input type="text" v-model="userProfile.hobbies.sports" :readonly="!isEditingProfile" />
+                    <input id="profile-hobby-sports" type="text" v-model="userProfile.hobbies.sports" :readonly="!isEditingProfile" />
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Movies</label>
+                  <label class="form-label" for="profile-hobby-movies">Movies</label>
                   <div class="input-wrapper with-icon" :class="{'editing-mode': isEditingProfile}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
-                    <input type="text" v-model="userProfile.hobbies.movies" :readonly="!isEditingProfile" />
+                    <input id="profile-hobby-movies" type="text" v-model="userProfile.hobbies.movies" :readonly="!isEditingProfile" />
                   </div>
                 </div>
               </div>
@@ -892,37 +895,37 @@
                 <h3 class="minor-title">Room Detail</h3>
                 <div class="form-grid">
                   <div class="form-group">
-                    <label class="form-label">Room / Building</label>
+                    <label class="form-label" for="profile-room-detail">Room / Building</label>
                     <div class="input-wrapper with-icon" :class="{'editing-mode': isEditingProfile}">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="8.01" y2="6"/><line x1="16" y1="6" x2="16.01" y2="6"/><line x1="8" y1="10" x2="8.01" y2="10"/><line x1="16" y1="10" x2="16.01" y2="10"/><line x1="8" y1="14" x2="8.01" y2="14"/><line x1="16" y1="14" x2="16.01" y2="14"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                      <input type="text" v-model="userProfile.roomDetail" :readonly="!isEditingProfile" />
+                      <input id="profile-room-detail" type="text" v-model="userProfile.roomDetail" :readonly="!isEditingProfile" />
                     </div>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Primary Roommate</label>
+                    <label class="form-label" for="profile-roommate-primary">Primary Roommate</label>
                     <div class="input-wrapper with-icon" :class="{'editing-mode': isEditingProfile}">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 4v6c0 5.5-3.5 10.5-9 12-5.5-1.5-9-6.5-9-12V6l9-4z"/><circle cx="12" cy="11" r="3"/></svg>
-                      <input type="text" v-model="userProfile.roommate" :readonly="!isEditingProfile" />
+                      <input id="profile-roommate-primary" type="text" v-model="userProfile.roommate" :readonly="!isEditingProfile" />
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               <div class="sub-section">
                 <h3 class="minor-title">Mates</h3>
                 <div class="form-grid">
                   <div class="form-group">
-                    <label class="form-label">Roommate 1</label>
+                    <label class="form-label" for="profile-mate-1">Roommate 1</label>
                     <div class="input-wrapper with-icon" :class="{'editing-mode': isEditingProfile}">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                      <input type="text" v-model="userProfile.mates[0]" :readonly="!isEditingProfile" />
+                      <input id="profile-mate-1" type="text" v-model="userProfile.mates[0]" :readonly="!isEditingProfile" />
                     </div>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Roommate 2</label>
+                    <label class="form-label" for="profile-mate-2">Roommate 2</label>
                     <div class="input-wrapper with-icon" :class="{'editing-mode': isEditingProfile}">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                      <input type="text" v-model="userProfile.mates[1]" :readonly="!isEditingProfile" />
+                      <input id="profile-mate-2" type="text" v-model="userProfile.mates[1]" :readonly="!isEditingProfile" />
                     </div>
                   </div>
                 </div>
@@ -1137,7 +1140,7 @@
                 <div style="text-align: left; margin-bottom: 32px; font-size: 0.95rem; color: #ddd; display: flex; flex-direction: column; gap: 16px;">
                   <div style="display: flex; align-items: flex-start; gap: 12px;">
                     <svg v-if="userProfile.verificationStatus === 'verified'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><path d="M20 6L9 17l-5-5"/></svg>
-                    <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                     <div>
                       <div style="font-weight: 700; color: #fff;">Identity Verification</div>
                       <div style="font-size: 0.85rem; margin-top: 2px;">
@@ -1147,7 +1150,7 @@
                     </div>
                   </div>
                   <div style="display: flex; align-items: flex-start; gap: 12px;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                     <div>
                       <div style="font-weight: 700; color: #fff;">Proof of Ownership or Management</div>
                       <div style="font-size: 0.85rem; margin-top: 2px;">A property title deed (hard/soft title) or a signed management agreement is required before a listing can go live.</div>
@@ -1164,7 +1167,7 @@
               <p style="color: #666; font-size: 0.95rem; margin-bottom: 24px;">View your current standing and account health.</p>
 
               <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 16px; margin-bottom: 32px; max-width: 500px;">
-                <div style="background: #10b981; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <div style="background: #047857; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
                 </div>
                 <div>
@@ -1177,7 +1180,7 @@
               <div class="settings-list-group">
                 <div class="settings-list-item" style="cursor: default; background: #fafafa;">
                   <div class="list-item-text" style="color: #666;">Account Created</div>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
                 </div>
                 <div class="settings-list-item" style="cursor: default; background: #fafafa;">
                   <div class="list-item-text" style="color: #666;">Identity Verified</div>
@@ -1409,10 +1412,10 @@
         <svg v-if="homeToast.type === 'success'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5">
           <polyline points="20 6 9 17 4 12"></polyline>
         </svg>
-        <svg v-else-if="homeToast.type === 'error'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5">
+        <svg v-else-if="homeToast.type === 'error'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2.5">
           <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
         </svg>
-        <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5">
+        <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2.5">
           <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line>
         </svg>
         <span>{{ homeToast.message }}</span>
@@ -4265,7 +4268,7 @@ const filteredProperties = computed(() => {
   opacity: 0.95;
 }
 .verification-banner-btn {
-  background: #d97706;
+  background: #B45309;
   color: #fff;
   border: none;
   padding: 8px 14px;
@@ -5586,7 +5589,7 @@ const filteredProperties = computed(() => {
 
 .chat-status {
   font-size: 0.72rem;
-  color: #10b981;
+  color: #047857;
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -6085,9 +6088,9 @@ const filteredProperties = computed(() => {
   z-index: 99999;
 }
 .home-system-toast.error {
-  background: #ef4444;
+  background: #B91C1C;
 }
 .home-system-toast.info {
-  background: #3b82f6;
+  background: #1D4ED8;
 }
 </style>

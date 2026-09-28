@@ -629,7 +629,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-elevation-1-specular, 0 1px 3px rgba(42, 36, 33, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95));
   transition: transform 0.15s ease, background-color 0.15s ease;
 }
 
@@ -672,10 +672,10 @@ onMounted(() => {
   background: rgba(255, 255, 255, 0.10);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 18px;
   padding: 26px 28px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 12px 30px rgba(0, 0, 0, 0.12);
 }
 
 .card-header-row {
@@ -961,7 +961,7 @@ onMounted(() => {
 }
 
 .txt-input::placeholder {
-  color: #8C7E7E;
+  color: #6B5D5D;
   font-size: 0.9rem;
 }
 
@@ -1170,8 +1170,8 @@ onMounted(() => {
 .receipt-card-container {
   background: #ffffff;
   border-radius: 18px;
-  border: 1px solid #e5e0dc;
-  box-shadow: 0 25px 60px -10px rgba(42, 36, 33, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: var(--shadow-elevation-5-specular, 0 25px 60px -10px rgba(42, 36, 33, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.95));
   width: 100%;
   max-width: 640px;
   overflow: hidden;

@@ -69,7 +69,7 @@
         <div class="photos-container">
           <div class="photo-item" v-for="(img, idx) in property.images" :key="idx">
             <img :src="img" alt="Room Photo" />
-            <button v-if="idx === property.images.length - 1" class="more-photos-btn">
+            <button v-if="idx === property.images.length - 1" class="more-photos-btn" aria-label="View more photos">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
             </button>
           </div>
@@ -738,10 +738,10 @@ Date: _______________________
   z-index: 100;
 }
 .payment-info { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
-.payment-label { font-size: 0.88rem; font-weight: 500; color: #8C7E7E; }
+.payment-label { font-size: 0.88rem; font-weight: 500; color: #6B5D5D; }
 .payment-val { display: flex; align-items: baseline; }
 .p-amount { font-size: 1.8rem; font-weight: 700; color: #5C4E4E; line-height: 1; }
-.p-period { font-size: 0.95rem; font-weight: 600; color: #8C7E7E; line-height: 1; margin-left: 2px; }
+.p-period { font-size: 0.95rem; font-weight: 600; color: #6B5D5D; line-height: 1; margin-left: 2px; }
 
 .btn-submit {
   width: auto;
@@ -768,7 +768,7 @@ Date: _______________________
 }
 .btn-submit:disabled {
   background: #EDE8E3;
-  color: #8C7E7E;
+  color: #6B5D5D;
   cursor: not-allowed;
   box-shadow: none;
 }
