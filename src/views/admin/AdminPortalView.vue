@@ -3187,6 +3187,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 24px 28px 0;
   margin-bottom: 20px;
 }
 
@@ -3319,6 +3320,7 @@ onMounted(() => {
   justify-content: flex-end;
   gap: 12px;
   margin-top: 24px;
+  padding: 0 28px 24px;
 }
 
 /* Add Property Modal */
