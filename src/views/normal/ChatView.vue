@@ -555,6 +555,7 @@ const isSending = ref(false)
 
 let messagesUnsubscribe = null
 let chatsUnsubscribe = null
+let messagesListenerFailed = false
 
 // Current user state
 const currentAuthUser = ref(auth.currentUser)
@@ -965,6 +966,12 @@ function listenToUserChats() {
           }
         })
         conversations.value = merged
+
+        const selectedId = selectedContact.value?.targetId || selectedContact.value?.id
+        const liveMatch = liveChats.find(c => c.targetId === selectedId)
+        if (liveMatch && selectedContact.value?.name !== liveMatch.name) {
+          selectedContact.value = liveMatch
+        }
       }
     }, (err) => {
       console.warn("Notice subscribing to chats:", err)
@@ -976,9 +983,14 @@ function listenToUserChats() {
 
 // Select contact and attach messages subcollection listener
 function selectContact(contact) {
+  if (!contact) return
   selectedContact.value = contact
   setupMessagesListener(contact)
   mobileChatActive.value = true
+  const targetId = contact.targetId || contact.id
+  if (route.query.userId !== targetId) {
+    router.replace({ query: { userId: targetId } })
+  }
 }
 
 function setupMessagesListener(contact) {
@@ -1000,6 +1012,7 @@ function setupMessagesListener(contact) {
     }
   ]
   currentMessages.value = [...fallback]
+  messagesListenerFailed = false
 
   try {
     const msgsColl = collection(db, 'chats', chatId, 'messages')
@@ -1023,6 +1036,7 @@ function setupMessagesListener(contact) {
         scrollToBottom()
       }
     }, (err) => {
+      messagesListenerFailed = true
       console.warn("Realtime message subcollection notice:", err)
     })
   } catch (err) {
@@ -1058,18 +1072,7 @@ async function sendCustomMessage(text, image = null) {
   }
 
   try {
-    // 1. Add message to subcollection
-    await addDoc(collection(db, 'chats', chatId, 'messages'), {
-      senderId: myUid,
-      senderName: currentUserName.value,
-      text: text || '',
-      image: image || null,
-      time: timeStr,
-      timestamp: serverTimestamp(),
-      createdAt: serverTimestamp()
-    })
-
-    // 2. Update parent conversation metadata
+    // Parent doc must exist first: the messages rule reads its participants list.
     await setDoc(doc(db, 'chats', chatId), {
       participants: [myUid, targetId],
       participantNames: {
@@ -1084,6 +1087,18 @@ async function sendCustomMessage(text, image = null) {
       lastMessageTime: serverTimestamp(),
       updatedAt: serverTimestamp()
     }, { merge: true })
+
+    await addDoc(collection(db, 'chats', chatId, 'messages'), {
+      senderId: myUid,
+      senderName: currentUserName.value,
+      text: text || '',
+      image: image || null,
+      time: timeStr,
+      timestamp: serverTimestamp(),
+      createdAt: serverTimestamp()
+    })
+
+    if (messagesListenerFailed) setupMessagesListener(selectedContact.value)
   } catch (err) {
     console.warn('Notice saving message to Firestore:', err)
   } finally {
@@ -1116,6 +1131,8 @@ onMounted(() => {
     currentAuthUser.value = user
     listenToUserChats()
     loadPlatformUsers()
+    // The chat ID depends on the signed-in uid, which isn't known until now on a refresh.
+    if (selectedContact.value) setupMessagesListener(selectedContact.value)
   })
 
   // Deep-link query parameters
