@@ -1192,15 +1192,21 @@
               </div>
             </div>
 
-            <!-- Verification Methodology & Limitations -->
-            <div class="verification-methodology-box">
-              <h5>How This Verification Works</h5>
-              <ul>
-                <li><strong>Facial Match:</strong> a descriptor-distance comparison between the submitted ID photo and the live selfie (on-device, via face-api.js) — not a lookup against any external database.</li>
-                <li><strong>Liveness:</strong> an interactive head-turn challenge, intended to catch a static photo or screen replay.</li>
-                <li><strong>Document Review:</strong> an admin visually confirms the ID photo is legible and the name/DOB match — there is no automated document legitimacy check.</li>
-              </ul>
-              <p class="methodology-limitation">Cambodia has no open government ID-verification API available to third parties. HomeSweet combines client-side biometrics with human admin review — the standard approach for private marketplaces operating in this environment.</p>
+            <!-- Verification Methodology & Limitations (collapsible so it doesn't
+                 push the approve/reject actions off-screen on every review) -->
+            <div class="verification-methodology-box" :class="{ expanded: showMethodologyInfo }">
+              <button type="button" class="methodology-toggle" @click="showMethodologyInfo = !showMethodologyInfo">
+                <span>How This Verification Works</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="methodology-chevron"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div v-if="showMethodologyInfo" class="methodology-details">
+                <ul>
+                  <li><strong>Facial Match:</strong> a descriptor-distance comparison between the submitted ID photo and the live selfie (on-device, via face-api.js) — not a lookup against any external database.</li>
+                  <li><strong>Liveness:</strong> an interactive head-turn challenge, intended to catch a static photo or screen replay.</li>
+                  <li><strong>Document Review:</strong> an admin visually confirms the ID photo is legible and the name/DOB match — there is no automated document legitimacy check.</li>
+                </ul>
+                <p class="methodology-limitation">Cambodia has no open government ID-verification API available to third parties. HomeSweet combines client-side biometrics with human admin review — the standard approach for private marketplaces operating in this environment.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -1321,6 +1327,7 @@ const activeAgreement = ref(null)
 const showUploadModal = ref(false)
 const showAddPropertyModal = ref(false)
 const showVerificationModal = ref(false)
+const showMethodologyInfo = ref(false)
 const showRejectDialog = ref(false)
 const selectedVerification = ref(null)
 const rejectionReasonInput = ref('')
@@ -1636,6 +1643,7 @@ const filteredVerifications = computed(() => {
 
 function openVerificationReview(item) {
   selectedVerification.value = item
+  showMethodologyInfo.value = false
   showVerificationModal.value = true
 }
 
@@ -3853,26 +3861,46 @@ onMounted(() => {
   background: #FAF8F5;
   border: 1px solid #EDE8E3;
   border-radius: 10px;
-  padding: 14px 16px;
   margin-top: 12px;
   font-size: 0.8rem;
   line-height: 1.55;
   color: #5C4E4E;
 }
 
-.verification-methodology-box h5 {
+.methodology-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 12px 16px;
   font-size: 0.82rem;
   font-weight: 700;
   color: #2A2421;
-  margin-bottom: 8px;
+  font-family: inherit;
 }
 
-.verification-methodology-box ul {
+.methodology-chevron {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.verification-methodology-box.expanded .methodology-chevron {
+  transform: rotate(180deg);
+}
+
+.methodology-details {
+  padding: 0 16px 14px;
+}
+
+.methodology-details ul {
   margin: 0 0 10px 18px;
   padding: 0;
 }
 
-.verification-methodology-box .methodology-limitation {
+.methodology-details .methodology-limitation {
   margin: 0;
   padding-top: 8px;
   border-top: 1px solid #EDE8E3;

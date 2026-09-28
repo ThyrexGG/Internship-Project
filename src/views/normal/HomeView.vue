@@ -1131,7 +1131,7 @@
             <template v-else-if="activeSettingsTab === 'upgrade'">
               <div style="background: linear-gradient(145deg, #5C4E4E, #473B3B); color: white; border-radius: 20px; padding: 40px 32px; text-align: center; max-width: 500px; margin: 20px 0;">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" style="margin-bottom: 16px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                <h1 style="font-size: 1.8rem; margin-bottom: 12px; font-weight: 700;">Become a Landlord</h1>
+                <h1 style="font-size: 1.8rem; margin-bottom: 12px; font-weight: 700; color: #fff;">Become a Landlord</h1>
                 <p style="font-size: 1rem; color: #ddd; margin-bottom: 32px; line-height: 1.5;">List your properties and manage tenants on HomeSweet. Here's what's required before you can start:</p>
 
                 <div style="text-align: left; margin-bottom: 32px; font-size: 0.95rem; color: #ddd; display: flex; flex-direction: column; gap: 16px;">
