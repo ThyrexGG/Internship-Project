@@ -1,5 +1,6 @@
 <template>
   <div class="landlord-profile-page">
+    <div class="top-edge-patch" aria-hidden="true"></div>
     <!-- Top Nav -->
     <header class="top-nav">
       <div class="logo" @click="$router.push('/home')">
@@ -393,6 +394,20 @@ function shareProfile() {
   padding-bottom: 60px;
 }
 
+/* Guarantees no hairline gap can show above the top nav, regardless of
+   any ancestor's sub-pixel rounding at fractional display scaling --
+   pinned to the true viewport edge rather than the in-flow layout. */
+.top-edge-patch {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #5C4E4E;
+  z-index: 101;
+  pointer-events: none;
+}
+
 /* --- Top Nav --- */
 .top-nav {
   height: 64px;
@@ -402,6 +417,7 @@ function shareProfile() {
   padding: 0 40px;
   border-bottom: none;
   background: #5C4E4E;
+  box-shadow: 0 -8px 0 0 #5C4E4E;
   position: sticky;
   top: -1px;
   z-index: 100;

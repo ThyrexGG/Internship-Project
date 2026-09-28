@@ -52,7 +52,8 @@
          AUTHENTICATED ADMIN PORTAL
     ══════════════════════════════════════════════════════════════ -->
     <div v-else class="admin-portal-layout">
-      
+      <div class="top-edge-patch" aria-hidden="true"></div>
+
       <!-- Top Header Bar matching mockups -->
       <header class="admin-top-bar">
         <div class="top-bar-left">
@@ -2129,6 +2130,20 @@ onMounted(() => {
 /* ══════════════════════════════════════════════════════════════
    TOP HEADER BAR
 ══════════════════════════════════════════════════════════════ */
+/* Guarantees no hairline gap can show above the top bar, regardless of
+   any ancestor's sub-pixel rounding at fractional display scaling --
+   pinned to the true viewport edge rather than the in-flow layout. */
+.top-edge-patch {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #5C4E4E;
+  z-index: 101;
+  pointer-events: none;
+}
+
 .admin-top-bar {
   background-color: #5C4E4E;
   height: 60px;
@@ -2136,7 +2151,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: var(--shadow-elevation-2-specular, 0 4px 16px rgba(42, 36, 33, 0.12));
+  box-shadow: 0 -8px 0 0 #5C4E4E, var(--shadow-elevation-2-specular, 0 4px 16px rgba(42, 36, 33, 0.12));
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   position: sticky;
   top: -1px;

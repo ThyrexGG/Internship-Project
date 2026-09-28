@@ -1,5 +1,6 @@
 <template>
   <div class="user-profile-page">
+    <div class="top-edge-patch" aria-hidden="true"></div>
     <!-- Top Nav -->
     <header class="top-nav">
       <div class="logo" @click="$router.push('/home')">
@@ -402,10 +403,25 @@ function handleFriendButtonClick() {
   flex-direction: column;
 }
 
+/* Guarantees no hairline gap can show above the top nav, regardless of
+   any ancestor's sub-pixel rounding at fractional display scaling --
+   pinned to the true viewport edge rather than the in-flow layout. */
+.top-edge-patch {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #5C4E4E;
+  z-index: 101;
+  pointer-events: none;
+}
+
 /* Top Nav */
 .top-nav {
   display: flex; justify-content: space-between; align-items: center;
   padding: 16px 40px; background: #5C4E4E;
+  box-shadow: 0 -8px 0 0 #5C4E4E;
   border-bottom: none; position: sticky; top: -1px; z-index: 100;
 }
 .logo { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #ffffff; }
