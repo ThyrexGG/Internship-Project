@@ -1,7 +1,7 @@
 # HomeSweet — Project State & Architectural Blueprint
-> **Document Version:** 1.2.0  
+> **Document Version:** 1.3.0  
 > **Status:** Production-Ready MVP & Premium UX Enhanced  
-> **Last Verified Date:** September 27, 2026  
+> **Last Verified Date:** November 10, 2026  
 > **Target Repository:** `ThyrexGG/Internship-Project` (Branch: `main`)  
 > **Primary Authors & Maintainers:** HomeSweet Core Engineering Team
 
@@ -48,7 +48,7 @@ The platform is designed around three distinct user personas:
    - Inspects tenant identity verification records and chat histories.
    - Tracks rental revenue, invoices, and lease agreement states.
 3. **Platform Administrator (`role: 'admin'`):**
-   - Accesses a confidential administrative portal via hotkey (`Ctrl + Shift + A`) or secret PIN gate.
+   - Accesses a confidential administrative portal via hotkey (`Ctrl + Shift + A`); the console opens only for a signed-in admin account.
    - Audits KYC biometric verification submissions, inspecting user ID cards against live selfies with AI confidence scores, and approves or rejects applications.
    - Manages platform property inventories, moderates users, and audits digital lease contracts and payments.
 
@@ -107,6 +107,10 @@ Internship-Project-main/
 ├── package-lock.json                 # Pinned dependency tree lockfile
 ├── vue.config.js                     # Vue CLI & Webpack config (HTTPS dev server, polyfills)
 ├── README.md                         # Project overview and pointer to documentation
+├── docs/                             # Project state, legal policies & FECO301 course artefacts
+│   ├── PROJECT_STATE.md              # Master architectural & engineering state document
+│   ├── legal/                        # Data-protection policy & lease agreement review
+│   └── feco301/                      # Charter, competitor scan, interview guide, Gantt & team contract
 │
 ├── public/                           # Static assets served directly at root
 │   ├── favicon.svg                   # Brand vector favicon
@@ -130,6 +134,8 @@ Internship-Project-main/
 │   ├── firebase.js                   # Firebase app initialization and service exports (db, auth, storage)
 │   │
 │   ├── assets/                       # Bundled static assets (hero banners, deck illustrations)
+│   ├── config/                       # Shared app configuration
+│   │   └── legal.js                  # Legal policy version, consent builder & VUE_APP_KYC_MODE gate
 │   │
 │   ├── components/                   # Reusable UI components
 │   │   ├── GlobalFooter.vue          # Universal application footer with legal & site navigation
@@ -160,7 +166,8 @@ Internship-Project-main/
 │       │   ├── VerifyAccountView.vue # KYC stepper container with back navigation, split hero & dev bypass bar
 │       │   ├── UserProfileView.vue   # Resident profile, friend request (send/accept/decline) & messaging entry
 │       │   ├── FindRoommateView.vue  # Property-specific roommate application & split calculator
-│       │   └── RoommateMatchView.vue # Swipeable roommate deck with compatibility metrics
+│       │   ├── RoommateMatchView.vue # Swipeable roommate deck with compatibility metrics
+│       │   └── LegalView.vue         # User-facing Privacy Policy & Terms of Use (/privacy, /terms)
 │       │
 │       ├── landlord/                 # Landlord & Property Host Views
 │       │   ├── LandlordNotification.vue # Landlord Operations Hub: listing creation, booking manager
@@ -191,19 +198,21 @@ The routing system is configured via `src/router.js` using `createWebHistory()`.
 | `/roommate-match` | `RoommateMatchView.vue` | `RoommateMatch` | Resident | Tinder-style swipeable roommate compatibility discovery |
 | `/chat` | `ChatView.vue` | `Chat` | Authenticated | Live 2-column messaging interface with real-time sync |
 | `/messages` | Redirects to `/chat` | — | Authenticated | Convenience alias for messaging |
-| `/verify-account` | `VerifyAccountView.vue` | — | Authenticated | 5-step biometric KYC account verification wizard |
+| `/privacy` | `LegalView.vue` | `Privacy` | Public | User-facing Privacy Policy & data-protection notice |
+| `/terms` | `LegalView.vue` | `Terms` | Public | User-facing Terms of Use |
+| `/verify-account` | `VerifyAccountView.vue` | — | Authenticated | 5-step biometric KYC account verification wizard (gated by `VUE_APP_KYC_MODE`) |
 | `/setup-account` | `SetupAccountView.vue` | — | Authenticated | Post-registration verification onboarding wrapper |
 | `/user-profile/:id` | `UserProfileView.vue` | `UserProfile` | Public / Resident | Resident public profile view with friend connect action |
 | `/landlord-profile/:id`| `LandlordProfileView.vue` | `LandlordProfile` | Public | Public landlord verification badges, reviews & listings |
 | `/landlord` | `LandlordNotification.vue` | — | Landlord / Host | Landlord operations dashboard & listing creation console |
-| `/admin` | `AdminPortalView.vue` | `AdminPortal` | Secret / Admin | Administrative management console (Protected by PIN gate) |
+| `/admin` | `AdminPortalView.vue` | `AdminPortal` | Secret / Admin | Administrative management console (Signed-in admin account required) |
 | `/admin/login` | Redirects to `/admin` | — | Public | Convenience alias for admin entry |
 | `/admin/verifications` | `AdminPortalView.vue` | `AdminVerifications`| Admin | Direct deep link to verification requests auditing tab |
 
 ### 4.1 Global Hotkey & Admin Access
 To access the administrative console discreetly from any screen in the application, a global keyboard listener is mounted in `src/App.vue`:
 - **Shortcut:** `Ctrl + Shift + A` (Windows / Linux) or `Cmd + Shift + A` (macOS).
-- **Behavior:** Immediately redirects the browser to `/admin`, opening the PIN-authenticated admin security gate.
+- **Behavior:** Immediately redirects the browser to `/admin`, opening the admin sign-in gate.
 
 ---
 
@@ -310,7 +319,7 @@ To access the administrative console discreetly from any screen in the applicati
 
 ### 5.2 Biometric Identity & KYC Verification Subsystem
 
-The identity verification pipeline (`src/views/normal/VerifyAccountView.vue` and `src/components/verification/`) establishes a fraud-resistant user base through automated client-side neural networks.
+The identity verification pipeline (`src/views/normal/VerifyAccountView.vue` and `src/components/verification/`) establishes a fraud-resistant user base through automated client-side neural networks. Before entering the wizard, a modal gate controlled by `KYC_MODE` (`src/config/legal.js`, via `VUE_APP_KYC_MODE`: `'off' | 'test' | 'live'`, defaulting to `'test'`) blocks submissions when `'off'`, requires explicit synthetic-ID attestation and disables external OCR in `'test'`, or records versioned consent (`buildConsentRecord`) in `'live'`.
 
 ```
 [Step 1: Profile Details] ──> [Step 2: National ID Upload] ──> [Step 3: Biometric Face Match]
@@ -384,7 +393,7 @@ The identity verification pipeline (`src/views/normal/VerifyAccountView.vue` and
 
 #### `AdminPortalView.vue`
 - **Security Access Control:**
-  - Protected by a client-side PIN gate (`123456` or `admin@homesweet.com`) and session authorization stored in `sessionStorage.getItem('adminAuth')`.
+  - The browser gate admits only a signed-in account that is an admin by verified email or `users/{uid}.role == 'admin'` (the old visible PIN was removed). It is a convenience check only.
   - Backend Firestore access is strictly validated via `firestore.rules` checking Firebase Auth token claims or admin email lists.
 - **Spatial Elevation Architecture:**
   - Sticky top bar with `var(--shadow-elevation-2-specular)` and specular edge highlights.
@@ -655,7 +664,7 @@ The application adheres to a zero-trust model implemented directly inside `fires
 
 ### 7.1 Cloud Firestore Security Rules (`firestore.rules`)
 - **Authentication Check (`isAuthenticated()`):** Rejects all unauthenticated attempts to read or mutate non-public collections.
-- **Admin Privileges (`isAdmin()`):** Evaluates whether the request token contains `admin == true`, matches official admin emails (`admin@homesweet.com`, `thyrexgg@gmail.com`), or possesses a verified `role == 'admin'` in `users/{uid}`.
+- **Admin Privileges (`isAdmin()`):** Evaluates whether the request token contains `admin == true`, matches official admin emails (`admin@homesweet.com`, `thyrexgg@gmail.com`) with `email_verified == true`, or possesses a verified `role == 'admin'` in `users/{uid}`.
 - **Privilege Escalation Prevention:**
   - Standard users are strictly blocked from writing `role: 'admin'` or setting `verificationStatus: 'verified'` on their own `users/{uid}` doc, on both create and update. Only administrative roles can approve KYC transitions.
   - **Rule-writing gotcha (fixed Sep 2026):** the `users` create rule originally used `request.resource.data.keys().hasAny([...]) || request.resource.data.verificationStatus != 'verified'`. Directly dot-accessing a field that doesn't exist on the incoming write (`request.resource.data.verificationStatus`) *throws* rather than evaluating falsy, which silently denied every signup (signup only writes `role`, never `verificationStatus`). The fix uses the safe membership check `'verificationStatus' in request.resource.data` instead of `hasAny` + direct access. Apply the same `'field' in map` pattern for any future optional-field rule condition, on both `request.resource.data` and `resource.data`.
@@ -665,8 +674,9 @@ The application adheres to a zero-trust model implemented directly inside `fires
 - **Friend Requests (`friend_requests/{fromUid}_{toUid}`):** only the sender can create (and only addressed to someone else, with `status == 'pending'`); only the two participants (or an admin) can read, update (accept), or delete (cancel/decline) a given request.
 - **Communication Privacy:**
   - Direct and threaded messages are strictly restricted to the conversation participants. Unrelated users cannot read or inject messages.
-- **Application & Payment Immutability:**
+- **Application, Agreement & Payment Immutability:**
   - Rental applications can only be created by the applicant.
+  - Landlords may only create `agreements` in `'draft'` status; non-admin parties may only update lifecycle `status`, `updatedAt`, and their *own* signature timestamp (`signatures.landlordSignedAt` or `signatures.tenantSignedAt`), keeping rent, deposit, dates, and party IDs immutable to non-admins.
   - Payment records can be created by authenticated users for their own transactions, but can only be modified or deleted by administrators for reconciliation.
 - **List-query gotcha:** Firestore denies an entire collection query outright — not just the unreadable documents — if its security rule can't be proven true for *every* potential matching document. Any client code that lists a per-user collection (e.g. `notifications`) must add a `where()` clause matching the rule's ownership field (e.g. `where('userId', '==', uid)`); an unscoped `collection()` scan will get `permission-denied` for any non-admin account. See [`NotificationDropdown.vue`](#55-shared-components--cross-cutting-services).
 
@@ -678,7 +688,7 @@ The application adheres to a zero-trust model implemented directly inside `fires
   - **Strict Privacy:** Under no circumstances are national ID cards or verification selfies publicly accessible.
   - Accessible strictly and exclusively by the applicant (`request.auth.uid == userId`) and authorized platform administrators (`isAdmin()`).
   - Max file size 10MB; restricted to image and PDF formats.
-- **Agreements & Contracts (`/agreement_docs/{agreementId}/*`):** Authenticated access; max file size 15MB.
+- **Agreements & Contracts (`/agreement_docs/{agreementId}/*`):** Restricted to `isAdmin()` until per-party access is built; max file size 15MB.
 
 ---
 
@@ -798,6 +808,7 @@ VUE_APP_FIREBASE_PROJECT_ID=your_project_id
 VUE_APP_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
 VUE_APP_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
 VUE_APP_FIREBASE_APP_ID=your_app_id
+VUE_APP_KYC_MODE=test
 ```
 
 ### 9.3 Windows PowerShell Commands
@@ -832,7 +843,7 @@ npm.cmd run build
 3. **face-api.js Model Serving:**
    - Neural network weights are committed directly to `/public/models/`. This eliminates external CDN dependencies and guarantees that facial verification operates even on offline or low-bandwidth networks.
 4. **Admin Portal Authentication:**
-   - *Current State:* PIN gate (`123456` or `admin@homesweet.com`) validated in frontend UI, coupled with email checks in `firestore.rules`.
+   - *Current State:* Browser gate checks the signed-in account (verified admin email or role); `firestore.rules`/`storage.rules` enforce it on every request and require `email_verified` for the email match.
    - *Recommended Future Enhancement:* Implement Firebase Custom Claims via Cloud Functions (`admin: true`) for enterprise-tier token claims.
 5. **Guest-Mode Chat:** Browsing as a guest never calls Firebase Auth, so `isAuthenticated()` fails on every chat write from a guest session. Chat (and any other authenticated-write feature) requires a real signed-in account; there is currently no guest-friendly messaging fallback.
 6. **Notification Recipient Targeting:** Several notification-creating call sites (maintenance tickets, payment confirmations, roommate applications, booking requests) don't set the `userId` field of the recipient, so — now that `NotificationDropdown.vue` correctly scopes its read query (see [§7](#7-security-architecture--access-control-policies)) — those notification types won't reach the intended landlord's live bell feed until the writers are updated to target the right UID.

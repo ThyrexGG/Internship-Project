@@ -76,6 +76,7 @@ npm.cmd run build
 | `/user-profile/:id` | Resident profile and friend connections |
 | `/roommate-match` | Roommate compatibility discovery |
 | `/landlord` | Landlord operations console |
+| `/privacy`, `/terms` | Privacy Policy and Terms of Use |
 | `/admin` | Admin management console (shortcut: `Ctrl + Shift + A`) |
 
 ---
