@@ -91,6 +91,10 @@
 
           <!-- Payment method -->
           <div class="section-block">
+            <p class="demo-banner" role="note">
+              <strong>Demonstration only &mdash; no money is taken.</strong> HomeSweet does not process real payments.
+              Do not enter a real card number. This receipt is a sample, not a tax invoice.
+            </p>
             <h2 class="form-title">Payment method</h2>
             <div class="payment-methods-row">
               <!-- Mastercard -->
@@ -811,6 +815,15 @@ onMounted(() => {
   margin-bottom: 26px;
 }
 
+.demo-banner {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #FEF3C7;
+  color: #78350F;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
 .form-title {
   font-size: 1.35rem;
   font-weight: 700;

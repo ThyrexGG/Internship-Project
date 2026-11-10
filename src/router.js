@@ -15,6 +15,7 @@ import RentalApplicationView from './views/normal/RentalApplicationView.vue'
 import PaymentView from './views/normal/PaymentView.vue'
 import ChatView from './views/normal/ChatView.vue'
 import AdminPortalView from './views/admin/AdminPortalView.vue'
+import LegalView from './views/normal/LegalView.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -35,6 +36,8 @@ const routes = [
   { path: '/checkout', redirect: '/payment' },
   { path: '/chat', name: 'Chat', component: ChatView },
   { path: '/messages', redirect: '/chat' },
+  { path: '/privacy', name: 'Privacy', component: LegalView },
+  { path: '/terms', name: 'Terms', component: LegalView },
   { path: '/admin', name: 'AdminPortal', component: AdminPortalView },
   { path: '/admin/login', redirect: '/admin' },
   { path: '/admin/verifications', name: 'AdminVerifications', component: AdminPortalView },

@@ -16,7 +16,9 @@ service cloud.firestore {
     function isAdmin() {
       return isAuthenticated() && (
         request.auth.token.admin == true ||
-        request.auth.token.email in ['admin@homesweet.com', 'thyrexgg@gmail.com'] ||
+        // Email match only counts if the email is verified; otherwise anyone could sign up with an admin address.
+        (request.auth.token.email in ['admin@homesweet.com', 'thyrexgg@gmail.com'] &&
+         request.auth.token.email_verified == true) ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
       );
@@ -159,14 +161,22 @@ service cloud.firestore {
         resource.data.tenantId == request.auth.uid ||
         isAdmin()
       );
+      // A landlord may only open a draft; they cannot create an already-signed or active contract.
       allow create: if isAuthenticated() && (
-        request.resource.data.landlordId == request.auth.uid ||
-        isAdmin()
+        isAdmin() ||
+        (request.resource.data.landlordId == request.auth.uid &&
+         request.resource.data.status == 'draft')
       );
-      allow update: if isAuthenticated() && (
-        resource.data.landlordId == request.auth.uid ||
-        resource.data.tenantId == request.auth.uid ||
-        isAdmin()
+      // Parties may change only the lifecycle status + signatures, and each may only
+      // touch their OWN signature. Rent, deposit, dates, parties etc. are admin-only.
+      allow update: if isAdmin() || (
+        isAuthenticated() &&
+        (resource.data.landlordId == request.auth.uid || resource.data.tenantId == request.auth.uid) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'signatures', 'updatedAt']) &&
+        (resource.data.landlordId == request.auth.uid ||
+          request.resource.data.signatures.landlordSignedAt == resource.data.signatures.landlordSignedAt) &&
+        (resource.data.tenantId == request.auth.uid ||
+          request.resource.data.signatures.tenantSignedAt == resource.data.signatures.tenantSignedAt)
       );
       allow delete: if isAdmin();
     }

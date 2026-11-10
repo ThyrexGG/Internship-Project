@@ -160,7 +160,7 @@
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
               </svg>
-              Protected by HomeSweet Escrow
+              Sample tenancy
             </div>
           </div>
 
@@ -490,19 +490,19 @@
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                 <polyline points="22 4 12 14.01 9 11.01"></polyline>
               </svg>
-              <span>Legally Binding Electronic Lease &middot; Verified via HomeSweet</span>
+              <span>Sample agreement &middot; illustration only, not a legal contract</span>
             </div>
 
             <div class="ld-grid">
               <div class="ld-col">
                 <label>Tenant</label>
                 <strong>{{ userProfile.firstName }} {{ userProfile.lastName }}</strong>
-                <span>ID: KH-8829102 · Verified</span>
+                <span>ID: sample data</span>
               </div>
               <div class="ld-col">
                 <label>Landlord / Lessor</label>
                 <strong>Skystar Asset Management</strong>
-                <span>License: KH-PP-RE-9012</span>
+                <span>Licence: sample data</span>
               </div>
               <div class="ld-col">
                 <label>Premises</label>
@@ -526,7 +526,7 @@
               </div>
               <div class="ld-row">
                 <span>Security Deposit Held</span>
-                <strong>${{ activeRental.deposit }}.00 USD (Protected in Escrow)</strong>
+                <strong>${{ activeRental.deposit }}.00 USD (held by landlord per lease terms)</strong>
               </div>
               <div class="ld-row">
                 <span>Utilities Included</span>
@@ -552,12 +552,12 @@
               <div class="sig-box">
                 <span class="sig-label">Landlord Signature</span>
                 <span class="sig-val digital-signature">Skystar Property Co.</span>
-                <span class="sig-date">Signed Feb 01, 2026 (Verified)</span>
+                <span class="sig-date">Sample signature</span>
               </div>
               <div class="sig-box">
                 <span class="sig-label">Tenant Signature</span>
                 <span class="sig-val digital-signature">{{ userProfile.firstName }} {{ userProfile.lastName }}</span>
-                <span class="sig-date">Signed Feb 01, 2026 (Verified)</span>
+                <span class="sig-date">Sample signature</span>
               </div>
             </div>
           </div>

@@ -158,6 +158,9 @@
            STEP 2 — Upload Documents
       ══════════════════════════════════════ -->
       <template v-if="currentStep === 2">
+        <p class="demo-notice" role="note">
+          Prototype notice: documents chosen here are <strong>not uploaded or stored</strong>. Do not attach your real ID or bank statements. Share documents with the landlord directly once you have verified who they are.
+        </p>
         <div class="card doc-card">
           <p class="doc-title">Supporting Document <span class="doc-note">(optional but speeds up approval)</span></p>
           <div class="doc-upload-row">
@@ -337,6 +340,8 @@
           </div>
         </div>
 
+        <p v-if="submitError" class="submit-error" role="alert">{{ submitError }}</p>
+
         <div class="nav-row">
           <button class="btn-back" :disabled="isSubmitting" @click="goToStep(2)">← Back</button>
           <button class="btn-submit" :disabled="isSubmitting" @click="submitApplication">
@@ -478,6 +483,12 @@ const submitApplication = async () => {
   isSubmitting.value = true
   submitError.value = ''
 
+  if (!auth.currentUser) {
+    submitError.value = 'Please sign in to submit an application. Nothing has been sent.'
+    isSubmitting.value = false
+    return
+  }
+
   try {
     const applicationRecord = {
       propertyId: property.value.id,
@@ -485,9 +496,11 @@ const submitApplication = async () => {
       propertyLocation: property.value.location,
       propertyPrice: property.value.price,
       propertyImage: property.value.images[0] || '',
-      tenantId: auth.currentUser?.uid || 'guest_' + Date.now(),
-      tenantName: auth.currentUser?.displayName || 'Resident Applicant',
-      tenantEmail: auth.currentUser?.email || 'applicant@example.com',
+      applicantId: auth.currentUser.uid,
+      landlordId: property.value.ownerId || property.value.userId || null,
+      tenantId: auth.currentUser.uid,
+      tenantName: auth.currentUser.displayName || 'Resident Applicant',
+      tenantEmail: auth.currentUser.email || '',
       leaseDuration: form.value.leaseDuration,
       occupants: form.value.occupants,
       pets: form.value.pets,
@@ -534,11 +547,8 @@ const submitApplication = async () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   } catch (error) {
     console.error('Error submitting application:', error)
-    submitError.value = 'Failed to submit application. Please try again.'
-    // Fallback gracefully so user can proceed
-    submittedApplicationId.value = 'APP-' + Math.random().toString(36).substring(2, 9).toUpperCase()
-    currentStep.value = 4
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    // Do NOT show a confirmation or a reference number: the application was not saved.
+    submitError.value = 'We could not send your application, so nothing was submitted. Please check your connection and try again.'
   } finally {
     isSubmitting.value = false
   }
@@ -882,6 +892,24 @@ const handleBack = () => {
   transition: background 0.2s;
 }
 .btn-submit:hover { background: #000; }
+.demo-notice {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #FEF3C7;
+  color: #78350F;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.submit-error {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #FEE2E2;
+  color: #991B1B;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
 
 /* ── CONFIRMATION PAGE ── */
 .confirm-page {

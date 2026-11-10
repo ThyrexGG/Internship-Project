@@ -36,28 +36,32 @@ export function canTransitionAgreement(currentStatus, nextStatus) {
  */
 export function createNormalizedAgreement(data = {}) {
   const now = new Date().toISOString()
+  const status = data.status || AGREEMENT_STATUS.DRAFT
+  // A signature is only recorded once the lifecycle has actually reached that stage.
+  const landlordSigned = [AGREEMENT_STATUS.PENDING_TENANT, AGREEMENT_STATUS.ACTIVE, AGREEMENT_STATUS.COMPLETED].includes(status)
+  const tenantSigned = [AGREEMENT_STATUS.ACTIVE, AGREEMENT_STATUS.COMPLETED].includes(status)
   return {
     id: data.id || `AGR-${Date.now().toString(36).toUpperCase()}`,
     code: data.code || `Agreement-${String(Math.floor(Math.random() * 900) + 100)}`,
-    landlordId: data.landlordId || 'landlord_demo_01',
-    landlordName: data.landlordName || 'Skystar Asset Management',
-    landlordEmail: data.landlordEmail || 'contact@skystar.com',
-    tenantId: data.tenantId || 'tenant_demo_01',
-    tenantName: data.tenantName || 'Alice Freeman',
-    tenantEmail: data.tenantEmail || 'alice.freeman@example.com',
-    propertyId: data.propertyId || 1,
-    propertyName: data.propertyName || 'Skystar Condo Unit 105',
-    propertyAddress: data.propertyAddress || 'Chroy Chongva, Phnom Penh',
+    landlordId: data.landlordId || null,
+    landlordName: data.landlordName || '',
+    landlordEmail: data.landlordEmail || '',
+    tenantId: data.tenantId || null,
+    tenantName: data.tenantName || '',
+    tenantEmail: data.tenantEmail || '',
+    propertyId: data.propertyId || null,
+    propertyName: data.propertyName || '',
+    propertyAddress: data.propertyAddress || '',
     monthlyRent: Number(data.monthlyRent) || 200,
     depositAmount: Number(data.depositAmount) || 400,
     startDate: data.startDate || '2026-09-15',
     endDate: data.endDate || '2027-09-15',
     leaseDuration: data.leaseDuration || '12 months',
     paymentTerms: data.paymentTerms || 'Due on the 1st of every month via Bank Transfer/Bakong KHQR.',
-    status: data.status || AGREEMENT_STATUS.ACTIVE,
+    status,
     signatures: {
-      landlordSignedAt: data.landlordSignedAt || now,
-      tenantSignedAt: data.tenantSignedAt || now
+      landlordSignedAt: data.landlordSignedAt || (landlordSigned ? now : null),
+      tenantSignedAt: data.tenantSignedAt || (tenantSigned ? now : null)
     },
     metadata: {
       occupants: data.occupants || 1,

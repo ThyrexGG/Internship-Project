@@ -184,6 +184,7 @@
 <script setup>
 /* global defineEmits */
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { KYC_MODE } from '../../config/legal'
 
 const emit = defineEmits(['complete'])
 
@@ -349,8 +350,9 @@ async function scanIdCard() {
 
   const apiKey = process.env.VUE_APP_GOOGLE_CLOUD_VISION_API_KEY
 
-  if (!apiKey || apiKey === 'YOUR_VISION_API_KEY_HERE') {
-    // If no vision key configured, gracefully advance with simulated valid document
+  // Only 'live' mode may send an ID image to a third-party OCR service. In 'test' mode
+  // (and whenever no key is configured) we advance with simulated demo data instead.
+  if (KYC_MODE !== 'live' || !apiKey || apiKey === 'YOUR_VISION_API_KEY_HERE') {
     setTimeout(() => {
       isScanningId.value = false
       idParsedData.value = {

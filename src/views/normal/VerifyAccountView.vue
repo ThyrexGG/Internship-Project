@@ -1,5 +1,57 @@
 <template>
   <div class="verification-split-page">
+    <!-- Consent / mode gate: nothing in the wizard is reachable until this is cleared -->
+    <div v-if="KYC_MODE === 'off' || !consentGiven" class="kyc-gate" role="dialog" aria-modal="true" aria-labelledby="kyc-gate-title">
+      <div class="kyc-gate-card">
+        <template v-if="KYC_MODE === 'off'">
+          <h2 id="kyc-gate-title">Identity verification is paused</h2>
+          <p>
+            HomeSweet is not collecting identity documents right now. You can keep using the app without a verified
+            badge. We will ask for your consent again if verification is switched on.
+          </p>
+          <div class="kyc-gate-actions">
+            <button type="button" class="kyc-gate-btn primary" @click="router.push('/home')">Back to home</button>
+          </div>
+        </template>
+
+        <template v-else>
+          <span class="kyc-gate-tag" :class="KYC_MODE">{{ KYC_MODE === 'test' ? 'Test mode' : 'Identity verification' }}</span>
+          <h2 id="kyc-gate-title">
+            {{ KYC_MODE === 'test' ? 'Use the demo ID, not your real one' : 'Before you verify your identity' }}
+          </h2>
+
+          <ul v-if="KYC_MODE === 'test'" class="kyc-gate-list">
+            <li>This flow is being tested. Upload the <strong>synthetic demo ID</strong> your test moderator gave you (or <em>id_good.png</em> from the test pack).</li>
+            <li>Do <strong>not</strong> upload your real national ID, passport or driving licence.</li>
+            <li>Your ID image is not sent to any outside service in test mode, and no selfie is uploaded.</li>
+            <li>Test submissions are deleted when the test round ends.</li>
+          </ul>
+          <ul v-else class="kyc-gate-list">
+            <li><strong>What:</strong> a photo of your ID document and a live face check.</li>
+            <li><strong>Why:</strong> only to decide whether to give you a verified badge.</li>
+            <li><strong>Who sees it:</strong> you and the HomeSweet reviewers. Not landlords or other tenants.</li>
+            <li><strong>How long:</strong> deleted within 30 days of the decision.</li>
+            <li>You can say no and keep using HomeSweet, and you can withdraw consent later.</li>
+          </ul>
+
+          <label class="kyc-gate-check">
+            <input type="checkbox" v-model="attest" />
+            <span v-if="KYC_MODE === 'test'">I confirm I will use the synthetic demo ID and a test profile, and I will not enter my real ID details.</span>
+            <span v-else>I consent to HomeSweet processing my ID document and face check for verification, as described in the Privacy Policy.</span>
+          </label>
+          <p class="kyc-gate-links">
+            Read the <router-link to="/privacy" target="_blank">Privacy Policy</router-link> and
+            <router-link to="/terms" target="_blank">Terms of Use</router-link>.
+          </p>
+
+          <div class="kyc-gate-actions">
+            <button type="button" class="kyc-gate-btn" @click="goBack">Cancel</button>
+            <button type="button" class="kyc-gate-btn primary" :disabled="!attest" @click="acceptGate">Continue</button>
+          </div>
+        </template>
+      </div>
+    </div>
+
     <!-- Dev QA Bypass Toolbar -->
     <div class="dev-qa-bar">
       <span class="qa-tag">⚙️ Step Bypass:</span>
@@ -186,9 +238,21 @@ import IdUploadStep from '../../components/verification/IdUploadStep.vue'
 import FaceMatchStep from '../../components/verification/FaceMatchStep.vue'
 import LivenessScanStep from '../../components/verification/LivenessScanStep.vue'
 import SuccessStep from '../../components/verification/SuccessStep.vue'
+import { KYC_MODE, buildConsentRecord } from '../../config/legal'
 
 const router = useRouter()
 const currentStep = ref(1)
+
+// Consent gate state (see src/config/legal.js for KYC_MODE)
+const attest = ref(false)
+const consentGiven = ref(false)
+let consentRecord = null
+
+function acceptGate() {
+  if (!attest.value) return
+  consentRecord = buildConsentRecord({ purpose: 'identity_verification', kycMode: KYC_MODE })
+  consentGiven.value = true
+}
 
 function goBack() {
   if (window.history.length > 1) {
@@ -265,12 +329,14 @@ async function handleLivenessComplete(payload) {
       userEmail,
       userAvatar: auth.currentUser?.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&q=80',
       idType: 'National ID',
-      idNumber: idParsedData.value?.idNumber || '0102938475',
+      idNumber: idParsedData.value?.idNumber || null,
+      kycMode: KYC_MODE,
+      consent: consentRecord,
       idPreviewUrl: idPreview.value || '/examples/id_good.png',
       selfieUrl: '/examples/selfie_good.png',
       faceMatchScore: faceMatchResult.value?.faceMatchScore ?? null,
       matchMethod: faceMatchResult.value?.matchMethod ?? 'manual_override',
-      livenessPassed: livenessResult.value?.livenessPassed ?? true,
+      livenessPassed: livenessResult.value?.livenessPassed ?? false,
       status: 'pending',
       submittedAt: new Date().toISOString(),
       nationality: idParsedData.value?.nationality || 'Cambodian',
@@ -285,7 +351,6 @@ async function handleLivenessComplete(payload) {
       await setDoc(doc(db, "users", uid), {
         verificationStatus: 'pending',
         verificationRequestId: reqDoc.id,
-        idNumber: payload.idNumber,
         submittedAt: payload.submittedAt
       }, { merge: true })
     }
@@ -710,4 +775,71 @@ async function handleLivenessComplete(payload) {
     padding: 6px 10px;
   }
 }
+
+/* ── Consent / mode gate ── */
+.kyc-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(42, 36, 33, 0.72);
+  overflow-y: auto;
+}
+.kyc-gate-card {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px 20px;
+  box-shadow: 0 24px 48px rgba(42, 36, 33, 0.25);
+  color: #2A2421;
+}
+.kyc-gate-card h2 { font-size: 1.25rem; margin: 8px 0 12px; line-height: 1.3; }
+.kyc-gate-card p { font-size: 0.9375rem; line-height: 1.6; color: #5C4E4E; margin: 0 0 16px; }
+.kyc-gate-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 50px;
+  background: #FEF3C7;
+  color: #78350F;
+}
+.kyc-gate-tag.live { background: #F2EDE9; color: #473B3B; }
+.kyc-gate-list { padding-left: 20px; margin: 0 0 16px; }
+.kyc-gate-list li { font-size: 0.9375rem; line-height: 1.55; color: #5C4E4E; margin-bottom: 6px; }
+.kyc-gate-check {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #2A2421;
+  cursor: pointer;
+  padding: 12px;
+  border: 1.5px solid #ede8e3;
+  border-radius: 12px;
+}
+.kyc-gate-check input { margin-top: 3px; width: 18px; height: 18px; flex-shrink: 0; accent-color: #5C4E4E; }
+.kyc-gate-links { margin: 12px 0 0 !important; font-size: 0.8125rem !important; }
+.kyc-gate-links a { color: #473B3B; font-weight: 600; text-decoration: underline; }
+.kyc-gate-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+.kyc-gate-btn {
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 50px;
+  border: 1.5px solid #ede8e3;
+  background: #fff;
+  color: #2A2421;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.kyc-gate-btn.primary { background: #5C4E4E; border-color: #5C4E4E; color: #fff; }
+.kyc-gate-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 </style>

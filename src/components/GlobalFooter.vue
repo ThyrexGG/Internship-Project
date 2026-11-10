@@ -26,6 +26,13 @@
           </ul>
         </div>
         <div class="footer-col">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="/privacy" @click.prevent="goTo('/privacy')">Privacy Policy</a></li>
+            <li><a href="/terms" @click.prevent="goTo('/terms')">Terms of Use</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
           <h4>For Landlords</h4>
           <ul>
             <li><a href="/home?tab=settings&subtab=upgrade" @click.prevent="goTo('/home?tab=settings&subtab=upgrade')">Become a Host</a></li>
@@ -36,7 +43,7 @@
     </div>
     <div class="footer-bottom">
       <div class="footer-legal">
-        © 2026 HomeSweet, Inc.
+        © 2026 HomeSweet &middot; student project
       </div>
       <div class="footer-social">
         <span class="language">

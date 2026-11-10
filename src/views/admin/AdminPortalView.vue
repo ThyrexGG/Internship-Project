@@ -17,34 +17,20 @@
           <p>Confidential management console for HomeSweet Platform administrators.</p>
         </div>
 
-        <form @submit.prevent="verifyAdminPin" class="admin-login-form">
-          <div class="form-group">
-            <label>Master Admin Key or PIN</label>
-            <input 
-              v-model="adminPinInput" 
-              type="password" 
-              placeholder="Enter 6-digit PIN or Admin Key" 
-              class="admin-input" 
-              autofocus 
-            />
-            <span v-if="pinError" class="error-msg">{{ pinError }}</span>
-          </div>
-
-          <div class="pin-hint-box">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-            </svg>
-            <span>Authorized credentials: Master PIN <strong>123456</strong> or <strong>admin@homesweet.com</strong></span>
-          </div>
+        <div class="admin-login-form">
+          <p class="admin-gate-msg">
+            {{ isVerifying ? 'Checking your account...' : 'Only named HomeSweet administrators can open this console. Sign in with your administrator account.' }}
+          </p>
+          <span v-if="pinError" class="error-msg" role="alert">{{ pinError }}</span>
 
           <div class="admin-login-actions">
             <button type="button" class="btn-cancel" @click="$router.push('/home')">Back to Home</button>
-            <button type="submit" class="btn-unlock" :disabled="isVerifying">
-              <span v-if="isVerifying">Verifying...</span>
-              <span v-else>Unlock Console</span>
+            <button type="button" class="btn-unlock" :disabled="isVerifying" @click="onGateAction">
+              <span v-if="isVerifying">Checking...</span>
+              <span v-else>{{ needsSignIn ? 'Sign in' : 'Check access' }}</span>
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
 
@@ -1303,7 +1289,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { properties } from '../../store.js'
 import { db, auth } from '../../firebase.js'
-import { collection, getDocs, addDoc, doc, setDoc, updateDoc } from 'firebase/firestore'
+import { collection, getDocs, addDoc, doc, setDoc, updateDoc, getDoc } from 'firebase/firestore'
+import { onAuthStateChanged } from 'firebase/auth'
 import { INITIAL_AGREEMENTS, canTransitionAgreement } from '../../services/agreementService'
 
 const router = useRouter()
@@ -1311,7 +1298,7 @@ const route = useRoute()
 
 // Authentication & Session State
 const isAdminAuthenticated = ref(false)
-const adminPinInput = ref('')
+const needsSignIn = ref(true)
 const pinError = ref('')
 const isVerifying = ref(false)
 const adminUserAvatar = ref('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&q=80')
@@ -1753,27 +1740,60 @@ function switchTab(tab) {
   showTenantForm.value = false
 }
 
-function verifyAdminPin() {
+// Client-side convenience check only. The real protection is firestore.rules / storage.rules,
+// which re-check admin status on every read and write. Keep this list in sync with the rules.
+const ADMIN_EMAILS = ['admin@homesweet.com', 'thyrexgg@gmail.com']
+
+function waitForAuthUser() {
+  return new Promise((resolve) => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      unsub()
+      resolve(user)
+    })
+  })
+}
+
+async function verifyAdminAccess() {
   isVerifying.value = true
   pinError.value = ''
+  try {
+    const user = auth.currentUser || await waitForAuthUser()
+    if (!user) {
+      needsSignIn.value = true
+      pinError.value = 'You are not signed in.'
+      return
+    }
+    needsSignIn.value = false
 
-  setTimeout(() => {
-    isVerifying.value = false
-    const val = adminPinInput.value.trim().toLowerCase()
-    if (val === '123456' || val === 'admin@homesweet.com' || val === 'admin123' || val === 'admin') {
+    let isAdmin = ADMIN_EMAILS.includes((user.email || '').toLowerCase()) && user.emailVerified === true
+    if (!isAdmin) {
+      try {
+        const snap = await getDoc(doc(db, 'users', user.uid))
+        isAdmin = snap.exists() && snap.data().role === 'admin'
+      } catch (e) {
+        isAdmin = false
+      }
+    }
+
+    if (isAdmin) {
       isAdminAuthenticated.value = true
-      sessionStorage.setItem('homesweet_admin_auth', 'true')
       showToast('Admin Console Unlocked', 'success')
       loadFirestoreData()
     } else {
-      pinError.value = 'Invalid Master Key. Please enter 123456 or admin@homesweet.com.'
+      pinError.value = 'This account is not an administrator.'
     }
-  }, 400)
+  } finally {
+    isVerifying.value = false
+  }
+}
+
+function onGateAction() {
+  if (needsSignIn.value) router.push('/login')
+  else verifyAdminAccess()
 }
 
 function handleLogoutAdmin() {
   isAdminAuthenticated.value = false
-  sessionStorage.removeItem('homesweet_admin_auth')
   router.push('/home')
 }
 
@@ -1986,10 +2006,7 @@ onMounted(() => {
   } else {
     activeTab.value = 'verifications'
   }
-  if (sessionStorage.getItem('homesweet_admin_auth') === 'true') {
-    isAdminAuthenticated.value = true
-    loadFirestoreData()
-  }
+  verifyAdminAccess()
   if (auth.currentUser?.photoURL) {
     adminUserAvatar.value = auth.currentUser.photoURL
   }
@@ -4093,4 +4110,5 @@ onMounted(() => {
     grid-template-columns: 1fr;
   }
 }
+.admin-gate-msg { font-size: 0.9375rem; line-height: 1.6; color: #5C4E4E; margin: 0 0 12px; }
 </style>

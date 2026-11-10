@@ -234,6 +234,21 @@
               </label>
             </div>
 
+            <!-- Terms & privacy consent (signup only) -->
+            <div v-if="activeTab === 'signup'" class="consent-row">
+              <label class="check-label consent-label">
+                <input type="checkbox" v-model="acceptTerms" class="check-input" @change="errors.terms = ''" />
+                <span class="check-box" />
+                <span class="check-text">
+                  I am 18 or over and I agree to the
+                  <router-link to="/terms" target="_blank" @click.stop>Terms of Use</router-link>
+                  and
+                  <router-link to="/privacy" target="_blank" @click.stop>Privacy Policy</router-link>.
+                </span>
+              </label>
+              <span v-if="errors.terms" class="field-error">{{ errors.terms }}</span>
+            </div>
+
             <button type="submit" class="btn-primary" :disabled="isLoading">
               <span v-if="isLoading" class="spinner" />
               <span v-else>{{ activeTab === 'login' ? 'Log In' : 'Create Account' }}</span>
@@ -269,6 +284,11 @@
               Facebook
             </button>
           </div>
+          <p v-if="activeTab === 'signup'" class="social-consent-note">
+            By continuing with a social account you confirm you are 18 or over and agree to the
+            <router-link to="/terms" target="_blank">Terms of Use</router-link> and
+            <router-link to="/privacy" target="_blank">Privacy Policy</router-link>.
+          </p>
         </div>
 
         <!-- STATE 2: RESET PASSWORD -->
@@ -546,6 +566,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { auth, db } from '../../firebase'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { doc, setDoc, getDoc } from 'firebase/firestore'
+import { buildConsentRecord } from '../../config/legal'
 import heroImage from '@/assets/hero_sunset_deck.png'
 
 const router = useRouter()
@@ -564,12 +585,14 @@ const password = ref('')
 const firstName = ref('')
 const lastName = ref('')
 const rememberMe = ref(false)
+const acceptTerms = ref(false)
 const showPassword = ref(false)
 const isLoading = ref(false)
 
-const errors = reactive({ 
-  email: '', 
+const errors = reactive({
+  email: '',
   password: '',
+  terms: '',
   resetEmail: '',
   resetPhone: '',
   resetIdNumber: '',
@@ -672,7 +695,11 @@ function handleIdCardFileChange(e) {
 }
 
 function validate() {
-  errors.email = ''; errors.password = ''; let valid = true
+  errors.email = ''; errors.password = ''; errors.terms = ''; let valid = true
+  if (activeTab.value === 'signup' && !acceptTerms.value) {
+    errors.terms = 'Please accept the Terms of Use and Privacy Policy to create an account.'
+    valid = false
+  }
   if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) { errors.email = 'Please enter a valid email.'; valid = false }
   if (!password.value || password.value.length < 6) { errors.password = 'Password must be at least 6 characters.'; valid = false }
   if (activeTab.value === 'signup' && (!firstName.value.trim() || !lastName.value.trim())) { 
@@ -699,6 +726,7 @@ async function handleSubmit() {
           lastName: lastName.value.trim(),
           email: email.value,
           role: selectedRole.value,
+          consent: buildConsentRecord({ source: 'email_signup', over18: true }),
           createdAt: new Date().toISOString()
         })
       } catch (dbErr) {
@@ -768,6 +796,7 @@ async function handleSocial(provider) {
           email: user.email,
           avatar: user.photoURL || '',
           role: userRole,
+          ...(isNewUser && activeTab.value === 'signup' ? { consent: buildConsentRecord({ source: 'social_signup', over18: true }) } : {}),
           lastLogin: new Date().toISOString()
         }, { merge: true }) // merge: true ensures we don't overwrite existing data
         
@@ -1331,6 +1360,12 @@ function handleGuest() { router.push('/home') }
   content: '✓'; font-size: 11px; color: #fff; line-height: 1; font-weight: 700;
 }
 .check-text { font-size: 0.82rem; color: #5C4E4E; font-weight: 500; }
+.consent-row { display: flex; flex-direction: column; gap: 4px; margin: 4px 0; }
+.consent-label { align-items: flex-start; }
+.consent-label .check-box { margin-top: 1px; }
+.check-text a { color: #473B3B; text-decoration: underline; font-weight: 600; }
+.social-consent-note { font-size: 0.75rem; color: #5C4E4E; text-align: center; margin: 10px 0 0; line-height: 1.5; }
+.social-consent-note a { color: #473B3B; text-decoration: underline; font-weight: 600; }
 
 /* Primary button */
 .btn-primary {

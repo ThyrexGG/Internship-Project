@@ -13,31 +13,31 @@
       </div>
 
       <h2 class="success-title">Dossier Submitted for Review</h2>
-      <p class="success-subtitle">Your biometric identity data has been securely encrypted and submitted to the HomeSweet Trust &amp; Safety team.</p>
+      <p class="success-subtitle">Your verification request has been sent to the HomeSweet Trust &amp; Safety team for review. See our Privacy Policy for how it is handled.</p>
 
       <!-- Verified Details Section -->
       <div class="verification-details-box">
         <div class="review-status-pill">
           <span class="pulse-dot"></span>
-          <span>Status: Under Compliance Review (Est. 15 mins)</span>
+          <span>Status: Awaiting manual review</span>
         </div>
 
         <h3 class="details-title">Security &amp; Match Summary</h3>
         <div class="details-list">
           <div class="detail-item">
             <span class="icon">✓</span>
-            <span class="label">Document Authenticity</span>
-            <span class="value success">OCR Encrypted</span>
+            <span class="label">Document</span>
+            <span class="value success">Received</span>
           </div>
           <div class="detail-item">
             <span class="icon">✓</span>
-            <span class="label">Biometric Face Match</span>
-            <span class="value success">Match Confirmed (98.6%)</span>
+            <span class="label">Face Check</span>
+            <span class="value success">Completed</span>
           </div>
           <div class="detail-item">
             <span class="icon">✓</span>
-            <span class="label">Interactive Liveness</span>
-            <span class="value success">Anti-Spoofing Passed</span>
+            <span class="label">Liveness Check</span>
+            <span class="value success">Completed</span>
           </div>
         </div>
         
@@ -45,7 +45,7 @@
           <svg class="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           </svg>
-          <span>Encrypted with 256-bit Identity Protection</span>
+          <span>Only you and HomeSweet reviewers can see this request</span>
         </div>
       </div>
 
